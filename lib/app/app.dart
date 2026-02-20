@@ -10,6 +10,7 @@ class MainApp extends StatelessWidget {
     routerConfig: goRouter,
     title: 'UIT Buddy Mobile',
     themeMode: ThemeMode.light,
+    debugShowCheckedModeBanner: false,
     theme: AppTheme.light(),
     darkTheme: AppTheme.dark(),
   );
