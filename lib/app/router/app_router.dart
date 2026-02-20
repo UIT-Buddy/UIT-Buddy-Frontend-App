@@ -7,6 +7,7 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_in
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_up_info_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_up_token_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/welcome_screen.dart';
+import 'package:uit_buddy_mobile/features/root/screens/wrapper_screen.dart';
 
 final goRouter = GoRouter(
   initialLocation: RouteName.welcome,
@@ -57,6 +58,14 @@ final goRouter = GoRouter(
         context: context,
         state: state,
         child: const ResetPasswordScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.home,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const WrapperScreen(),
       ),
     ),
   ],
