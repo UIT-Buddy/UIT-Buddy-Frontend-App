@@ -167,6 +167,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   text: OnboardingText.signInButton,
                   onPressed: () {
                     // TODO: Implement sign in logic
+                    context.goTo(RouteName.home);
                   },
                 ),
               ],

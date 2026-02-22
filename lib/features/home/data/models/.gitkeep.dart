@@ -1,2 +1,2 @@
 // This file ensures the directory is tracked by Git.
-// Add your home feature implementation here.
+// Add your authentication models here.

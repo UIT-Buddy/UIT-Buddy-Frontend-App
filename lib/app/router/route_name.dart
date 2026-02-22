@@ -6,4 +6,8 @@ class RouteName {
   static const String resetPassword = '/reset-password';
   static const String welcome = '/welcome';
   static const String otp = '/otp';
+  static const String calendar = '/calendar';
+  static const String social = '/social';
+  static const String storage = '/storage';
+  static const String profile = '/profile';
 }
