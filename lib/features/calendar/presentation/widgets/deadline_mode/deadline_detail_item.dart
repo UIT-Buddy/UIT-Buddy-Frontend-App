@@ -27,27 +27,28 @@ class DeadlineDetailItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(8),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 3,
-            height: 60,
-            color: _getStatusColor(deadlineDetailEntity.status),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(deadlineDetailEntity.title, style: AppTextStyle.h3),
-                const SizedBox(height: 4),
-                SubTitleText(deadlineDetailEntity: deadlineDetailEntity),
-              ],
+      child: IntrinsicHeight(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Container(
+              width: 3,
+              color: _getStatusColor(deadlineDetailEntity.status),
             ),
-          ),
-        ],
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(deadlineDetailEntity.title, style: AppTextStyle.h4),
+                  const SizedBox(height: 4),
+                  SubTitleText(deadlineDetailEntity: deadlineDetailEntity),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
