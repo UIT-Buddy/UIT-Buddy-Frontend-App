@@ -1,2 +1,2 @@
 // This file ensures the directory is tracked by Git.
-// Add your authentication entities here.
+// Add your authentication use cases here.

@@ -1,10 +1,144 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
+import 'package:uit_buddy_mobile/core/theme/app_color.dart';
+import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/entities/profile_entity.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_event.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_state.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/widgets/profile_action_tabs_widget.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/widgets/profile_academic_summary_widget.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/widgets/profile_cover_header_widget.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/widgets/profile_social_media_widget.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
+  static const ProfileEntity _placeholder = ProfileEntity(
+    mssv: '—',
+    fullName: 'Full Name',
+    email: '—',
+    avatarUrl: 'assets/images/placeholder/user-icon.png',
+    coverUrl: 'assets/images/placeholder/bg-placeholder-transparent.png',
+    stats: ProfileStatsEntity(
+      currentGpa: 0.0,
+      gpaOn4Scale: 0.0,
+      accumulatedCredits: 0,
+      totalCredits: 0,
+      posts: 0,
+      comments: 0,
+    ),
+  );
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(body: const Center(child: Text('Profile Screen')));
+    return BlocProvider(
+      create: (_) => serviceLocator<ProfileBloc>()..add(const ProfileStarted()),
+      child: Scaffold(
+        backgroundColor: AppColor.veryLightGrey,
+        body: BlocBuilder<ProfileBloc, ProfileState>(
+          builder: (context, state) {
+            if (state.status == ProfileStatus.error) {
+              return Center(
+                child: Text(
+                  state.errorMessage ?? 'Something went wrong.',
+                  style: AppTextStyle.bodyMedium,
+                ),
+              );
+            }
+
+            final isLoading =
+                state.status == ProfileStatus.initial ||
+                state.status == ProfileStatus.loading;
+            final profile = state.profileInfo ?? _placeholder;
+
+            return SingleChildScrollView(
+              child: Column(
+                children: [
+                  // Cover + Avatar + Name
+                  ProfileCoverHeaderWidget(
+                    profileInfo: profile,
+                    onNotificationTap: () {
+                      // Navigate to notifications
+                    },
+                    onSettingsTap: () {
+                      // Navigate to settings
+                    },
+                  ),
+
+                  // Inline loading indicator
+                  if (isLoading)
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 8),
+                      child: CircularProgressIndicator(),
+                    )
+                  else
+                    const SizedBox(height: 8),
+
+                  // Quick action tabs
+                  ProfileActionTabsWidget(
+                    onTasksTap: () {},
+                    onYourInfoTap: () {},
+                    onYourPostsTap: () {},
+                    onGroupsTap: () {},
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Academic summary
+                  ProfileAcademicSummaryWidget(
+                    profileInfo: profile,
+                    onSeeDetailsTap: () {},
+                  ),
+
+                  const SizedBox(height: 12),
+
+                  // Social media
+                  ProfileSocialMediaWidget(
+                    profileInfo: profile,
+                    onViewPostsTap: () {},
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Log out
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () {
+                          // Handle log out
+                        },
+                        icon: const Icon(
+                          Icons.logout,
+                          color: AppColor.alertRed,
+                          size: 20,
+                        ),
+                        label: const Text('Log out'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColor.alertRed,
+                          side: const BorderSide(color: AppColor.alertRed),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          textStyle: AppTextStyle.bodyLarge.copyWith(
+                            fontWeight: AppTextStyle.medium,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 24),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
   }
 }
