@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
+import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/entities/profile_entity.dart';
@@ -59,9 +61,7 @@ class ProfileScreen extends StatelessWidget {
                   // Cover + Avatar + Name
                   ProfileCoverHeaderWidget(
                     profileInfo: profile,
-                    onNotificationTap: () {
-                      // Navigate to notifications
-                    },
+                    onNotificationTap: () => context.push(RouteName.notification),
                     onSettingsTap: () {
                       // Navigate to settings
                     },
