@@ -46,3 +46,10 @@ app.*.map.json
 
 # Environment variables
 .env
+
+# Build runner files
+**/*.g.dart
+**/*.freezed.dart
+
+# TMP
+tmp.md

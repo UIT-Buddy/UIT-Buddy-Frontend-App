@@ -36,6 +36,7 @@ class OnboardingText {
       "Join us and start your academic journey!";
   static const String moodleTokenLabel = "Moodle Token";
   static const String signUpStudentIdLabel = "Student ID";
+  static const String signUpFullNameLabel = "Full Name";
   static const String signUpPasswordLabel = "Password";
   static const String signUpConfirmPasswordLabel = "Confirm Password";
   static const String signUpVerifyButton = "Verify";
