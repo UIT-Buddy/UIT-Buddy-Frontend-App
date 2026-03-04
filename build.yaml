@@ -1,0 +1,5 @@
+# This file is to avoid full codebase scan of build runner
+targets:
+  $default:
+    sources:
+      - lib/**
