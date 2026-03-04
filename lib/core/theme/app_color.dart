@@ -52,8 +52,8 @@ class AppColor {
   );
 
   // Opacity variants
-  static Color primaryBlue10 = primaryBlue.withOpacity(0.1);
-  static Color primaryBlue20 = primaryBlue.withOpacity(0.2);
-  static Color alertRed10 = alertRed.withOpacity(0.1);
-  static Color successGreen10 = successGreen.withOpacity(0.1);
+  static Color primaryBlue10 = primaryBlue.withValues(alpha: 0.1);
+  static Color primaryBlue20 = primaryBlue.withValues(alpha: 0.2);
+  static Color alertRed10 = alertRed.withValues(alpha: 0.1);
+  static Color successGreen10 = successGreen.withValues(alpha: 0.1);
 }
