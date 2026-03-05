@@ -3,3 +3,4 @@ targets:
   $default:
     sources:
       - lib/**
+      - test/**

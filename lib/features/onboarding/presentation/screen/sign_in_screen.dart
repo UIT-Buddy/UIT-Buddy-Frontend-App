@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/extensions/router_extension.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_bloc.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_event.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_state.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/constants/onboarding_text.dart';
 import 'package:uit_buddy_mobile/features/shared/button.dart';
 import 'package:uit_buddy_mobile/features/shared/input_text.dart';
@@ -28,6 +33,30 @@ class _SignInScreenState extends State<SignInScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => serviceLocator<SignInBloc>(),
+      child: BlocConsumer<SignInBloc, SignInState>(
+        listener: (context, state) {
+          if (state.status == SignInStatus.success) {
+            context.goTo(RouteName.home);
+          } else if (state.status == SignInStatus.failure) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage ?? 'Sign in failed'),
+                backgroundColor: AppColor.alertRed,
+              ),
+            );
+          }
+        },
+        builder: (context, state) {
+          final isLoading = state.status == SignInStatus.loading;
+          return _buildBody(context, isLoading);
+        },
+      ),
+    );
+  }
+
+  Widget _buildBody(BuildContext context, bool isLoading) {
     return Scaffold(
       backgroundColor: AppColor.pureWhite,
       body: Padding(
@@ -165,9 +194,15 @@ class _SignInScreenState extends State<SignInScreen> {
                 const SizedBox(height: 16),
                 Button(
                   text: OnboardingText.signInButton,
+                  isLoading: isLoading,
                   onPressed: () {
-                    // TODO: Implement sign in logic
-                    context.goTo(RouteName.home);
+                    context.read<SignInBloc>().add(
+                      SignInPressed(
+                        mssv: _studentIdController.text.trim(),
+                        password: _passwordController.text,
+                        rememberMe: _rememberMe,
+                      ),
+                    );
                   },
                 ),
               ],
