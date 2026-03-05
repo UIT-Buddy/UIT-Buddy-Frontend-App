@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:uit_buddy_mobile/core/common/token/refresh_token_datasource.dart';
 import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
@@ -17,7 +19,10 @@ class HttpClient {
         baseUrl: baseUrl,
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
       ),
     );
 
@@ -26,7 +31,7 @@ class HttpClient {
         requestBody: true,
         responseHeader: false,
         responseBody: true,
-        logPrint: print,
+        logPrint: (o) => log('$o', name: 'HttpClient'),
       ),
     );
     dio.interceptors.add(

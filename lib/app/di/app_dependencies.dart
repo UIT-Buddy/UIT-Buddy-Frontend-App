@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uit_buddy_mobile/core/config/app_env.dart';
@@ -26,17 +28,53 @@ Future<void> initDependencies() async {
 
 Future<void> _initAuthDependencies() async {
   // Public Dio client (no auth interceptor needed for signup)
-  serviceLocator.registerLazySingleton<Dio>(
-    () => Dio(
+  serviceLocator.registerLazySingleton<Dio>(() {
+    final dio = Dio(
       BaseOptions(
         baseUrl: AppEnv.baseUrl,
         connectTimeout: const Duration(seconds: 10),
         receiveTimeout: const Duration(seconds: 10),
-        headers: {'Content-Type': 'application/json'},
+        headers: {
+          'Content-Type': 'application/json',
+          'ngrok-skip-browser-warning': 'true',
+        },
       ),
-    ),
-    instanceName: 'publicDio',
-  );
+    );
+    dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          log(
+            '${options.method} ${options.baseUrl}${options.path}\nheaders: ${options.headers}\nbody: ${options.data}',
+            name: 'publicDio',
+          );
+          handler.next(options);
+        },
+        onResponse: (response, handler) {
+          log(
+            '${response.statusCode} ${response.requestOptions.method} ${response.requestOptions.uri}\nbody: ${response.data}',
+            name: 'publicDio',
+          );
+          handler.next(response);
+        },
+        onError: (error, handler) {
+          log(
+            '${error.response?.statusCode} ${error.requestOptions.method} ${error.requestOptions.uri}\n${error.message}',
+            name: 'publicDio',
+            error: error,
+          );
+          handler.next(error);
+        },
+      ),
+    );
+    dio.interceptors.add(
+      LogInterceptor(
+        requestBody: true,
+        responseBody: true,
+        logPrint: (o) => log('$o', name: 'publicDio'),
+      ),
+    );
+    return dio;
+  }, instanceName: 'publicDio');
 
   // Datasource
   serviceLocator.registerLazySingleton<AuthRemoteDatasource>(

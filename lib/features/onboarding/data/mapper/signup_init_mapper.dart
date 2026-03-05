@@ -3,8 +3,8 @@ import 'package:uit_buddy_mobile/features/onboarding/domain/entities/signup_init
 
 extension MoodleTokenModelMapper on MoodleTokenModel {
   SignUpInitEntity toEntity() => SignUpInitEntity(
-        studentId: mssv,
-        studentName: fullName,
-        signupToken: signupToken,
-      );
+    studentId: mssv,
+    studentName: fullName,
+    signupToken: signupToken,
+  );
 }

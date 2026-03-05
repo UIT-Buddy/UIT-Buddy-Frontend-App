@@ -47,12 +47,8 @@ final goRouter = GoRouter(
       path: RouteName.signUpInfo,
       pageBuilder: (context, state) {
         final studentId = state.pathParameters['studentId'] ?? '';
-        final studentName = Uri.decodeComponent(
-          state.pathParameters['studentName'] ?? '',
-        );
-        final signupToken = Uri.decodeComponent(
-          state.pathParameters['signupToken'] ?? '',
-        );
+        final studentName = state.pathParameters['studentName'] ?? '';
+        final signupToken = state.pathParameters['signupToken'] ?? '';
         return buildFlexibleSlideTransition(
           context: context,
           state: state,
