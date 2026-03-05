@@ -15,4 +15,20 @@ abstract interface class AuthRepository {
     required String confirmPassword,
     String fcmToken,
   });
+
+  Future<Either<Failure, SignUpCompleteEntity>> signIn({
+    required String mssv,
+    required String password,
+    bool rememberMe,
+    String fcmToken,
+  });
+
+  Future<Either<Failure, void>> forgetPassword({required String mssv});
+
+  Future<Either<Failure, void>> resetPassword({
+    required String mssv,
+    required String otpCode,
+    required String newPassword,
+    required String confirmPassword,
+  });
 }

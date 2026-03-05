@@ -10,7 +10,9 @@ class RouteName {
     String signupToken,
   ) =>
       '/sign-up/info/$studentId/${Uri.encodeComponent(studentName)}/${Uri.encodeComponent(signupToken)}';
-  static const String resetPassword = '/reset-password';
+  static const String resetPassword = '/reset-password/:mssv/:otpCode';
+  static String buildResetPasswordPath(String mssv, String otpCode) =>
+      '/reset-password/${Uri.encodeComponent(mssv)}/${Uri.encodeComponent(otpCode)}';
   static const String welcome = '/welcome';
   static const String otp = '/otp';
   static const String calendar = '/calendar';

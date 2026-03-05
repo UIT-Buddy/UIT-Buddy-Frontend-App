@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/auth_remote_datasource.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/mapper/signup_complete_mapper.dart';
@@ -8,10 +9,14 @@ import 'package:uit_buddy_mobile/features/onboarding/domain/entities/signup_init
 import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/auth_repository.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
-  AuthRepositoryImpl({required AuthRemoteDatasource authRemoteDatasource})
-    : _authRemoteDatasource = authRemoteDatasource;
+  AuthRepositoryImpl({
+    required AuthRemoteDatasource authRemoteDatasource,
+    required TokenStore tokenStore,
+  }) : _authRemoteDatasource = authRemoteDatasource,
+       _tokenStore = tokenStore;
 
   final AuthRemoteDatasource _authRemoteDatasource;
+  final TokenStore _tokenStore;
 
   @override
   Future<Either<Failure, SignUpInitEntity>> signUpInit({
@@ -52,6 +57,68 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       return Right(response.data!.toEntity());
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, SignUpCompleteEntity>> signIn({
+    required String mssv,
+    required String password,
+    bool rememberMe = false,
+    String fcmToken = '',
+  }) async {
+    try {
+      final response = await _authRemoteDatasource.signIn(
+        mssv: mssv,
+        password: password,
+        rememberMe: rememberMe,
+        fcmToken: fcmToken,
+      );
+
+      if (response.data == null) {
+        return Left(Failure(response.message));
+      }
+
+      final entity = response.data!.toEntity();
+      await _tokenStore.saveAccessToken(entity.accessToken);
+      await _tokenStore.saveRefreshToken(
+        entity.refreshToken,
+        rememberMe: rememberMe,
+      );
+
+      return Right(entity);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> forgetPassword({required String mssv}) async {
+    try {
+      await _authRemoteDatasource.forgetPassword(mssv: mssv);
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> resetPassword({
+    required String mssv,
+    required String otpCode,
+    required String newPassword,
+    required String confirmPassword,
+  }) async {
+    try {
+      await _authRemoteDatasource.resetPassword(
+        mssv: mssv,
+        otpCode: otpCode,
+        newPassword: newPassword,
+        confirmPassword: confirmPassword,
+      );
+      return const Right(null);
     } on Exception catch (e) {
       return Left(Failure.fromException(e));
     }

@@ -13,7 +13,7 @@ class HttpClient {
        _refreshTokenDataSource = refreshTokenDataSource;
   final TokenStore _tokenStore;
   final RefreshTokenDataSource _refreshTokenDataSource;
-  Dio createDioClient(String baseUrl) {
+  Dio createDioClient(String baseUrl, {void Function()? onSessionExpired}) {
     final dio = Dio(
       BaseOptions(
         baseUrl: baseUrl,
@@ -40,6 +40,7 @@ class HttpClient {
         tokenStore: _tokenStore,
         refreshDataSource: _refreshTokenDataSource,
         shouldAttachToken: _shouldAttachToken,
+        onSessionExpired: onSessionExpired,
       ),
     );
 
@@ -47,11 +48,12 @@ class HttpClient {
   }
 
   final List<String> publicPaths = [
-    '/public/auth/login',
-    '/public/auth/register',
-    '/public/auth/password/forgot',
-    '/public/auth/password/reset',
-    '/public/auth/refresh',
+    '/api/auth/signin',
+    '/api/auth/signup/init',
+    '/api/auth/signup/complete',
+    '/api/auth/forget-password',
+    '/api/auth/reset-password',
+    '/api/auth/refresh-token',
   ];
   bool _shouldAttachToken(RequestOptions options) =>
       !publicPaths.contains(options.path);

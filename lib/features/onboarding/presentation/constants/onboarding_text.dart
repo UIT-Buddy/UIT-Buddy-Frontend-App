@@ -16,6 +16,11 @@ class OnboardingText {
   static const String signInButton = "Sign in";
 
   // OTP Screen
+  static const String forgotPasswordTitle = "Forgot Password?";
+  static const String forgotPasswordSubtitle =
+      "Enter your student ID to receive an OTP via email.";
+  static const String mssvInputLabel = "Student ID";
+  static const String sendOtpButton = "Send OTP";
   static const String otpTitle = "Enter OTP";
   static const String otpSubtitle =
       "We have sent OTP code to your email address.";

@@ -11,6 +11,7 @@ class AuthRefreshInterceptor extends Interceptor {
     required RefreshTokenDataSource refreshDataSource,
     this.shouldAttachToken,
     this.isRefreshRequest,
+    this.onSessionExpired,
   }) : _dio = dio,
        _tokenStore = tokenStore,
        _refreshDs = refreshDataSource;
@@ -21,6 +22,7 @@ class AuthRefreshInterceptor extends Interceptor {
 
   final bool Function(RequestOptions options)? shouldAttachToken;
   final bool Function(RequestOptions options)? isRefreshRequest;
+  final void Function()? onSessionExpired;
 
   bool _refreshing = false;
   Completer<void>? _refreshCompleter;
@@ -43,7 +45,7 @@ class AuthRefreshInterceptor extends Interceptor {
 
       final accessToken = await _tokenStore.getAccessToken();
       if (accessToken.isNotEmpty) {
-        options.headers['Authorization'] = accessToken;
+        options.headers['Authorization'] = 'Bearer $accessToken';
       }
       // ignore: avoid_catches_without_on_clauses
     } catch (_) {}
@@ -80,17 +82,19 @@ class AuthRefreshInterceptor extends Interceptor {
       // Get new access token and retry request
       final newAccessToken = await _tokenStore.getAccessToken();
 
-      final retryOptions = _cloneOptionsForRetry(req, newAccessToken);
+      final retryOptions = _cloneOptionsForRetry(req, 'Bearer $newAccessToken');
       final response = await _dio.fetch<dynamic>(retryOptions);
 
       return handler.resolve(response);
       // ignore: avoid_catches_without_on_clauses
     } catch (_) {
-      // Refresh fail -> delete token and throw authentication exception
+      // Refresh fail -> delete tokens and notify session expired
       try {
         await _tokenStore.deleteAccessToken();
         await _tokenStore.deleteRefreshToken();
       } on Exception catch (_) {}
+
+      onSessionExpired?.call();
 
       // Create a new DioException with AuthenticationException as error
       final authError = DioException(

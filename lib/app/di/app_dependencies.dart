@@ -2,7 +2,15 @@ import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
+import 'package:uit_buddy_mobile/app/router/app_router.dart';
+import 'package:uit_buddy_mobile/app/router/route_name.dart';
+import 'package:uit_buddy_mobile/core/common/token/refresh_token_datasource.dart';
+import 'package:uit_buddy_mobile/core/common/token/refresh_token_datasource_impl.dart';
+import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
+import 'package:uit_buddy_mobile/core/common/token/token_store_impl.dart';
 import 'package:uit_buddy_mobile/core/config/app_env.dart';
+import 'package:uit_buddy_mobile/core/network/http_client.dart';
+import 'package:uit_buddy_mobile/core/storages/secure_storage.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/calendar_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/impl/calendar_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/repositories/calendar_repository_impl.dart';
@@ -14,8 +22,14 @@ import 'package:uit_buddy_mobile/features/onboarding/data/datasources/auth_remot
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/impl/auth_remote_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/repositories/auth_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/auth_repository.dart';
+import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/forget_password_usecase.dart';
+import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/reset_password_usecase.dart';
+import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/signin_usecase.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/signup_complete_usecase.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/signup_init_usecase.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/otp/otp_bloc.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/reset_password/reset_password_bloc.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
 
@@ -27,7 +41,13 @@ Future<void> initDependencies() async {
 }
 
 Future<void> _initAuthDependencies() async {
-  // Public Dio client (no auth interceptor needed for signup)
+  // Storage
+  serviceLocator.registerLazySingleton<SecureStore>(() => SecureStore());
+  serviceLocator.registerLazySingleton<TokenStore>(
+    () => TokenStoreImpl(secureStore: serviceLocator()),
+  );
+
+  // Public Dio client (no auth interceptor needed for signup/signin/refresh)
   serviceLocator.registerLazySingleton<Dio>(() {
     final dio = Dio(
       BaseOptions(
@@ -76,6 +96,24 @@ Future<void> _initAuthDependencies() async {
     return dio;
   }, instanceName: 'publicDio');
 
+  // Refresh token datasource (uses publicDio — no circular auth interceptor)
+  serviceLocator.registerLazySingleton<RefreshTokenDataSource>(
+    () => RefreshTokenDataSourceImpl(
+      dio: serviceLocator(instanceName: 'publicDio'),
+    ),
+  );
+
+  // Authenticated Dio client (with AuthRefreshInterceptor)
+  serviceLocator.registerLazySingleton<Dio>(() {
+    return HttpClient(
+      tokenStore: serviceLocator(),
+      refreshTokenDataSource: serviceLocator(),
+    ).createDioClient(
+      AppEnv.baseUrl,
+      onSessionExpired: () => goRouter.go(RouteName.signIn),
+    );
+  }, instanceName: 'authenticatedDio');
+
   // Datasource
   serviceLocator.registerLazySingleton<AuthRemoteDatasource>(
     () => AuthRemoteDatasourceImpl(
@@ -85,7 +123,10 @@ Future<void> _initAuthDependencies() async {
 
   // Repository
   serviceLocator.registerLazySingleton<AuthRepository>(
-    () => AuthRepositoryImpl(authRemoteDatasource: serviceLocator()),
+    () => AuthRepositoryImpl(
+      authRemoteDatasource: serviceLocator(),
+      tokenStore: serviceLocator(),
+    ),
   );
 
   // Usecases
@@ -95,6 +136,15 @@ Future<void> _initAuthDependencies() async {
   serviceLocator.registerLazySingleton(
     () => SignUpCompleteUsecase(authRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => SignInUsecase(authRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ForgetPasswordUsecase(authRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ResetPasswordUsecase(authRepository: serviceLocator()),
+  );
 
   // Blocs
   serviceLocator.registerFactory(
@@ -102,6 +152,15 @@ Future<void> _initAuthDependencies() async {
   );
   serviceLocator.registerFactory(
     () => SignUpInfoBloc(signUpCompleteUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => SignInBloc(signInUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => OtpBloc(forgetPasswordUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => ResetPasswordBloc(resetPasswordUsecase: serviceLocator()),
   );
 }
 

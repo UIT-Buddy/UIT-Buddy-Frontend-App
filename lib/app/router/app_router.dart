@@ -73,11 +73,15 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: RouteName.resetPassword,
-      pageBuilder: (context, state) => buildFlexibleSlideTransition(
-        context: context,
-        state: state,
-        child: const ResetPasswordScreen(),
-      ),
+      pageBuilder: (context, state) {
+        final mssv = state.pathParameters['mssv'] ?? '';
+        final otpCode = state.pathParameters['otpCode'] ?? '';
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: ResetPasswordScreen(mssv: mssv, otpCode: otpCode),
+        );
+      },
     ),
     GoRoute(
       path: RouteName.home,

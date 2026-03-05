@@ -1,20 +1,48 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/extensions/router_extension.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/reset_password/reset_password_bloc.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/reset_password/reset_password_event.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/reset_password/reset_password_state.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/constants/onboarding_text.dart';
 import 'package:uit_buddy_mobile/features/shared/button.dart';
 import 'package:uit_buddy_mobile/features/shared/input_text.dart';
 
-class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({super.key});
+class ResetPasswordScreen extends StatelessWidget {
+  const ResetPasswordScreen({
+    super.key,
+    required this.mssv,
+    required this.otpCode,
+  });
+
+  final String mssv;
+  final String otpCode;
 
   @override
-  State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => serviceLocator<ResetPasswordBloc>(),
+      child: _ResetPasswordScreenBody(mssv: mssv, otpCode: otpCode),
+    );
+  }
 }
 
-class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
+class _ResetPasswordScreenBody extends StatefulWidget {
+  const _ResetPasswordScreenBody({required this.mssv, required this.otpCode});
+
+  final String mssv;
+  final String otpCode;
+
+  @override
+  State<_ResetPasswordScreenBody> createState() =>
+      _ResetPasswordScreenBodyState();
+}
+
+class _ResetPasswordScreenBodyState extends State<_ResetPasswordScreenBody> {
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -28,136 +56,164 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.pureWhite,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return BlocConsumer<ResetPasswordBloc, ResetPasswordState>(
+      listener: (context, state) {
+        if (state.status == ResetPasswordStatus.success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Password reset successfully. Please sign in.'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          context.goTo(RouteName.signIn);
+        } else if (state.status == ResetPasswordStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.errorMessage ?? 'Failed to reset password'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final isLoading = state.status == ResetPasswordStatus.loading;
 
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        return Scaffold(
+          backgroundColor: AppColor.pureWhite,
+          body: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColor.veryLightGrey,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: AppColor.primaryText,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: AppColor.veryLightGrey,
+                        shape: BoxShape.circle,
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.arrow_back,
+                          size: 20,
+                          color: AppColor.primaryText,
+                        ),
+                        onPressed: () {
+                          context.goBack(RouteName.otp);
+                        },
+                        padding: EdgeInsets.zero,
+                      ),
                     ),
-                    onPressed: () {
-                      context.goBack(RouteName.otp);
-                    },
-                    padding: EdgeInsets.zero,
-                  ),
+                    const SizedBox(height: 30),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          OnboardingText.resetPasswordTitle,
+                          style: AppTextStyle.h1.copyWith(
+                            fontWeight: AppTextStyle.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          OnboardingText.resetPasswordSubtitle,
+                          style: AppTextStyle.bodyLarge.copyWith(
+                            color: AppColor.secondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
 
-                const SizedBox(height: 30),
+                const SizedBox(height: 50),
 
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      OnboardingText.resetPasswordTitle,
-                      style: AppTextStyle.h1.copyWith(
-                        fontWeight: AppTextStyle.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      OnboardingText.resetPasswordSubtitle,
-                      style: AppTextStyle.bodyLarge.copyWith(
+                      OnboardingText.newPasswordLabel,
+                      style: AppTextStyle.bodySmall.copyWith(
                         color: AppColor.secondaryText,
                       ),
                     ),
-                  ],
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 50),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  OnboardingText.newPasswordLabel,
-                  style: AppTextStyle.bodySmall.copyWith(
-                    color: AppColor.secondaryText,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                InputText(
-                  controller: _passwordController,
-                  isPassword: true,
-                  leftIcon: Icons.lock_outline,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  OnboardingText.confirmPasswordLabel,
-                  style: AppTextStyle.bodySmall.copyWith(
-                    color: AppColor.secondaryText,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                InputText(
-                  controller: _confirmPasswordController,
-                  isPassword: true,
-                  leftIcon: Icons.lock_outline,
-                ),
-
-                const SizedBox(height: 16),
-                Button(
-                  text: OnboardingText.resetPasswordButton,
-                  onPressed: () {
-                    // TODO: Implement reset password logic
-                  },
-                ),
-              ],
-            ),
-            const Spacer(),
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    OnboardingText.signInPromt,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: AppColor.secondaryText,
+                    const SizedBox(height: 6),
+                    InputText(
+                      controller: _passwordController,
+                      isPassword: true,
+                      leftIcon: Icons.lock_outline,
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      context.goBack(RouteName.signIn);
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      OnboardingText.signInButtonText,
+                    const SizedBox(height: 16),
+                    Text(
+                      OnboardingText.confirmPasswordLabel,
                       style: AppTextStyle.bodySmall.copyWith(
-                        color: AppColor.primaryBlue,
-                        fontWeight: AppTextStyle.bold,
+                        color: AppColor.secondaryText,
                       ),
                     ),
+                    const SizedBox(height: 6),
+                    InputText(
+                      controller: _confirmPasswordController,
+                      isPassword: true,
+                      leftIcon: Icons.lock_outline,
+                    ),
+                    const SizedBox(height: 16),
+                    Button(
+                      text: OnboardingText.resetPasswordButton,
+                      isLoading: isLoading,
+                      onPressed: () {
+                        context.read<ResetPasswordBloc>().add(
+                          ResetPasswordSubmitted(
+                            mssv: widget.mssv,
+                            otpCode: widget.otpCode,
+                            newPassword: _passwordController.text,
+                            confirmPassword: _confirmPasswordController.text,
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const Spacer(),
+                Center(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        OnboardingText.signInPromt,
+                        style: AppTextStyle.bodySmall.copyWith(
+                          color: AppColor.secondaryText,
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          context.goBack(RouteName.signIn);
+                        },
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text(
+                          OnboardingText.signInButtonText,
+                          style: AppTextStyle.bodySmall.copyWith(
+                            color: AppColor.primaryBlue,
+                            fontWeight: AppTextStyle.bold,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
