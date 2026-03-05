@@ -1,6 +1,7 @@
 import 'package:go_router/go_router.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/app/router/transitions/slide_transition.dart';
+import 'package:uit_buddy_mobile/features/notification/presentation/screens/notification_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/otp_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/reset_password_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_in_screen.dart';
@@ -66,6 +67,14 @@ final goRouter = GoRouter(
         context: context,
         state: state,
         child: const WrapperScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.notification,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const NotificationScreen(),
       ),
     ),
   ],

@@ -20,6 +20,7 @@ class AppColor {
   static const Color successGreenDark = Color(0xFF248A3D);
   static const Color warningOrange = Color(0xFFFF9500);
   static const Color warningOrangeDark = Color(0xFFC77700);
+  static const Color warningOrangeLight = Color(0xFFFFEACC);
   static const Color starYellow = Color(0xFFFFD60A);
 
   // Additional UI Colors
