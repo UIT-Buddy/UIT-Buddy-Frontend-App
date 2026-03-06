@@ -7,6 +7,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/create_post_bar.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/message_tab.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
 
@@ -115,24 +116,6 @@ class _NewFeedView extends StatelessWidget {
   }
 
   Widget _buildMessageTab() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.chat_bubble_outline,
-            color: AppColor.secondaryText,
-            size: 64,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            SocialText.messagePlaceholder,
-            style: AppTextStyle.bodyMedium.copyWith(
-              color: AppColor.secondaryText,
-            ),
-          ),
-        ],
-      ),
-    );
+    return const MessageTab();
   }
 }
