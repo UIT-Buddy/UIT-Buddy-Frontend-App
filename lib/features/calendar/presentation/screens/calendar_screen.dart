@@ -29,46 +29,51 @@ class CalendarScreen extends StatelessWidget {
         ),
       ],
       child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.only(top: 40, left: 15, right: 15),
-          child: Column(
-            children: [
-              const CalendarScreenHeaderWidget(),
-              Expanded(
-                child: BlocBuilder<CalendarBloc, CalendarState>(
-                  builder: (context, state) {
-                    switch (state.mode) {
-                      case CalendarMode.deadline:
-                        return BlocBuilder<DeadlineBloc, DeadlineState>(
-                          builder: (context, deadlineState) {
-                            // Get selected day's deadline details
-                            final selectedItem = deadlineState
-                                .calendarDeadlineEntity
-                                ?.items
-                                .where((item) => item.isSelected)
-                                .firstOrNull;
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.04,
+            ),
+            child: Column(
+              children: [
+                const CalendarScreenHeaderWidget(),
+                Expanded(
+                  child: BlocBuilder<CalendarBloc, CalendarState>(
+                    builder: (context, state) {
+                      switch (state.mode) {
+                        case CalendarMode.deadline:
+                          return BlocBuilder<DeadlineBloc, DeadlineState>(
+                            builder: (context, deadlineState) {
+                              // Get selected day's deadline details
+                              final selectedItem = deadlineState
+                                  .calendarDeadlineEntity
+                                  ?.items
+                                  .where((item) => item.isSelected)
+                                  .firstOrNull;
 
-                            final deadlineDetails = selectedItem?.details ?? [];
+                              final deadlineDetails =
+                                  selectedItem?.details ?? [];
 
-                            return Column(
-                              children: [
-                                const DeadlineCalendarWidget(),
-                                Expanded(
-                                  child: DeadlineDetailSection(
-                                    deadlineDetails: deadlineDetails,
+                              return Column(
+                                children: [
+                                  const DeadlineCalendarWidget(),
+                                  Expanded(
+                                    child: DeadlineDetailSection(
+                                      deadlineDetails: deadlineDetails,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      case CalendarMode.courses:
-                        return const CoursesCalendarWidget();
-                    }
-                  },
+                                ],
+                              );
+                            },
+                          );
+                        case CalendarMode.courses:
+                          return const CoursesCalendarWidget();
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

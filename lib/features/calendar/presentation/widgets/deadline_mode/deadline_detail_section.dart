@@ -11,7 +11,7 @@ class DeadlineDetailSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(MediaQuery.of(context).size.width * 0.05),
       child: Column(
         children: [
           DeadlineDetailHeaderSection(

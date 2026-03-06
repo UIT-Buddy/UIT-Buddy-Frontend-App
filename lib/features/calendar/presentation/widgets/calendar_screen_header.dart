@@ -68,7 +68,10 @@ class CalendarScreenHeaderWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: EdgeInsets.symmetric(
+          horizontal: MediaQuery.of(context).size.width * 0.04,
+          vertical: 8,
+        ),
         decoration: BoxDecoration(
           color: isSelected ? AppColor.pureWhite : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
