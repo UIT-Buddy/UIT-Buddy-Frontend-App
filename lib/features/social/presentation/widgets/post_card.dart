@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
@@ -75,14 +76,10 @@ class PostCard extends StatelessWidget {
           fit: BoxFit.cover,
           loadingBuilder: (context, child, loadingProgress) {
             if (loadingProgress == null) return child;
-            return Container(
-              color: AppColor.veryLightGrey,
-              child: const Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppColor.primaryBlue,
-                ),
-              ),
+            return Shimmer.fromColors(
+              baseColor: AppColor.dividerGrey,
+              highlightColor: AppColor.veryLightGrey,
+              child: Container(color: Colors.white),
             );
           },
           errorBuilder: (context, error, stackTrace) {

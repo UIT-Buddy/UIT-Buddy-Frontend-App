@@ -10,6 +10,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/widgets/create_pos
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/message_tab.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
 
 class NewFeedScreen extends StatelessWidget {
   const NewFeedScreen({super.key});
@@ -59,8 +60,11 @@ class _NewFeedView extends StatelessWidget {
 
   Widget _buildFeedTab(BuildContext context, NewFeedState state) {
     if (state.status == NewFeedStatus.loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColor.primaryBlue),
+      return ListView.builder(
+        padding: EdgeInsets.zero,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: 5,
+        itemBuilder: (_, index) => PostCardSkeleton(showImage: index == 1),
       );
     }
 
