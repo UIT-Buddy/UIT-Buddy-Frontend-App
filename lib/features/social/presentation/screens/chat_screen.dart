@@ -156,7 +156,25 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         ],
       ),
-
+      actions: [
+        IconButton(
+          icon: const Icon(
+            Icons.call_outlined,
+            color: AppColor.primaryText,
+            size: 22,
+          ),
+          onPressed: () {},
+        ),
+        IconButton(
+          icon: const Icon(
+            Icons.videocam_outlined,
+            color: AppColor.primaryText,
+            size: 24,
+          ),
+          onPressed: () {},
+          padding: const EdgeInsets.only(right: 8),
+        ),
+      ],
       bottom: const PreferredSize(
         preferredSize: Size.fromHeight(1),
         child: Divider(height: 1, color: AppColor.dividerGrey),
