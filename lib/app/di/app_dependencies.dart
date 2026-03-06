@@ -32,12 +32,14 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/reset_pa
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
   await _initAuthDependencies();
   await _initCalendarDependencies();
+  _initSocialDependencies();
 }
 
 Future<void> _initAuthDependencies() async {
@@ -186,4 +188,9 @@ Future<void> _initCalendarDependencies() async {
   serviceLocator.registerFactory(
     () => DeadlineBloc(getDeadlineUsecase: serviceLocator()),
   );
+}
+
+void _initSocialDependencies() {
+  // Blocs
+  serviceLocator.registerFactory(() => NewFeedBloc());
 }
