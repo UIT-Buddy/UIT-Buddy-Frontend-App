@@ -18,6 +18,17 @@ import 'package:uit_buddy_mobile/features/profile/data/repositories/profile_repo
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/subject_class_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/storage/data/repositories/document_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/repositories/subject_class_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/repositories/document_repository.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/repositories/subject_class_repository.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/document_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/subject_class_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -25,6 +36,7 @@ Future<void> initDependencies() async {
   await _initCalendarDependencies();
   await _initProfileDependencies();
   await _initNotificationDependencies();
+  await _initStorageDependencies();
 }
 
 Future<void> _initCalendarDependencies() async {
@@ -96,5 +108,43 @@ Future<void> _initNotificationDependencies() async {
   // Blocs
   serviceLocator.registerFactory(
     () => NotificationBloc(getNotificationUsecase: serviceLocator()),
+  );
+}
+
+Future<void> _initStorageDependencies() async {
+  // Datasources
+  serviceLocator.registerLazySingleton<SubjectClassDatasourceInterface>(
+    () => SubjectClassDatasourceImpl(),
+  );
+  serviceLocator.registerLazySingleton<DocumentDatasourceInterface>(
+    () => DocumentDatasourceImpl(),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<SubjectClassRepository>(
+    () => SubjectClassRepositoryImpl(
+      subjectClassDatasourceInterface: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<DocumentRepository>(
+    () => DocumentRepositoryImpl(
+      documentDatasourceInterface: serviceLocator(),
+    ),
+  );
+
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => SubjectClassUsecase(subjectClassRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DocumentUsecase(documentRepository: serviceLocator()),
+  );
+
+  // Blocs
+  serviceLocator.registerFactory(
+    () => StorageBloc(
+      subjectClassUsecase: serviceLocator(),
+      documentUsecase: serviceLocator(),
+    ),
   );
 }
