@@ -5,6 +5,7 @@ class InputText extends StatefulWidget {
   final String? hintText;
   final TextEditingController controller;
   final bool isPassword;
+  final bool readOnly;
   final VoidCallback? onHideToggle;
   final IconData? leftIcon;
 
@@ -13,6 +14,7 @@ class InputText extends StatefulWidget {
     this.hintText,
     required this.controller,
     this.isPassword = false,
+    this.readOnly = false,
     this.onHideToggle,
     this.leftIcon,
   });
@@ -35,6 +37,7 @@ class _InputTextState extends State<InputText> {
     return TextField(
       controller: widget.controller,
       obscureText: _obscureText,
+      readOnly: widget.readOnly,
       style: const TextStyle(color: AppColor.primaryText),
       decoration: InputDecoration(
         hintText: widget.hintText,
