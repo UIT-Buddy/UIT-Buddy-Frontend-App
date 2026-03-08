@@ -26,6 +26,12 @@ import 'package:uit_buddy_mobile/features/calendar/domain/usecases/search_course
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
+import 'package:uit_buddy_mobile/features/notification/data/datasources/impl/notification_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/notification/data/datasources/notification_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/notification/data/repositories/notification_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/repositories/notification_repository.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/notification_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/presentation/bloc/notification_screen/notification_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/auth_remote_datasource.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/impl/auth_remote_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/repositories/auth_repository_impl.dart';
@@ -40,13 +46,33 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/reset_pa
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/profile_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/profile_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/subject_class_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/storage/data/repositories/document_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/repositories/subject_class_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/repositories/document_repository.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/repositories/subject_class_repository.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/document_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/subject_class_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
   await _initAuthDependencies();
   await _initCalendarDependencies();
+  await _initProfileDependencies();
+  await _initNotificationDependencies();
+  await _initStorageDependencies();
   _initSocialDependencies();
 }
 
@@ -235,4 +261,86 @@ Future<void> _initCalendarDependencies() async {
 void _initSocialDependencies() {
   // Blocs
   serviceLocator.registerFactory(() => NewFeedBloc());
+}
+
+Future<void> _initProfileDependencies() async {
+  // Datasource
+  serviceLocator.registerLazySingleton<ProfileDatasourceInterface>(
+    () => ProfileInfoDatasourceImpl(),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(profileDatasourceInterface: serviceLocator()),
+  );
+
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => GetProfileUsecase(profileRepository: serviceLocator()),
+  );
+
+  // Blocs
+  serviceLocator.registerFactory(
+    () => ProfileBloc(getProfileUsecase: serviceLocator()),
+  );
+}
+
+Future<void> _initNotificationDependencies() async {
+  // Datasource
+  serviceLocator.registerLazySingleton<NotificationDatasourceInterface>(
+    () => NotificationDatasourceImpl(),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(
+      notificationDatasourceInterface: serviceLocator(),
+    ),
+  );
+
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => GetNotificationUsecase(notificationRepository: serviceLocator()),
+  );
+
+  // Blocs
+  serviceLocator.registerFactory(
+    () => NotificationBloc(getNotificationUsecase: serviceLocator()),
+  );
+}
+
+Future<void> _initStorageDependencies() async {
+  // Datasources
+  serviceLocator.registerLazySingleton<SubjectClassDatasourceInterface>(
+    () => SubjectClassDatasourceImpl(),
+  );
+  serviceLocator.registerLazySingleton<DocumentDatasourceInterface>(
+    () => DocumentDatasourceImpl(),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<SubjectClassRepository>(
+    () => SubjectClassRepositoryImpl(
+      subjectClassDatasourceInterface: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<DocumentRepository>(
+    () => DocumentRepositoryImpl(documentDatasourceInterface: serviceLocator()),
+  );
+
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => SubjectClassUsecase(subjectClassRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DocumentUsecase(documentRepository: serviceLocator()),
+  );
+
+  // Blocs
+  serviceLocator.registerFactory(
+    () => StorageBloc(
+      subjectClassUsecase: serviceLocator(),
+      documentUsecase: serviceLocator(),
+    ),
+  );
 }
