@@ -51,4 +51,44 @@ class CalendarText {
   static const String snackbarDeadlineCreated =
       'Deadline created successfully!';
   static const String dateFormatDisplay = 'MMM d, yyyy';
+
+  // ── Courses timetable ─────────────────────────────────────────────────────
+  static const String periodColumnHeader = 'P';
+  static const List<String> timetableDayHeaders = [
+    'Mon',
+    'Tue',
+    'Wed',
+    'Thu',
+    'Fri',
+    'Sat',
+  ];
+
+  static String semesterLabel(int semester, int year) {
+    final ordinal = switch (semester) {
+      1 => '1st',
+      2 => '2nd',
+      3 => '3rd',
+      _ => '${semester}th',
+    };
+    return '$ordinal Semester $year';
+  }
+
+  static const String coursesEmptyState = 'No classes this semester';
+  static const String coursesErrorPrefix = 'Failed to load timetable';
+
+  /// Label shown in the period column for the Blended-Learning row.
+  static const String blendedLearningRowLabel = 'BL';
+
+  // ── Course details bottom sheet ───────────────────────────────────────────
+  static const String courseDetailsTitle = 'Course Details';
+  static const String courseDetailsFieldClassId = 'CLASS ID';
+  static const String courseDetailsFieldCourseName = 'COURSE NAME';
+  static const String courseDetailsFieldCredits = 'CREDITS';
+  static const String courseDetailsFieldLecturer = 'LECTURER';
+  static const String courseDetailsFieldRoom = 'ROOM';
+  static const String courseDetailsFieldDayOfWeek = 'DAY OF WEEK';
+  static const String courseDetailsFieldStartTime = 'START TIME';
+  static const String courseDetailsFieldEndTime = 'END TIME';
+  static const String courseDetailsTasksSection = 'TASKS';
+  static const String courseDetailsNoTasks = 'No tasks for this course';
 }
