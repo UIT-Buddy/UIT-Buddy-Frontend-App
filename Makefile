@@ -30,7 +30,7 @@ clean:
 	flutter clean
 	flutter pub get
 
-build-release:
+build-release: clean gen-code 
 	@echo "Cleaning old APK files..."
 	@rm -f build/app/outputs/apk/release/*.apk
 	@echo "✓ Old APK files removed"

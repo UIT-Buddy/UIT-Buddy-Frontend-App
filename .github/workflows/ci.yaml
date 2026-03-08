@@ -1,7 +1,10 @@
-name: Flutter CI - Pull Request Validation
+name: UIT Buddy AppMobile CI
 
 on:
   pull_request:
+    branches:
+      - main
+  push:
     branches:
       - main
 
@@ -13,6 +16,7 @@ jobs:
   validate-codebase:
     name: Lint, Format and Test Code
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
 
     steps:
       - name: Checkout repository
@@ -39,3 +43,48 @@ jobs:
 
       - name: Run Unit Tests
         run: flutter test test/ --no-pub
+
+  build-and-deploy:
+    name: Build and Deploy
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get Current Date
+        id: date
+        run: echo "CURRENT_DATE=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Setup Flutter Environment
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          flutter-version: "3.38.6"
+          cache: true
+
+      - name: Get Dependencies
+        run: flutter pub get
+
+      - name: Run Build Runner
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Create Runtime .env file
+        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+            --build-name=v1.0.${{ github.run_number }}-${{ env.CURRENT_DATE }} \
+            --build-number=${{ github.run_number }} \
+            --dart-define-from-file=.env
+
+      - name: Upload to Firebase App Distribution
+        uses: wzieba/Firebase-Distribution-Github-Action@v1
+        with:
+          appId: ${{ secrets.FIREBASE_APP_ID }}
+          serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
+          groups: testers
+          file: build/app/outputs/flutter-apk/app-release.apk
+          releaseNotes: "Auto-build v1.0.${{ github.run_number }}-${{ env.CURRENT_DATE }}"

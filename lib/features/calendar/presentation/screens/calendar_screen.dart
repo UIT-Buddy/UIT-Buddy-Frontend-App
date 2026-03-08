@@ -4,6 +4,8 @@ import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_state.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_state.dart';
@@ -26,6 +28,11 @@ class CalendarScreen extends StatelessWidget {
         BlocProvider(
           create: (context) =>
               serviceLocator<DeadlineBloc>()..add(const DeadlineStarted()),
+        ),
+        BlocProvider(
+          create: (context) =>
+              serviceLocator<CoursesModeBloc>()
+                ..add(const CoursesModeStarted()),
         ),
       ],
       child: Scaffold(
