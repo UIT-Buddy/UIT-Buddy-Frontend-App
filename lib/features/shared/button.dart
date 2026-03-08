@@ -88,7 +88,11 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     if (widget.iconLeft != null) ...[
-                      Icon(widget.iconLeft, size: 20, color: AppColor.pureWhite),
+                      Icon(
+                        widget.iconLeft,
+                        size: 20,
+                        color: AppColor.pureWhite,
+                      ),
                       if (widget.text != null) const SizedBox(width: 8),
                     ],
                     if (widget.text != null)
@@ -102,7 +106,11 @@ class _ButtonState extends State<Button> with SingleTickerProviderStateMixin {
                       ),
                     if (widget.iconRight != null) ...[
                       if (widget.text != null) const SizedBox(width: 8),
-                      Icon(widget.iconRight, size: 20, color: AppColor.pureWhite),
+                      Icon(
+                        widget.iconRight,
+                        size: 20,
+                        color: AppColor.pureWhite,
+                      ),
                     ],
                   ],
                 ),

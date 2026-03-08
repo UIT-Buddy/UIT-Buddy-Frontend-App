@@ -55,7 +55,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       id: 'm7',
       senderId: 'other',
       senderName: 'Đinh Minh Phan',
-      content: 'Nhìn vào rồi, vấn đề ở chỗ bạn chưa refresh token đúng cách. Thêm middleware vào là được',
+      content:
+          'Nhìn vào rồi, vấn đề ở chỗ bạn chưa refresh token đúng cách. Thêm middleware vào là được',
       time: '10:20',
       isMine: false,
     ),

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/entities/calendar_deadline_entity.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/constants/calendar_text.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/add_deadline_modal.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_detail_item.dart';
 
 class DeadlineDetailSection extends StatelessWidget {
@@ -16,6 +18,7 @@ class DeadlineDetailSection extends StatelessWidget {
         children: [
           DeadlineDetailHeaderSection(
             numberOfDeadlines: deadlineDetails.length,
+            onAddPressed: () => showAddDeadlineModal(context),
           ),
           const SizedBox(height: 5),
           Expanded(
@@ -48,7 +51,7 @@ class DeadlineDetailHeaderSection extends StatelessWidget {
     return Row(
       children: [
         Text(
-          'Upcoming ($numberOfDeadlines)',
+          CalendarText.upcomingDeadlines(numberOfDeadlines),
           style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
         ),
         const Spacer(),

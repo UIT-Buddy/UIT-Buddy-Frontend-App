@@ -10,11 +10,7 @@ class PostCard extends StatelessWidget {
   final PostEntity post;
   final VoidCallback onLikeTap;
 
-  const PostCard({
-    super.key,
-    required this.post,
-    required this.onLikeTap,
-  });
+  const PostCard({super.key, required this.post, required this.onLikeTap});
 
   @override
   Widget build(BuildContext context) {
@@ -42,10 +38,7 @@ class PostCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: PostActionBar(
-              isLiked: post.isLiked,
-              onLikeTap: onLikeTap,
-            ),
+            child: PostActionBar(isLiked: post.isLiked, onLikeTap: onLikeTap),
           ),
           const SizedBox(height: 4),
         ],
@@ -58,9 +51,7 @@ class PostCard extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Text(
         post.content,
-        style: AppTextStyle.bodySmall.copyWith(
-          height: 1.5,
-        ),
+        style: AppTextStyle.bodySmall.copyWith(height: 1.5),
       ),
     );
   }

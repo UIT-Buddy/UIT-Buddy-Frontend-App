@@ -36,12 +36,13 @@ class _NewFeedView extends StatelessWidget {
             return Column(
               children: [
                 NewFeedHeader(
-                  selectedTabIndex:
-                      state.selectedTab == NewFeedTab.feed ? 0 : 1,
+                  selectedTabIndex: state.selectedTab == NewFeedTab.feed
+                      ? 0
+                      : 1,
                   onTabChanged: (index) {
-                    context
-                        .read<NewFeedBloc>()
-                        .add(NewFeedTabChanged(tabIndex: index));
+                    context.read<NewFeedBloc>().add(
+                      NewFeedTabChanged(tabIndex: index),
+                    );
                   },
                 ),
                 Expanded(
@@ -69,11 +70,7 @@ class _NewFeedView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
-              Icons.error_outline,
-              color: AppColor.alertRed,
-              size: 48,
-            ),
+            const Icon(Icons.error_outline, color: AppColor.alertRed, size: 48),
             const SizedBox(height: 12),
             Text(
               state.errorMessage ?? SocialText.errorLoading,
@@ -90,8 +87,8 @@ class _NewFeedView extends StatelessWidget {
         context.read<NewFeedBloc>().add(const NewFeedRefreshed());
         // Wait for the state to change from loading to loaded
         await context.read<NewFeedBloc>().stream.firstWhere(
-              (s) => s.status != NewFeedStatus.loading,
-            );
+          (s) => s.status != NewFeedStatus.loading,
+        );
       },
       child: ListView.builder(
         padding: EdgeInsets.zero,
@@ -105,9 +102,9 @@ class _NewFeedView extends StatelessWidget {
           return PostCard(
             post: post,
             onLikeTap: () {
-              context
-                  .read<NewFeedBloc>()
-                  .add(NewFeedPostLiked(postId: post.id));
+              context.read<NewFeedBloc>().add(
+                NewFeedPostLiked(postId: post.id),
+              );
             },
           );
         },

@@ -13,12 +13,12 @@ class Failure {
             (e.error! as AuthenticationException).message,
           );
         }
-        
+
         // Build detailed error message
         final method = e.requestOptions.method;
         final uri = e.requestOptions.uri;
         final statusCode = e.response?.statusCode;
-        
+
         // Get error message based on type
         String errorMessage;
         switch (e.type) {
@@ -29,21 +29,23 @@ class Failure {
           case DioExceptionType.receiveTimeout:
             errorMessage = 'Receive timeout from $method $uri';
           case DioExceptionType.badResponse:
-            final responseMessage = e.response?.data is Map 
-              ? e.response?.data['message'] as String?
-              : null;
-            errorMessage = responseMessage ?? 
-              'Cannot $method $uri (Status: $statusCode)';
+            final responseMessage = e.response?.data is Map
+                ? e.response?.data['message'] as String?
+                : null;
+            errorMessage =
+                responseMessage ?? 'Cannot $method $uri (Status: $statusCode)';
           case DioExceptionType.cancel:
             errorMessage = 'Request cancelled: $method $uri';
           case DioExceptionType.connectionError:
-            errorMessage = 'Connection error: Cannot $method $uri\\nPlease check your internet connection or server URL';
+            errorMessage =
+                'Connection error: Cannot $method $uri\\nPlease check your internet connection or server URL';
           case DioExceptionType.badCertificate:
             errorMessage = 'SSL certificate error: $method $uri';
           case DioExceptionType.unknown:
-            errorMessage = 'Network error: Cannot $method $uri\\n${e.message ?? "Unknown error"}';
+            errorMessage =
+                'Network error: Cannot $method $uri\\n${e.message ?? "Unknown error"}';
         }
-        
+
         return Failure(errorMessage);
       case final AuthenticationException e:
         return AuthenticationFailure(e.message);

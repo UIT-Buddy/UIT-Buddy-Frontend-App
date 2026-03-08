@@ -7,4 +7,10 @@ abstract interface class CalendarRepository {
     required int month,
     required int year,
   });
+
+  Future<Either<Failure, Unit>> createDeadline({
+    required String name,
+    required String courseId,
+    required DateTime deadline,
+  });
 }

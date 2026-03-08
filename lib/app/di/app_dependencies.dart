@@ -12,10 +12,18 @@ import 'package:uit_buddy_mobile/core/config/app_env.dart';
 import 'package:uit_buddy_mobile/core/network/http_client.dart';
 import 'package:uit_buddy_mobile/core/storages/secure_storage.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/calendar_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/calendar/data/datasources/course_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/impl/calendar_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/calendar/data/datasources/impl/course_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/repositories/calendar_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/calendar/data/repositories/course_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/repositories/calendar_repository.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/repositories/course_repository.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_deadline_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadline_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/search_courses_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/auth_remote_datasource.dart';
@@ -182,26 +190,45 @@ Future<void> _initAuthDependencies() async {
 }
 
 Future<void> _initCalendarDependencies() async {
-  // Datasource
+  // Datasources
   serviceLocator.registerLazySingleton<CalendarDatasourceInterface>(
     () => CalendarDatasourceImpl(),
   );
+  serviceLocator.registerLazySingleton<CourseDatasourceInterface>(
+    () => CourseDatasourceImpl(),
+  );
 
-  // Repository
+  // Repositories
   serviceLocator.registerLazySingleton<CalendarRepository>(
     () => CalendarRepositoryImpl(calendarDatasourceInterface: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<CourseRepository>(
+    () => CourseRepositoryImpl(courseDatasourceInterface: serviceLocator()),
   );
 
   // Usecases
   serviceLocator.registerLazySingleton(
     () => GetDeadlineUsecase(calendarRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => GetCoursesUsecase(courseRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(() => SearchCoursesUsecase());
+  serviceLocator.registerLazySingleton(
+    () => CreateDeadlineUsecase(calendarRepository: serviceLocator()),
+  );
 
-  // Blocs
+  // Blocs / Cubits
   serviceLocator.registerFactory(() => CalendarBloc());
-
   serviceLocator.registerFactory(
     () => DeadlineBloc(getDeadlineUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => AddDeadlineBloc(
+      getCoursesUsecase: serviceLocator(),
+      searchCoursesUsecase: serviceLocator(),
+      createDeadlineUsecase: serviceLocator(),
+    ),
   );
 }
 

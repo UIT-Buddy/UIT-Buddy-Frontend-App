@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/constants/calendar_text.dart';
 
 class DeadlineDayNameWidget extends StatelessWidget {
   const DeadlineDayNameWidget({super.key});
@@ -12,15 +13,9 @@ class DeadlineDayNameWidget extends StatelessWidget {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        Text('S', style: textStyle),
-        Text('M', style: textStyle),
-        Text('T', style: textStyle),
-        Text('W', style: textStyle),
-        Text('T', style: textStyle),
-        Text('F', style: textStyle),
-        Text('S', style: textStyle),
-      ],
+      children: CalendarText.dayAbbreviations
+          .map((day) => Text(day, style: textStyle))
+          .toList(),
     );
   }
 }

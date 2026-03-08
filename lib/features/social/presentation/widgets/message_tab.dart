@@ -35,8 +35,8 @@ class _MessageTabState extends State<MessageTab> {
       _filtered = query.isEmpty
           ? mockConversations
           : mockConversations
-              .where((c) => c.name.toLowerCase().contains(query))
-              .toList();
+                .where((c) => c.name.toLowerCase().contains(query))
+                .toList();
     });
   }
 
@@ -92,8 +92,10 @@ class _MessageTabState extends State<MessageTab> {
             enabledBorder: InputBorder.none,
             focusedBorder: InputBorder.none,
             filled: false,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 0,
+              vertical: 0,
+            ),
             isCollapsed: true,
           ),
         ),
@@ -110,8 +112,9 @@ class _MessageTabState extends State<MessageTab> {
           const SizedBox(height: 12),
           Text(
             'Không tìm thấy cuộc trò chuyện',
-            style:
-                AppTextStyle.bodyMedium.copyWith(color: AppColor.secondaryText),
+            style: AppTextStyle.bodyMedium.copyWith(
+              color: AppColor.secondaryText,
+            ),
           ),
         ],
       ),

@@ -21,68 +21,107 @@ class CalendarScreenHeaderWidget extends StatelessWidget {
               CalendarText.calendarTitle,
               style: AppTextStyle.h1.copyWith(fontWeight: AppTextStyle.bold),
             ),
-            Container(
-              decoration: BoxDecoration(
-                color: AppColor.veryLightGrey,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.all(4),
-              child: Row(
-                children: [
-                  _buildToggleButton(
-                    context: context,
-                    text: CalendarText.deadlineMode,
-                    isSelected: state.mode == CalendarMode.deadline,
-                    onTap: () {
-                      context.read<CalendarBloc>().add(
-                        const SelectDeadlineMode(),
-                      );
-                    },
-                  ),
-                  const SizedBox(width: 4),
-                  _buildToggleButton(
-                    context: context,
-                    text: CalendarText.coursesMode,
-                    isSelected: state.mode == CalendarMode.courses,
-                    onTap: () {
-                      context.read<CalendarBloc>().add(
-                        const SelectCoursesMode(),
-                      );
-                    },
-                  ),
-                ],
-              ),
+            _SlidingTabToggle(
+              tabs: [CalendarText.deadlineMode, CalendarText.coursesMode],
+              selectedIndex: state.mode == CalendarMode.deadline ? 0 : 1,
+              onTabChanged: (index) {
+                if (index == 0) {
+                  context.read<CalendarBloc>().add(const SelectDeadlineMode());
+                } else {
+                  context.read<CalendarBloc>().add(const SelectCoursesMode());
+                }
+              },
             ),
           ],
         );
       },
     );
   }
+}
 
-  Widget _buildToggleButton({
-    required BuildContext context,
-    required String text,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        padding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.04,
-          vertical: 8,
-        ),
-        decoration: BoxDecoration(
-          color: isSelected ? AppColor.pureWhite : Colors.transparent,
-          borderRadius: BorderRadius.circular(6),
-        ),
-        child: Text(
-          text,
-          style: AppTextStyle.captionLarge.copyWith(
-            color: isSelected ? AppColor.primaryBlue : AppColor.secondaryText,
-            fontWeight: AppTextStyle.medium,
+class _SlidingTabToggle extends StatelessWidget {
+  final List<String> tabs;
+  final int selectedIndex;
+  final ValueChanged<int> onTabChanged;
+
+  static const double _itemWidth = 84.0;
+  static const double _itemHeight = 36.0;
+  static const double _padding = 3.0;
+
+  const _SlidingTabToggle({
+    required this.tabs,
+    required this.selectedIndex,
+    required this.onTabChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double totalWidth = _itemWidth * tabs.length + _padding * 2;
+
+    return Container(
+      width: totalWidth,
+      height: _itemHeight + _padding * 2,
+      decoration: BoxDecoration(
+        color: AppColor.veryLightGrey,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Stack(
+        children: [
+          // Sliding pill background
+          AnimatedPositioned(
+            duration: const Duration(milliseconds: 280),
+            curve: Curves.easeInOutCubic,
+            left: _padding + selectedIndex * _itemWidth,
+            top: _padding,
+            width: _itemWidth,
+            height: _itemHeight,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: AppColor.primaryBlue,
+                borderRadius: BorderRadius.circular(18),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColor.primaryBlue.withValues(alpha: 0.35),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+          // Tab labels
+          Padding(
+            padding: const EdgeInsets.all(_padding),
+            child: Row(
+              children: List.generate(tabs.length, (i) {
+                final bool isSelected = selectedIndex == i;
+                return GestureDetector(
+                  onTap: () => onTabChanged(i),
+                  behavior: HitTestBehavior.opaque,
+                  child: SizedBox(
+                    width: _itemWidth,
+                    height: _itemHeight,
+                    child: Center(
+                      child: AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 220),
+                        curve: Curves.easeInOut,
+                        style: AppTextStyle.bodySmall.copyWith(
+                          color: isSelected
+                              ? AppColor.pureWhite
+                              : AppColor.secondaryText,
+                          fontWeight: isSelected
+                              ? AppTextStyle.medium
+                              : AppTextStyle.regular,
+                        ),
+                        child: Text(tabs[i]),
+                      ),
+                    ),
+                  ),
+                );
+              }),
+            ),
+          ),
+        ],
       ),
     );
   }
