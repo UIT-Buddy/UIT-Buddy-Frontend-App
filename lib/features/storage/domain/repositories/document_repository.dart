@@ -4,6 +4,6 @@ import 'package:uit_buddy_mobile/features/storage/domain/entities/document_entit
 
 abstract interface class DocumentRepository {
   Future<Either<Failure, DocumentListEntity>> getFiles({
-    required String classCode, 
+    required String classCode,
   });
 }

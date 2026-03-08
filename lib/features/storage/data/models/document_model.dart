@@ -6,10 +6,7 @@ class DocumentListModel extends Equatable {
   final String classCode;
   final List<DocumentModel> items;
 
-  const DocumentListModel({
-    required this.classCode,
-    required this.items
-  });
+  const DocumentListModel({required this.classCode, required this.items});
 
   @override
   List<Object?> get props => [classCode, items];
@@ -34,5 +31,12 @@ class DocumentModel extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, classCode, fileUrl, fileName, accessLevel, priority];
+  List<Object?> get props => [
+    id,
+    classCode,
+    fileUrl,
+    fileName,
+    accessLevel,
+    priority,
+  ];
 }

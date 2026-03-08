@@ -16,11 +16,18 @@ class ProfileEntity extends Equatable {
     required this.email,
     required this.avatarUrl,
     required this.coverUrl,
-    required this.stats
+    required this.stats,
   });
 
   @override
-  List<Object?> get props => [mssv, fullName, email, avatarUrl, coverUrl, stats];
+  List<Object?> get props => [
+    mssv,
+    fullName,
+    email,
+    avatarUrl,
+    coverUrl,
+    stats,
+  ];
 }
 
 @immutable
@@ -38,9 +45,16 @@ class ProfileStatsEntity extends Equatable {
     required this.accumulatedCredits,
     required this.totalCredits,
     required this.posts,
-    required this.comments
+    required this.comments,
   });
 
   @override
-  List<Object?> get props => [currentGpa, gpaOn4Scale, accumulatedCredits, totalCredits, posts, comments];
+  List<Object?> get props => [
+    currentGpa,
+    gpaOn4Scale,
+    accumulatedCredits,
+    totalCredits,
+    posts,
+    comments,
+  ];
 }

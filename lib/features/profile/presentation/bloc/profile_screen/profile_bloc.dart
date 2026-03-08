@@ -5,8 +5,8 @@ import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_scre
 
 class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({required GetProfileUsecase getProfileUsecase})
-      : _getProfileUsecase = getProfileUsecase,
-        super(const ProfileState()) {
+    : _getProfileUsecase = getProfileUsecase,
+      super(const ProfileState()) {
     on<ProfileStarted>(_onProfileStarted);
   }
 
@@ -30,10 +30,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         ),
       ),
       (profileInfo) => emit(
-        state.copyWith(
-          status: ProfileStatus.loaded,
-          profileInfo: profileInfo,
-        ),
+        state.copyWith(status: ProfileStatus.loaded, profileInfo: profileInfo),
       ),
     );
   }

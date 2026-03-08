@@ -35,7 +35,7 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
               child: Image.asset(
                 profileInfo.coverUrl,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Image.asset(
+                errorBuilder: (_, _, _) => Image.asset(
                   'assets/images/placeholder/bg-placeholder-transparent.png',
                   fit: BoxFit.cover,
                 ),
@@ -81,7 +81,7 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
                   child: CircleAvatar(
                     radius: _avatarRadius,
                     backgroundImage: AssetImage(profileInfo.avatarUrl),
-                    onBackgroundImageError: (_, __) {},
+                    onBackgroundImageError: (_, _) {},
                     child: _isValidAsset(profileInfo.avatarUrl)
                         ? null
                         : Image.asset(
@@ -105,10 +105,7 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
         const SizedBox(height: 2),
 
         // MSSV
-        Text(
-          'MSSV: ${profileInfo.mssv}',
-          style: AppTextStyle.captionMedium,
-        ),
+        Text('MSSV: ${profileInfo.mssv}', style: AppTextStyle.captionMedium),
         const SizedBox(height: 16),
       ],
     );
@@ -131,7 +128,7 @@ class _CircleIconButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.25),
+          color: Colors.black.withValues(alpha: 0.25),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: AppColor.pureWhite, size: 20),

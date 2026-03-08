@@ -62,7 +62,7 @@ class ProfileSocialMediaWidget extends StatelessWidget {
               onPressed: onViewPostsTap,
               style: OutlinedButton.styleFrom(
                 side: BorderSide(
-                  color: AppColor.successGreen.withOpacity(0.4),
+                  color: AppColor.successGreen.withValues(alpha: 0.4),
                 ),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -109,7 +109,10 @@ class _GreenStatCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 4),
-          Text(label, style: AppTextStyle.captionSmallWhite.copyWith(fontSize: 13)),
+          Text(
+            label,
+            style: AppTextStyle.captionSmallWhite.copyWith(fontSize: 13),
+          ),
         ],
       ),
     );

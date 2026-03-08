@@ -63,11 +63,8 @@ class NotificationItemWidget extends StatelessWidget {
             ),
           ),
 
-          if(!item.isRead) Icon(
-            Icons.circle, 
-            size: 5, 
-            color: AppColor.alertRed,
-          ),
+          if (!item.isRead)
+            Icon(Icons.circle, size: 5, color: AppColor.alertRed),
 
           // Three-dot menu
           PopupMenuButton<_NotificationMenuAction>(
@@ -93,7 +90,11 @@ class NotificationItemWidget extends StatelessWidget {
                 value: _NotificationMenuAction.markAsRead,
                 child: Row(
                   children: [
-                    const Icon(Icons.done, size: 18, color: AppColor.primaryBlue),
+                    const Icon(
+                      Icons.done,
+                      size: 18,
+                      color: AppColor.primaryBlue,
+                    ),
                     const SizedBox(width: 8),
                     Text('Mark as Read', style: AppTextStyle.bodySmall),
                   ],
@@ -103,9 +104,18 @@ class NotificationItemWidget extends StatelessWidget {
                 value: _NotificationMenuAction.delete,
                 child: Row(
                   children: [
-                    const Icon(Icons.delete_outline, size: 18, color: AppColor.alertRed),
+                    const Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: AppColor.alertRed,
+                    ),
                     const SizedBox(width: 8),
-                    Text('Delete', style: AppTextStyle.bodySmall.copyWith(color: AppColor.alertRed)),
+                    Text(
+                      'Delete',
+                      style: AppTextStyle.bodySmall.copyWith(
+                        color: AppColor.alertRed,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -118,25 +128,25 @@ class NotificationItemWidget extends StatelessWidget {
 
   _NotificationTypeConfig _typeConfig(NotificationType type) {
     switch (type) {
-      case NotificationType.SYSTEM:
+      case NotificationType.system:
         return _NotificationTypeConfig(
           icon: Icons.settings_outlined,
           iconColor: AppColor.secondaryText,
           bgColor: AppColor.dividerGrey,
         );
-      case NotificationType.ACADEMIC:
+      case NotificationType.academic:
         return _NotificationTypeConfig(
           icon: Icons.school_outlined,
           iconColor: AppColor.primaryBlue,
           bgColor: AppColor.primaryBlue10,
         );
-      case NotificationType.REMINDER:
+      case NotificationType.reminder:
         return _NotificationTypeConfig(
           icon: Icons.alarm_outlined,
           iconColor: AppColor.warningOrange,
-          bgColor: AppColor.warningOrange.withOpacity(0.1),
+          bgColor: AppColor.warningOrange.withValues(alpha: 0.1),
         );
-      case NotificationType.SOCIAL:
+      case NotificationType.social:
         return _NotificationTypeConfig(
           icon: Icons.chat_bubble_outline,
           iconColor: AppColor.successGreen,

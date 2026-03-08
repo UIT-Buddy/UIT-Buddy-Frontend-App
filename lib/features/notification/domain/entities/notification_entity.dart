@@ -5,20 +5,13 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 class NotificationEntity extends Equatable {
   final List<NotificationItemEntity> items;
 
-  const NotificationEntity({
-    required this.items
-  });
+  const NotificationEntity({required this.items});
 
   @override
   List<Object?> get props => [items];
 }
 
-enum NotificationType {
-    SYSTEM,
-    ACADEMIC,
-    REMINDER,
-    SOCIAL
-}
+enum NotificationType { system, academic, reminder, social }
 
 @immutable
 class NotificationItemEntity extends Equatable {

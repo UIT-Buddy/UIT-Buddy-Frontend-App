@@ -15,8 +15,7 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          serviceLocator<NotificationBloc>()
-            ..add(const NotificationStarted()),
+          serviceLocator<NotificationBloc>()..add(const NotificationStarted()),
       child: Scaffold(
         backgroundColor: AppColor.pureWhite,
         body: SafeArea(
@@ -29,7 +28,10 @@ class NotificationScreen extends StatelessWidget {
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_back, color: AppColor.primaryText),
+                      icon: const Icon(
+                        Icons.arrow_back,
+                        color: AppColor.primaryText,
+                      ),
                       onPressed: () => Navigator.of(context).pop(),
                     ),
                     Expanded(
@@ -81,7 +83,7 @@ class NotificationScreen extends StatelessWidget {
 
                     return ListView.separated(
                       itemCount: items.length,
-                      separatorBuilder: (_, __) => const Divider(
+                      separatorBuilder: (_, _) => const Divider(
                         height: 1,
                         indent: 68,
                         color: AppColor.dividerGrey,

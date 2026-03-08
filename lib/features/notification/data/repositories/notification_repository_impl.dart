@@ -15,7 +15,8 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<Either<Failure, NotificationEntity>> getNotifications() async {
     try {
-      final apiResponse = await _notificationDatasourceInterface.getNotifications();
+      final apiResponse = await _notificationDatasourceInterface
+          .getNotifications();
 
       if (apiResponse.data == null) {
         return Left(Failure(apiResponse.message));

@@ -16,8 +16,7 @@ class StorageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          serviceLocator<StorageBloc>()..add(const StorageStarted()),
+      create: (_) => serviceLocator<StorageBloc>()..add(const StorageStarted()),
       child: BlocBuilder<StorageBloc, StorageState>(
         builder: (context, state) {
           final isGrid = state.viewType == StorageViewType.grid;
@@ -27,9 +26,7 @@ class StorageScreen extends StatelessWidget {
             canPop: !isFolder,
             onPopInvokedWithResult: (didPop, _) {
               if (!didPop && isFolder) {
-                context
-                    .read<StorageBloc>()
-                    .add(const StorageBackPressed());
+                context.read<StorageBloc>().add(const StorageBackPressed());
               }
             },
             child: Scaffold(
@@ -45,23 +42,25 @@ class StorageScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Storage',
-                            style: AppTextStyle.h1
-                                .copyWith(fontWeight: AppTextStyle.bold),
+                            style: AppTextStyle.h1.copyWith(
+                              fontWeight: AppTextStyle.bold,
+                            ),
                           ),
                           const Spacer(),
                           _ViewTypeToggle(
                             isGrid: isGrid,
-                            onToggle: () => context
-                                .read<StorageBloc>()
-                                .add(const StorageViewTypeToggled()),
+                            onToggle: () => context.read<StorageBloc>().add(
+                              const StorageViewTypeToggled(),
+                            ),
                           ),
                           const SizedBox(width: 12),
                           Text(
                             isFolder
                                 ? '${state.documents?.items.length ?? 0} items'
                                 : '${state.classes.length} items',
-                            style: AppTextStyle.captionMedium
-                                .copyWith(color: AppColor.secondaryText),
+                            style: AppTextStyle.captionMedium.copyWith(
+                              color: AppColor.secondaryText,
+                            ),
                           ),
                         ],
                       ),
@@ -74,35 +73,38 @@ class StorageScreen extends StatelessWidget {
                         child: Row(
                           children: [
                             GestureDetector(
-                              onTap: () => context
-                                  .read<StorageBloc>()
-                                  .add(const StorageBackPressed()),
+                              onTap: () => context.read<StorageBloc>().add(
+                                const StorageBackPressed(),
+                              ),
                               child: Text(
                                 'Storage',
-                                style: AppTextStyle.captionMedium
-                                    .copyWith(color: AppColor.primaryBlue),
+                                style: AppTextStyle.captionMedium.copyWith(
+                                  color: AppColor.primaryBlue,
+                                ),
                               ),
                             ),
                             Text(
                               ' / ',
-                              style: AppTextStyle.captionMedium
-                                  .copyWith(color: AppColor.secondaryText),
+                              style: AppTextStyle.captionMedium.copyWith(
+                                color: AppColor.secondaryText,
+                              ),
                             ),
                             Expanded(
                               child: Text(
                                 '${state.currentFolder!.classCode} - '
                                 '${state.currentFolder!.course.courseName}',
                                 style: AppTextStyle.captionMedium.copyWith(
-                                    fontWeight: AppTextStyle.medium),
+                                  fontWeight: AppTextStyle.medium,
+                                ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(width: 8),
                             GestureDetector(
-                              onTap: () => context
-                                  .read<StorageBloc>()
-                                  .add(const StorageBackPressed()),
+                              onTap: () => context.read<StorageBloc>().add(
+                                const StorageBackPressed(),
+                              ),
                               child: const Icon(
                                 Icons.arrow_back,
                                 color: AppColor.secondaryText,
@@ -146,14 +148,13 @@ class StorageScreen extends StatelessWidget {
         return Center(
           child: Text(
             'No classes found.',
-            style: AppTextStyle.bodyMedium
-                .copyWith(color: AppColor.secondaryText),
+            style: AppTextStyle.bodyMedium.copyWith(
+              color: AppColor.secondaryText,
+            ),
           ),
         );
       }
-      return isGrid
-          ? _FolderGrid(state: state)
-          : _FolderList(state: state);
+      return isGrid ? _FolderGrid(state: state) : _FolderList(state: state);
     } else {
       if (state.isDocumentsLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -163,9 +164,7 @@ class StorageScreen extends StatelessWidget {
           child: Text(state.errorMessage!, style: AppTextStyle.bodyMedium),
         );
       }
-      return isGrid
-          ? _FileGrid(state: state)
-          : _FileList(state: state);
+      return isGrid ? _FileGrid(state: state) : _FileList(state: state);
     }
   }
 }
@@ -193,9 +192,9 @@ class _FolderGrid extends StatelessWidget {
         return StorageFolderWidget(
           folder: folder,
           isGrid: true,
-          onTap: () => context
-              .read<StorageBloc>()
-              .add(StorageFolderOpened(folder: folder)),
+          onTap: () => context.read<StorageBloc>().add(
+            StorageFolderOpened(folder: folder),
+          ),
         );
       },
     );
@@ -214,19 +213,16 @@ class _FolderList extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: state.classes.length,
-      separatorBuilder: (_, __) => const Divider(
-        height: 1,
-        indent: 72,
-        color: AppColor.dividerGrey,
-      ),
+      separatorBuilder: (_, _) =>
+          const Divider(height: 1, indent: 72, color: AppColor.dividerGrey),
       itemBuilder: (context, index) {
         final folder = state.classes[index];
         return StorageFolderWidget(
           folder: folder,
           isGrid: false,
-          onTap: () => context
-              .read<StorageBloc>()
-              .add(StorageFolderOpened(folder: folder)),
+          onTap: () => context.read<StorageBloc>().add(
+            StorageFolderOpened(folder: folder),
+          ),
         );
       },
     );
@@ -281,11 +277,8 @@ class _FileList extends StatelessWidget {
     return ListView.separated(
       padding: const EdgeInsets.symmetric(vertical: 8),
       itemCount: files.length + 1,
-      separatorBuilder: (_, __) => const Divider(
-        height: 1,
-        indent: 72,
-        color: AppColor.dividerGrey,
-      ),
+      separatorBuilder: (_, _) =>
+          const Divider(height: 1, indent: 72, color: AppColor.dividerGrey),
       itemBuilder: (context, index) {
         if (index == files.length) {
           return StorageAddFileButton(isGrid: false, onTap: () {});
@@ -337,11 +330,7 @@ class _ViewTypeToggle extends StatelessWidget {
 }
 
 class _ToggleButton extends StatelessWidget {
-  const _ToggleButton({
-    required this.icon,
-    required this.selected,
-    this.onTap,
-  });
+  const _ToggleButton({required this.icon, required this.selected, this.onTap});
 
   final IconData icon;
   final bool selected;
@@ -358,12 +347,7 @@ class _ToggleButton extends StatelessWidget {
           color: selected ? AppColor.pureWhite : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           boxShadow: selected
-              ? const [
-                  BoxShadow(
-                    color: AppColor.shadowColor,
-                    blurRadius: 4,
-                  )
-                ]
+              ? const [BoxShadow(color: AppColor.shadowColor, blurRadius: 4)]
               : null,
         ),
         child: Icon(

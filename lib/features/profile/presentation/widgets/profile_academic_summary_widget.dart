@@ -42,9 +42,9 @@ class ProfileAcademicSummaryWidget extends StatelessWidget {
             children: [
               Expanded(
                 child: _BlueStatCard(
-                  mainValue:
-                      profileInfo.stats.gpaOn4Scale.toStringAsFixed(1),
-                  subValue: '(${profileInfo.stats.currentGpa.toStringAsFixed(1)})',
+                  mainValue: profileInfo.stats.gpaOn4Scale.toStringAsFixed(1),
+                  subValue:
+                      '(${profileInfo.stats.currentGpa.toStringAsFixed(1)})',
                   label: ProfileText.overallGpa,
                 ),
               ),
@@ -135,7 +135,7 @@ class _OutlinedActionButton extends StatelessWidget {
       child: OutlinedButton(
         onPressed: onTap,
         style: OutlinedButton.styleFrom(
-          side: BorderSide(color: color.withOpacity(0.4)),
+          side: BorderSide(color: color.withValues(alpha: 0.4)),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

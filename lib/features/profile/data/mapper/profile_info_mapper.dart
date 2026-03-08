@@ -10,7 +10,7 @@ extension ProfileMapper on model.ProfileModel {
     email: email,
     avatarUrl: avatarUrl,
     coverUrl: coverUrl,
-    stats: stats.toEntity()
+    stats: stats.toEntity(),
   );
 }
 
