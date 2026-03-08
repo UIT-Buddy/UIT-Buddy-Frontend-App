@@ -5,9 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 class NotificationModel extends Equatable {
   final List<NotificationItemModel> items;
 
-  const NotificationModel({
-    required this.items
-  });
+  const NotificationModel({required this.items});
 
   @override
   List<Object?> get props => [items];

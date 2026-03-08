@@ -43,8 +43,9 @@ class StorageState extends Equatable {
       isClassesLoading: isClassesLoading ?? this.isClassesLoading,
       isDocumentsLoading: isDocumentsLoading ?? this.isDocumentsLoading,
       classes: classes ?? this.classes,
-      currentFolder:
-          currentFolder != null ? currentFolder() : this.currentFolder,
+      currentFolder: currentFolder != null
+          ? currentFolder()
+          : this.currentFolder,
       documents: documents != null ? documents() : this.documents,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
@@ -52,13 +53,13 @@ class StorageState extends Equatable {
 
   @override
   List<Object?> get props => [
-        viewMode,
-        viewType,
-        isClassesLoading,
-        isDocumentsLoading,
-        classes,
-        currentFolder,
-        documents,
-        errorMessage,
-      ];
+    viewMode,
+    viewType,
+    isClassesLoading,
+    isDocumentsLoading,
+    classes,
+    currentFolder,
+    documents,
+    errorMessage,
+  ];
 }

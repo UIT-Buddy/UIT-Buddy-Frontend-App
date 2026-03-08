@@ -17,7 +17,7 @@ class NotificationDatasourceImpl implements NotificationDatasourceInterface {
               content: 'asdfasdfsadfsadfasdfasdfasdfasdfasdf',
               type: 'SOCIAL',
               isRead: false,
-              redirectUrl: ''
+              redirectUrl: '',
             ),
             NotificationItemModel(
               id: '2',
@@ -25,7 +25,7 @@ class NotificationDatasourceImpl implements NotificationDatasourceInterface {
               content: 'SS003.Q11 Tư tưởng Hồ Chí Minh - VN',
               type: 'REMINDER',
               isRead: false,
-              redirectUrl: ''
+              redirectUrl: '',
             ),
             NotificationItemModel(
               id: '3',
@@ -33,7 +33,7 @@ class NotificationDatasourceImpl implements NotificationDatasourceInterface {
               content: 'now you can send messages and make calls in the group!',
               type: 'SOCIAL',
               isRead: false,
-              redirectUrl: ''
+              redirectUrl: '',
             ),
             NotificationItemModel(
               id: '4',
@@ -41,7 +41,7 @@ class NotificationDatasourceImpl implements NotificationDatasourceInterface {
               content: 'Nộp bài công nghệ web 6',
               type: 'REMINDER',
               isRead: false,
-              redirectUrl: ''
+              redirectUrl: '',
             ),
             NotificationItemModel(
               id: '5',
@@ -49,7 +49,7 @@ class NotificationDatasourceImpl implements NotificationDatasourceInterface {
               content: 'Đề cương SE346.pdf',
               type: 'SYSTEM',
               isRead: false,
-              redirectUrl: ''
+              redirectUrl: '',
             ),
           ],
         ),

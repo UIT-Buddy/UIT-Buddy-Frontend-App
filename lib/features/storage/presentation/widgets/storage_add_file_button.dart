@@ -3,11 +3,7 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 
 class StorageAddFileButton extends StatelessWidget {
-  const StorageAddFileButton({
-    super.key,
-    required this.isGrid,
-    this.onTap,
-  });
+  const StorageAddFileButton({super.key, required this.isGrid, this.onTap});
 
   final bool isGrid;
   final VoidCallback? onTap;
@@ -30,10 +26,7 @@ class _GridAdd extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: AppColor.dividerGrey,
-            width: 1.5,
-          ),
+          border: Border.all(color: AppColor.dividerGrey, width: 1.5),
         ),
         child: Center(
           child: Icon(Icons.add, color: AppColor.tertiaryText, size: 32),
@@ -66,8 +59,9 @@ class _ListAdd extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               'Add file',
-              style: AppTextStyle.bodySmall
-                  .copyWith(color: AppColor.secondaryText),
+              style: AppTextStyle.bodySmall.copyWith(
+                color: AppColor.secondaryText,
+              ),
             ),
           ],
         ),

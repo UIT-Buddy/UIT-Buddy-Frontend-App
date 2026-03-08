@@ -61,7 +61,8 @@ class ProfileScreen extends StatelessWidget {
                   // Cover + Avatar + Name
                   ProfileCoverHeaderWidget(
                     profileInfo: profile,
-                    onNotificationTap: () => context.push(RouteName.notification),
+                    onNotificationTap: () =>
+                        context.push(RouteName.notification),
                     onSettingsTap: () {
                       // Navigate to settings
                     },

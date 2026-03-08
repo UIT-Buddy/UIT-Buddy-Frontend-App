@@ -9,9 +9,9 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
   StorageBloc({
     required SubjectClassUsecase subjectClassUsecase,
     required DocumentUsecase documentUsecase,
-  })  : _subjectClassUsecase = subjectClassUsecase,
-        _documentUsecase = documentUsecase,
-        super(const StorageState()) {
+  }) : _subjectClassUsecase = subjectClassUsecase,
+       _documentUsecase = documentUsecase,
+       super(const StorageState()) {
     on<StorageStarted>(_onStorageStarted);
     on<StorageFolderOpened>(_onFolderOpened);
     on<StorageBackPressed>(_onBackPressed);
@@ -30,15 +30,19 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     final result = await _subjectClassUsecase(const NoParams());
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        isClassesLoading: false,
-        errorMessage: () => failure.message,
-      )),
-      (classes) => emit(state.copyWith(
-        isClassesLoading: false,
-        classes: classes,
-        errorMessage: () => null,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          isClassesLoading: false,
+          errorMessage: () => failure.message,
+        ),
+      ),
+      (classes) => emit(
+        state.copyWith(
+          isClassesLoading: false,
+          classes: classes,
+          errorMessage: () => null,
+        ),
+      ),
     );
   }
 
@@ -46,50 +50,57 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     StorageFolderOpened event,
     Emitter<StorageState> emit,
   ) async {
-    emit(state.copyWith(
-      viewMode: StorageViewMode.folder,
-      currentFolder: () => event.folder,
-      isDocumentsLoading: true,
-      documents: () => null,
-    ));
+    emit(
+      state.copyWith(
+        viewMode: StorageViewMode.folder,
+        currentFolder: () => event.folder,
+        isDocumentsLoading: true,
+        documents: () => null,
+      ),
+    );
 
     final result = await _documentUsecase(
       DocumentParams(classCode: event.folder.classCode),
     );
 
     result.fold(
-      (failure) => emit(state.copyWith(
-        isDocumentsLoading: false,
-        errorMessage: () => failure.message,
-      )),
-      (docs) => emit(state.copyWith(
-        isDocumentsLoading: false,
-        documents: () => docs,
-        errorMessage: () => null,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          isDocumentsLoading: false,
+          errorMessage: () => failure.message,
+        ),
+      ),
+      (docs) => emit(
+        state.copyWith(
+          isDocumentsLoading: false,
+          documents: () => docs,
+          errorMessage: () => null,
+        ),
+      ),
     );
   }
 
-  void _onBackPressed(
-    StorageBackPressed event,
-    Emitter<StorageState> emit,
-  ) {
-    emit(state.copyWith(
-      viewMode: StorageViewMode.topLevel,
-      currentFolder: () => null,
-      documents: () => null,
-      errorMessage: () => null,
-    ));
+  void _onBackPressed(StorageBackPressed event, Emitter<StorageState> emit) {
+    emit(
+      state.copyWith(
+        viewMode: StorageViewMode.topLevel,
+        currentFolder: () => null,
+        documents: () => null,
+        errorMessage: () => null,
+      ),
+    );
   }
 
   void _onViewTypeToggled(
     StorageViewTypeToggled event,
     Emitter<StorageState> emit,
   ) {
-    emit(state.copyWith(
-      viewType: state.viewType == StorageViewType.grid
-          ? StorageViewType.list
-          : StorageViewType.grid,
-    ));
+    emit(
+      state.copyWith(
+        viewType: state.viewType == StorageViewType.grid
+            ? StorageViewType.list
+            : StorageViewType.grid,
+      ),
+    );
   }
 }

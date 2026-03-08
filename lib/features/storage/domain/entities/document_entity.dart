@@ -6,23 +6,15 @@ class DocumentListEntity extends Equatable {
   final String classCode;
   final List<DocumentEntity> items;
 
-  const DocumentListEntity({
-    required this.classCode,
-    required this.items
-  });
+  const DocumentListEntity({required this.classCode, required this.items});
 
   @override
   List<Object?> get props => [classCode, items];
 }
 
+enum AccessLevel { private, public, classOnly }
 
-enum AccessLevel {
-    PRIVATE, PUBLIC, CLASS_ONLY
-}
-
-enum DocumentPriority {
-    LOW, MEDIUM, HIGH, URGENT
-}
+enum DocumentPriority { low, medium, high, urgent }
 
 @immutable
 class DocumentEntity extends Equatable {
@@ -43,5 +35,12 @@ class DocumentEntity extends Equatable {
   });
 
   @override
-  List<Object?> get props => [id, classCode, fileUrl, fileName, accessLevel, priority];
+  List<Object?> get props => [
+    id,
+    classCode,
+    fileUrl,
+    fileName,
+    accessLevel,
+    priority,
+  ];
 }

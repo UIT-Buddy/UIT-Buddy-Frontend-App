@@ -14,11 +14,11 @@ class ProfileRepositoryImpl implements ProfileRepository {
 
   @override
   Future<Either<Failure, ProfileEntity>> getProfile({
-    required String email
+    required String email,
   }) async {
     try {
       final apiResponse = await _profileDatasourceInterface.getProfile(
-        email: email
+        email: email,
       );
 
       if (apiResponse.data == null) {

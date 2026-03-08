@@ -23,10 +23,20 @@ class AcademicDetailEntity extends Equatable {
     required this.majorCredits,
     required this.graduationCredits,
     required this.majorProgress,
-    required this.currentGpa,    
+    required this.currentGpa,
     required this.targetGpa,
   });
 
   @override
-  List<Object?> get props => [attemptedCredits, accumulatedCredits, generalCredits, foundationCredits, majorCredits, graduationCredits, majorProgress, currentGpa, targetGpa];
+  List<Object?> get props => [
+    attemptedCredits,
+    accumulatedCredits,
+    generalCredits,
+    foundationCredits,
+    majorCredits,
+    graduationCredits,
+    majorProgress,
+    currentGpa,
+    targetGpa,
+  ];
 }

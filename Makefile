@@ -6,6 +6,8 @@ help:
 	@echo "  clean      - Clean the Flutter project and get dependencies"
 	@echo "  unit-test  - Run unit tests"
 	@echo "  test       - Try CI checks locally (format + analyze + unit tests)"
+	@echo "  build-release - Build the apk release version of the app"
+	@echo "  install-apk - Install APK to device (delete the old one if exists), grant full permissions, and launch app"
 
 run:
 	flutter run --dart-define-from-file=.env
@@ -28,4 +30,26 @@ clean:
 	flutter clean
 	flutter pub get
 
-.PHONY: help run gen-code format unit-test clean test
+build-release:
+	@echo "Cleaning old APK files..."
+	@rm -f build/app/outputs/apk/release/*.apk
+	@echo "✓ Old APK files removed"
+	@echo "\nBuilding release APK..."
+	flutter build apk --release --dart-define-from-file=.env
+
+install-apk: clean gen-code build-release
+	@echo "Installing APK..."
+	$(HOME)/Android/Sdk/platform-tools/adb install -r build/app/outputs/apk/release/app-release.apk
+	@echo "\n✓ Installation successful!"
+	@echo "\nAPK installed at:"
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm path com.example.uit_buddy_mobile
+	@echo "\nGranting permissions..."
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.example.uit_buddy_mobile android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.example.uit_buddy_mobile android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.example.uit_buddy_mobile android.permission.ACCESS_BACKGROUND_LOCATION 2>/dev/null || true
+	@echo "✓ Permissions granted"
+	@echo "\nLaunching app..."
+	@$(HOME)/Android/Sdk/platform-tools/adb shell am start -n com.example.uit_buddy_mobile/.MainActivity
+	@echo "✓ App launched successfully!"
+
+.PHONY: help run gen-code format unit-test clean test build-release install-apk

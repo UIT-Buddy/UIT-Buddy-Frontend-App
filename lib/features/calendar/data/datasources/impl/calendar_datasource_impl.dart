@@ -182,4 +182,13 @@ class CalendarDatasourceImpl implements CalendarDatasourceInterface {
       );
     }
   }
+
+  @override
+  Future<void> createDeadline({
+    required String name,
+    required String courseId,
+    required DateTime deadline,
+  }) async {
+    await Future.delayed(const Duration(milliseconds: 500));
+  }
 }

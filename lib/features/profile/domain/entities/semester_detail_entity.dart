@@ -6,10 +6,8 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 class SemesterDetailEntity extends Equatable {
   final List<SemesterDetailItemEntity> items;
 
-  const SemesterDetailEntity({
-    required this.items
-  });
-  
+  const SemesterDetailEntity({required this.items});
+
   @override
   List<Object?> get props => [items];
 }
@@ -37,9 +35,20 @@ class SemesterDetailItemEntity extends Equatable {
     required this.endDate,
     required this.isCurrent,
     required this.rank,
-    required this.semesterNumber
+    required this.semesterNumber,
   });
 
   @override
-  List<Object?> get props => [id, yearStart, yearEnd, gpa, credits, startDate, endDate, isCurrent, rank, semesterNumber];
+  List<Object?> get props => [
+    id,
+    yearStart,
+    yearEnd,
+    gpa,
+    credits,
+    startDate,
+    endDate,
+    isCurrent,
+    rank,
+    semesterNumber,
+  ];
 }

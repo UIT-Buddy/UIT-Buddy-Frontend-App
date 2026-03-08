@@ -3,8 +3,8 @@ import 'package:uit_buddy_mobile/features/storage/domain/entities/subject_class_
 
 extension SubjectClassMapper on SubjectClassModel {
   SubjectClassEntity toEntity() => SubjectClassEntity(
-        classCode: classCode,
-        courseCode: courseCode,
-        course: course,
-      );
+    classCode: classCode,
+    courseCode: courseCode,
+    course: course,
+  );
 }

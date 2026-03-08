@@ -46,21 +46,31 @@ _FileTypeConfig _getConfig(String fileName) {
   switch (ext) {
     case 'pdf':
       return _FileTypeConfig(
-          icon: Icons.picture_as_pdf_outlined, color: AppColor.successGreen);
+        icon: Icons.picture_as_pdf_outlined,
+        color: AppColor.successGreen,
+      );
     case 'pptx':
     case 'ppt':
       return _FileTypeConfig(
-          icon: Icons.slideshow_outlined, color: AppColor.warningOrange);
+        icon: Icons.slideshow_outlined,
+        color: AppColor.warningOrange,
+      );
     case 'docx':
     case 'doc':
       return _FileTypeConfig(
-          icon: Icons.description_outlined, color: AppColor.primaryBlue);
+        icon: Icons.description_outlined,
+        color: AppColor.primaryBlue,
+      );
     case 'txt':
       return _FileTypeConfig(
-          icon: Icons.text_snippet_outlined, color: AppColor.secondaryText);
+        icon: Icons.text_snippet_outlined,
+        color: AppColor.secondaryText,
+      );
     default:
       return _FileTypeConfig(
-          icon: Icons.insert_drive_file_outlined, color: AppColor.primaryBlue);
+        icon: Icons.insert_drive_file_outlined,
+        color: AppColor.primaryBlue,
+      );
   }
 }
 
@@ -87,31 +97,48 @@ Widget _buildMenu({
     itemBuilder: (_) => [
       PopupMenuItem(
         value: _FileMenuAction.changeAccess,
-        child: Row(children: [
-          const Icon(Icons.lock_outline, size: 18, color: AppColor.warningOrange),
-          const SizedBox(width: 8),
-          Text('Change access level', style: AppTextStyle.bodySmall),
-        ]),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.lock_outline,
+              size: 18,
+              color: AppColor.warningOrange,
+            ),
+            const SizedBox(width: 8),
+            Text('Change access level', style: AppTextStyle.bodySmall),
+          ],
+        ),
       ),
       PopupMenuItem(
         value: _FileMenuAction.share,
-        child: Row(children: [
-          const Icon(Icons.share_outlined, size: 18, color: AppColor.primaryBlue),
-          const SizedBox(width: 8),
-          Text('Share', style: AppTextStyle.bodySmall),
-        ]),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.share_outlined,
+              size: 18,
+              color: AppColor.primaryBlue,
+            ),
+            const SizedBox(width: 8),
+            Text('Share', style: AppTextStyle.bodySmall),
+          ],
+        ),
       ),
       PopupMenuItem(
         value: _FileMenuAction.delete,
-        child: Row(children: [
-          const Icon(Icons.delete_outline, size: 18, color: AppColor.alertRed),
-          const SizedBox(width: 8),
-          Text(
-            'Delete',
-            style: AppTextStyle.bodySmall
-                .copyWith(color: AppColor.alertRed),
-          ),
-        ]),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.delete_outline,
+              size: 18,
+              color: AppColor.alertRed,
+            ),
+            const SizedBox(width: 8),
+            Text(
+              'Delete',
+              style: AppTextStyle.bodySmall.copyWith(color: AppColor.alertRed),
+            ),
+          ],
+        ),
       ),
     ],
   );
@@ -158,7 +185,7 @@ class _GridCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: config.color.withOpacity(0.1),
+                  color: config.color.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Icon(config.icon, color: config.color, size: 22),
@@ -176,8 +203,9 @@ class _GridCard extends StatelessWidget {
             padding: const EdgeInsets.only(right: 8),
             child: Text(
               file.fileName,
-              style: AppTextStyle.bodySmall
-                  .copyWith(fontWeight: AppTextStyle.medium),
+              style: AppTextStyle.bodySmall.copyWith(
+                fontWeight: AppTextStyle.medium,
+              ),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -212,22 +240,18 @@ class _ListTile extends StatelessWidget {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: config.color.withOpacity(0.1),
+          color: config.color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(config.icon, color: config.color, size: 22),
       ),
       title: Text(
         file.fileName,
-        style:
-            AppTextStyle.bodySmall.copyWith(fontWeight: AppTextStyle.medium),
+        style: AppTextStyle.bodySmall.copyWith(fontWeight: AppTextStyle.medium),
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      subtitle: Text(
-        file.classCode,
-        style: AppTextStyle.captionMedium,
-      ),
+      subtitle: Text(file.classCode, style: AppTextStyle.captionMedium),
       trailing: _buildMenu(
         onChangeAccess: onChangeAccess,
         onShare: onShare,

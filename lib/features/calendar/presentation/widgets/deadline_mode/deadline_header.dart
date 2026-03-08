@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/constants/calendar_text.dart';
 
 class DeadlineHeader extends StatelessWidget {
   const DeadlineHeader({
@@ -16,23 +17,7 @@ class DeadlineHeader extends StatelessWidget {
   final VoidCallback? onPreviousMonth;
   final VoidCallback? onNextMonth;
 
-  String _getMonthName(int month) {
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return months[month - 1];
-  }
+  String _getMonthName(int month) => CalendarText.monthNames[month - 1];
 
   @override
   Widget build(BuildContext context) {

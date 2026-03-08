@@ -6,8 +6,8 @@ import 'package:uit_buddy_mobile/features/notification/presentation/bloc/notific
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   NotificationBloc({required GetNotificationUsecase getNotificationUsecase})
-      : _getNotificationUsecase = getNotificationUsecase,
-        super(const NotificationState()) {
+    : _getNotificationUsecase = getNotificationUsecase,
+      super(const NotificationState()) {
     on<NotificationStarted>(_onNotificationStarted);
   }
 

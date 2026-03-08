@@ -32,4 +32,22 @@ class CalendarRepositoryImpl implements CalendarRepository {
       return Left(Failure.fromException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> createDeadline({
+    required String name,
+    required String courseId,
+    required DateTime deadline,
+  }) async {
+    try {
+      await _calendarDatasourceInterface.createDeadline(
+        name: name,
+        courseId: courseId,
+        deadline: deadline,
+      );
+      return Right(unit);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
 }

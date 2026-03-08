@@ -3,7 +3,7 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/home_screen.dart';
 import 'package:uit_buddy_mobile/features/root/widgets/bottom_navigation_panel.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/screens/calendar_screen.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/screens/social_screen.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/new_feed_screen.dart';
 import 'package:uit_buddy_mobile/features/storage/presentation/screens/storage_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/profile_screen.dart';
 
@@ -21,7 +21,7 @@ class _WrapperScreenState extends State<WrapperScreen> {
   final List<Widget> _screens = const [
     HomeScreen(),
     CalendarScreen(),
-    SocialScreen(),
+    NewFeedScreen(),
     StorageScreen(),
     ProfileScreen(),
   ];

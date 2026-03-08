@@ -14,55 +14,59 @@ class DeadlineCalendarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) =>
       BlocBuilder<DeadlineBloc, DeadlineState>(
-        builder: (context, state) => Container(
-          margin: const EdgeInsets.all(20),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: AppColor.pureWhite,
-            border: Border.all(color: AppColor.dividerGrey, width: 1),
-            borderRadius: BorderRadius.circular(25),
-            boxShadow: [
-              BoxShadow(
-                color: AppColor.shadowColor,
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              if (state.calendarDeadlineEntity != null) ...[
-                DeadlineHeader(
-                  month: state.calendarDeadlineEntity!.month,
-                  year: state.calendarDeadlineEntity!.year,
-                  onPreviousMonth: () {
-                    context.read<DeadlineBloc>().add(
-                      const DeadlinePreviousMonthSelected(),
-                    );
-                  },
-                  onNextMonth: () {
-                    context.read<DeadlineBloc>().add(
-                      const DeadlineNextMonthSelected(),
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                const DeadlineDayNameWidget(),
-                const SizedBox(height: 12),
-                DeadlineCalendarGrid(
-                  month: state.calendarDeadlineEntity!.month,
-                  year: state.calendarDeadlineEntity!.year,
-                  items: state.calendarDeadlineEntity!.items,
+        builder: (context, state) {
+          final screenWidth = MediaQuery.of(context).size.width;
+          final spacing = screenWidth * 0.05;
+          return Container(
+            margin: EdgeInsets.all(spacing),
+            padding: EdgeInsets.all(spacing),
+            decoration: BoxDecoration(
+              color: AppColor.pureWhite,
+              border: Border.all(color: AppColor.dividerGrey, width: 1),
+              borderRadius: BorderRadius.circular(screenWidth * 0.065),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColor.shadowColor,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ],
-              if (state.status == DeadlineModeStatus.loading)
-                const Center(child: CircularProgressIndicator()),
-              if (state.status == DeadlineModeStatus.error &&
-                  state.errorMessage != null)
-                Center(child: Text(state.errorMessage!)),
-            ],
-          ),
-        ),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                if (state.calendarDeadlineEntity != null) ...[
+                  DeadlineHeader(
+                    month: state.calendarDeadlineEntity!.month,
+                    year: state.calendarDeadlineEntity!.year,
+                    onPreviousMonth: () {
+                      context.read<DeadlineBloc>().add(
+                        const DeadlinePreviousMonthSelected(),
+                      );
+                    },
+                    onNextMonth: () {
+                      context.read<DeadlineBloc>().add(
+                        const DeadlineNextMonthSelected(),
+                      );
+                    },
+                  ),
+                  SizedBox(height: screenWidth * 0.04),
+                  const DeadlineDayNameWidget(),
+                  SizedBox(height: screenWidth * 0.03),
+                  DeadlineCalendarGrid(
+                    month: state.calendarDeadlineEntity!.month,
+                    year: state.calendarDeadlineEntity!.year,
+                    items: state.calendarDeadlineEntity!.items,
+                  ),
+                ],
+                if (state.status == DeadlineModeStatus.loading)
+                  const Center(child: CircularProgressIndicator()),
+                if (state.status == DeadlineModeStatus.error &&
+                    state.errorMessage != null)
+                  Center(child: Text(state.errorMessage!)),
+              ],
+            ),
+          );
+        },
       );
 }

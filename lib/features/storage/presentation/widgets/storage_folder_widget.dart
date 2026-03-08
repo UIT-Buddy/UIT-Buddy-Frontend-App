@@ -65,8 +65,9 @@ class _GridCard extends StatelessWidget {
             const Spacer(),
             Text(
               '${folder.classCode} - ${folder.course.courseName}',
-              style: AppTextStyle.bodySmall
-                  .copyWith(fontWeight: AppTextStyle.medium),
+              style: AppTextStyle.bodySmall.copyWith(
+                fontWeight: AppTextStyle.medium,
+              ),
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
@@ -103,8 +104,7 @@ class _ListTile extends StatelessWidget {
       ),
       title: Text(
         folder.classCode,
-        style:
-            AppTextStyle.bodySmall.copyWith(fontWeight: AppTextStyle.medium),
+        style: AppTextStyle.bodySmall.copyWith(fontWeight: AppTextStyle.medium),
       ),
       subtitle: Text(
         folder.course.courseName,

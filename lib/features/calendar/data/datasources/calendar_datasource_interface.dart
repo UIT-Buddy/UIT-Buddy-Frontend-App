@@ -6,4 +6,10 @@ abstract interface class CalendarDatasourceInterface {
     required int month,
     required int year,
   });
+
+  Future<void> createDeadline({
+    required String name,
+    required String courseId,
+    required DateTime deadline,
+  });
 }

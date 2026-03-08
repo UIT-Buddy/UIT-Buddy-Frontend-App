@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
+import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/entities/calendar_deadline_entity.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_event.dart';
@@ -53,14 +54,17 @@ class DeadlineCalendarGrid extends StatelessWidget {
     final daysInMonth = _getDaysInMonth(month, year);
     final firstDayOfWeek = _getFirstDayOfWeek(month, year);
     final totalCells = ((daysInMonth + firstDayOfWeek) / 7).ceil() * 7;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final gridSpacing = screenWidth * 0.02;
+    final dotSize = screenWidth * 0.016;
 
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 7,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
+        mainAxisSpacing: gridSpacing,
+        crossAxisSpacing: gridSpacing,
       ),
       itemCount: totalCells,
       itemBuilder: (context, index) {
@@ -91,19 +95,18 @@ class DeadlineCalendarGrid extends StatelessWidget {
               children: [
                 Text(
                   '$dayNumber',
-                  style: TextStyle(
-                    fontSize: 16,
+                  style: AppTextStyle.bodyLarge.copyWith(
                     fontWeight: FontWeight.w500,
                     color: isSelected
                         ? AppColor.pureWhite
                         : AppColor.primaryText,
                   ),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: dotSize * 0.6),
                 if (hasDeadline)
                   Container(
-                    width: 6,
-                    height: 6,
+                    width: dotSize,
+                    height: dotSize,
                     decoration: BoxDecoration(
                       color: isSelected
                           ? AppColor.pureWhite
@@ -112,7 +115,7 @@ class DeadlineCalendarGrid extends StatelessWidget {
                     ),
                   )
                 else
-                  const SizedBox(height: 6),
+                  SizedBox(height: dotSize),
               ],
             ),
           ),
