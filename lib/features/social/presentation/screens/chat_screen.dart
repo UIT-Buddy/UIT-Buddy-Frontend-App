@@ -182,6 +182,16 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  /// Returns the gap in minutes between two "HH:mm" time strings.
+  int _minutesBetween(String earlier, String later) {
+    final e = earlier.split(':');
+    final l = later.split(':');
+    final eMin = int.parse(e[0]) * 60 + int.parse(e[1]);
+    final lMin = int.parse(l[0]) * 60 + int.parse(l[1]);
+    final diff = lMin - eMin;
+    return diff < 0 ? diff + 1440 : diff;
+  }
+
   Widget _buildMessageList() {
     return GestureDetector(
       onTap: () => _focusNode.unfocus(),
@@ -192,10 +202,11 @@ class _ChatScreenState extends State<ChatScreen> {
         itemBuilder: (context, index) {
           final msg = _messages[index];
           final prevMsg = index > 0 ? _messages[index - 1] : null;
-          final showTime = prevMsg == null || prevMsg.time != msg.time;
+          final autoShowTime =
+              prevMsg == null || _minutesBetween(prevMsg.time, msg.time) >= 10;
           return _MessageBubble(
             message: msg,
-            showTimestamp: showTime,
+            showTimestamp: autoShowTime,
             nextMessage: index < _messages.length - 1
                 ? _messages[index + 1]
                 : null,
@@ -320,8 +331,10 @@ class _ChatScreenState extends State<ChatScreen> {
 }
 
 /// Individual message bubble widget
-class _MessageBubble extends StatelessWidget {
+class _MessageBubble extends StatefulWidget {
   final MessageEntity message;
+
+  /// True when the gap from the previous message is ≥ 10 min (always visible).
   final bool showTimestamp;
   final MessageEntity? nextMessage;
 
@@ -332,61 +345,84 @@ class _MessageBubble extends StatelessWidget {
   });
 
   @override
+  State<_MessageBubble> createState() => _MessageBubbleState();
+}
+
+class _MessageBubbleState extends State<_MessageBubble> {
+  bool _tappedTimestamp = false;
+
+  void _onBubbleTap() {
+    FocusScope.of(context).unfocus();
+    // Only toggle tap-timestamp when the auto-timestamp is not already shown.
+    if (!widget.showTimestamp) {
+      setState(() => _tappedTimestamp = !_tappedTimestamp);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final isMine = message.isMine;
+    final isMine = widget.message.isMine;
     final isLastInGroup =
-        nextMessage == null || nextMessage!.isMine != message.isMine;
+        widget.nextMessage == null ||
+        widget.nextMessage!.isMine != widget.message.isMine;
+    final showTs = widget.showTimestamp || _tappedTimestamp;
 
     return Padding(
       padding: EdgeInsets.only(
-        top: showTimestamp ? 0 : 2,
+        top: showTs ? 0 : 2,
         bottom: isLastInGroup ? 8 : 2,
       ),
       child: Column(
         children: [
-          if (showTimestamp) _buildTimestamp(),
-          Row(
-            mainAxisAlignment: isMine
-                ? MainAxisAlignment.end
-                : MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              if (!isMine && isLastInGroup) ...[
-                const SizedBox(width: 4),
-              ] else if (!isMine) ...[
-                const SizedBox(width: 4),
-              ],
-              Flexible(
-                child: Container(
-                  margin: EdgeInsets.only(
-                    left: isMine ? 60 : 0,
-                    right: isMine ? 0 : 60,
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isMine
-                        ? AppColor.primaryBlue
-                        : AppColor.veryLightGrey,
-                    borderRadius: BorderRadius.only(
-                      topLeft: const Radius.circular(18),
-                      topRight: const Radius.circular(18),
-                      bottomLeft: Radius.circular(isMine ? 18 : 4),
-                      bottomRight: Radius.circular(isMine ? 4 : 18),
+          if (showTs) _buildTimestamp(),
+          GestureDetector(
+            onTap: _onBubbleTap,
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              mainAxisAlignment: isMine
+                  ? MainAxisAlignment.end
+                  : MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                if (!isMine && isLastInGroup) ...[
+                  const SizedBox(width: 4),
+                ] else if (!isMine) ...[
+                  const SizedBox(width: 4),
+                ],
+                Flexible(
+                  child: Container(
+                    margin: EdgeInsets.only(
+                      left: isMine ? 60 : 0,
+                      right: isMine ? 0 : 60,
                     ),
-                  ),
-                  child: Text(
-                    message.content,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: isMine ? AppColor.pureWhite : AppColor.primaryText,
-                      height: 1.4,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 10,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isMine
+                          ? AppColor.primaryBlue
+                          : AppColor.veryLightGrey,
+                      borderRadius: BorderRadius.only(
+                        topLeft: const Radius.circular(18),
+                        topRight: const Radius.circular(18),
+                        bottomLeft: Radius.circular(isMine ? 18 : 4),
+                        bottomRight: Radius.circular(isMine ? 4 : 18),
+                      ),
+                    ),
+                    child: Text(
+                      widget.message.content,
+                      style: AppTextStyle.bodySmall.copyWith(
+                        color: isMine
+                            ? AppColor.pureWhite
+                            : AppColor.primaryText,
+                        height: 1.4,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           if (isLastInGroup)
             Padding(
@@ -400,7 +436,7 @@ class _MessageBubble extends StatelessWidget {
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
                 child: Text(
-                  message.time,
+                  widget.message.time,
                   style: AppTextStyle.captionExtraSmall,
                 ),
               ),
@@ -421,7 +457,7 @@ class _MessageBubble extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
-            message.time,
+            widget.message.time,
             style: AppTextStyle.captionExtraSmall.copyWith(
               color: AppColor.secondaryText,
             ),
