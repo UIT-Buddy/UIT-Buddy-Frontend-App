@@ -49,6 +49,8 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/placeholder/
+    - assets/images/sample/
 
   fonts:
     - family: Inter

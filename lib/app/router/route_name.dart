@@ -19,4 +19,5 @@ class RouteName {
   static const String social = '/social';
   static const String storage = '/storage';
   static const String profile = '/profile';
+  static const String notification = '/notification';
 }
