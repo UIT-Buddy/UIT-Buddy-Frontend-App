@@ -20,25 +20,34 @@ class _OtpInputFieldState extends State<OtpInputField> {
   );
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   final List<String> _previousValues = List.generate(6, (_) => '');
+  final List<bool> _focusedStates = List.generate(6, (_) => false);
+
+  @override
+  void initState() {
+    super.initState();
+    for (int i = 0; i < 6; i++) {
+      final idx = i;
+      _focusNodes[idx].addListener(() {
+        setState(() => _focusedStates[idx] = _focusNodes[idx].hasFocus);
+      });
+    }
+  }
 
   @override
   void dispose() {
-    for (var controller in _controllers) {
-      controller.dispose();
+    for (var c in _controllers) {
+      c.dispose();
     }
-    for (var node in _focusNodes) {
-      node.dispose();
+    for (var n in _focusNodes) {
+      n.dispose();
     }
     super.dispose();
   }
 
   void _onChanged(String value, int index) {
-    // Check if user deleted the character
     if (value.isEmpty && _previousValues[index].isNotEmpty && index > 0) {
       _focusNodes[index - 1].requestFocus();
-    }
-    // Move forward when entering a digit
-    else if (value.isNotEmpty && index < 5) {
+    } else if (value.isNotEmpty && index < 5) {
       _focusNodes[index + 1].requestFocus();
     }
 
@@ -59,53 +68,58 @@ class _OtpInputFieldState extends State<OtpInputField> {
       children: [
         for (int index = 0; index < 6; index++) ...[
           Expanded(
-            child: SizedBox(
-              height: 50,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              height: 56,
+              decoration: BoxDecoration(
+                color: _focusedStates[index]
+                    ? AppColor.primaryBlue10
+                    : AppColor.veryLightGrey,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: _focusedStates[index]
+                      ? AppColor.primaryBlue
+                      : Colors.transparent,
+                  width: 1.5,
+                ),
+                boxShadow: _focusedStates[index]
+                    ? [
+                        BoxShadow(
+                          color: AppColor.primaryBlue.withValues(alpha: 0.2),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ]
+                    : [],
+              ),
               child: TextField(
                 controller: _controllers[index],
                 focusNode: _focusNodes[index],
                 textAlign: TextAlign.center,
                 keyboardType: TextInputType.number,
                 maxLength: 1,
-                style: AppTextStyle.bodyLarge,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                decoration: InputDecoration(
-                  counterText: '',
-                  filled: true,
-                  fillColor: AppColor.veryLightGrey,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 3,
-                    vertical: 5,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: BorderSide.none,
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(5),
-                    borderSide: const BorderSide(
-                      color: AppColor.primaryBlue,
-                      width: 2,
-                    ),
-                  ),
+                style: AppTextStyle.bodyLarge.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: _focusedStates[index]
+                      ? AppColor.primaryBlue
+                      : AppColor.primaryText,
                 ),
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onChanged: (value) => _onChanged(value, index),
-                onTap: () {
-                  if (_controllers[index].text.isNotEmpty) {
-                    _controllers[index].selection = TextSelection.fromPosition(
-                      TextPosition(offset: _controllers[index].text.length),
-                    );
-                  }
-                },
                 onEditingComplete: () {
                   if (index < 5) {
                     _focusNodes[index + 1].requestFocus();
                   }
                 },
+                decoration: const InputDecoration(
+                  counterText: '',
+                  border: InputBorder.none,
+                  contentPadding: EdgeInsets.zero,
+                ),
               ),
             ),
           ),
-          if (index < 5) const SizedBox(width: 20),
+          if (index < 5) const SizedBox(width: 10),
         ],
       ],
     );

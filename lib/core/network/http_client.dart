@@ -27,11 +27,49 @@ class HttpClient {
     );
 
     dio.interceptors.add(
-      LogInterceptor(
-        requestBody: true,
-        responseHeader: false,
-        responseBody: true,
-        logPrint: (o) => log('$o', name: 'HttpClient'),
+      InterceptorsWrapper(
+        onRequest: (options, handler) {
+          log(
+            'REQUEST\n'
+            'Method: ${options.method}\n'
+            'URL: ${options.baseUrl}${options.path}\n'
+            'Headers: ${options.headers}\n'
+            'Body: ${options.data}',
+            name: 'HttpClient',
+          );
+          handler.next(options);
+        },
+        onResponse: (response, handler) {
+          log(
+            'RESPONSE\n'
+            'Status: ${response.statusCode}\n'
+            'URL: ${response.requestOptions.uri}\n'
+            'Body: ${response.data}',
+            name: 'HttpClient',
+          );
+          handler.next(response);
+        },
+        onError: (error, handler) {
+          final uri = error.requestOptions.uri;
+          final method = error.requestOptions.method;
+          final statusCode = error.response?.statusCode;
+          final errorType = error.type.name;
+          final responseData = error.response?.data;
+
+          log(
+            'HTTP ERROR\n'
+            'Method: $method\n'
+            'URL: $uri\n'
+            'Status Code: $statusCode\n'
+            'Error Type: $errorType\n'
+            'Error Message: ${error.message}\n'
+            'Response Data: $responseData',
+            name: 'HttpClient',
+            error: error,
+            stackTrace: error.stackTrace,
+          );
+          handler.next(error);
+        },
       ),
     );
     dio.interceptors.add(

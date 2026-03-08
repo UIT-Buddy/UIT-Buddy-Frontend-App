@@ -43,11 +43,13 @@ Future<void> initDependencies() async {
 }
 
 Future<void> _initAuthDependencies() async {
-  // Storage
-  serviceLocator.registerLazySingleton<SecureStore>(() => SecureStore());
-  serviceLocator.registerLazySingleton<TokenStore>(
-    () => TokenStoreImpl(secureStore: serviceLocator()),
-  );
+  // Storage — eagerly created so we can load persisted tokens before the app renders
+  final secureStore = SecureStore();
+  serviceLocator.registerSingleton<SecureStore>(secureStore);
+
+  final tokenStore = TokenStoreImpl(secureStore: secureStore);
+  await tokenStore.loadPersistedTokens();
+  serviceLocator.registerSingleton<TokenStore>(tokenStore);
 
   // Public Dio client (no auth interceptor needed for signup/signin/refresh)
   serviceLocator.registerLazySingleton<Dio>(() {
@@ -79,10 +81,23 @@ Future<void> _initAuthDependencies() async {
           handler.next(response);
         },
         onError: (error, handler) {
+          final uri = error.requestOptions.uri;
+          final method = error.requestOptions.method;
+          final statusCode = error.response?.statusCode;
+          final errorType = error.type.name;
+          final responseData = error.response?.data;
+
           log(
-            '${error.response?.statusCode} ${error.requestOptions.method} ${error.requestOptions.uri}\n${error.message}',
+            'HTTP ERROR\n'
+            'Method: $method\n'
+            'URL: $uri\n'
+            'Status Code: $statusCode\n'
+            'Error Type: $errorType\n'
+            'Error Message: ${error.message}\n'
+            'Response Data: $responseData',
             name: 'publicDio',
             error: error,
+            stackTrace: error.stackTrace,
           );
           handler.next(error);
         },

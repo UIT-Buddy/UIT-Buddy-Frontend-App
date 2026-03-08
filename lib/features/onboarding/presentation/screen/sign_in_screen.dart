@@ -9,6 +9,7 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_event.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_state.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/constants/onboarding_text.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/widgets/onboarding_form_widgets.dart';
 import 'package:uit_buddy_mobile/features/shared/button.dart';
 import 'package:uit_buddy_mobile/features/shared/input_text.dart';
 
@@ -19,15 +20,36 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends State<SignInScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _studentIdController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _rememberMe = false;
+
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
+    _animController.forward();
+  }
 
   @override
   void dispose() {
     _studentIdController.dispose();
     _passwordController.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
@@ -44,202 +66,137 @@ class _SignInScreenState extends State<SignInScreen> {
               SnackBar(
                 content: Text(state.errorMessage ?? 'Sign in failed'),
                 backgroundColor: AppColor.alertRed,
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
               ),
             );
           }
         },
         builder: (context, state) {
           final isLoading = state.status == SignInStatus.loading;
-          return _buildBody(context, isLoading);
+          return Scaffold(
+            backgroundColor: AppColor.veryLightGrey,
+            body: Column(
+              children: [
+                OnboardingHeader(
+                  onBack: () => context.goBack(RouteName.welcome),
+                  title: OnboardingText.signInTitle,
+                  subtitle: OnboardingText.signInSubtitle,
+                ),
+                Expanded(
+                  child: FadeTransition(
+                    opacity: _fadeAnim,
+                    child: SlideTransition(
+                      position: _slideAnim,
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                        child: OnboardingFormCard(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const FieldLabel('Student ID'),
+                              const SizedBox(height: 6),
+                              InputText(
+                                controller: _studentIdController,
+                                leftIcon: Icons.person_outline,
+                              ),
+                              const SizedBox(height: 20),
+                              const FieldLabel('Password'),
+                              const SizedBox(height: 6),
+                              InputText(
+                                controller: _passwordController,
+                                isPassword: true,
+                                leftIcon: Icons.lock_outline,
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 22,
+                                        height: 22,
+                                        child: Checkbox(
+                                          value: _rememberMe,
+                                          onChanged: (v) => setState(
+                                            () => _rememberMe = v ?? false,
+                                          ),
+                                          activeColor: AppColor.primaryBlue,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              4,
+                                            ),
+                                          ),
+                                          side: const BorderSide(
+                                            color: AppColor.secondaryText,
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Text(
+                                        OnboardingText.rememberMe,
+                                        style: AppTextStyle.bodySmall.copyWith(
+                                          color: AppColor.secondaryText,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  TextButton(
+                                    onPressed: () =>
+                                        context.goTo(RouteName.otp),
+                                    style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: Text(
+                                      OnboardingText.forgotPassword,
+                                      style: AppTextStyle.bodySmall.copyWith(
+                                        color: AppColor.primaryBlue,
+                                        fontWeight: AppTextStyle.medium,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                              Button(
+                                text: OnboardingText.signInButton,
+                                isLoading: isLoading,
+                                onPressed: () {
+                                  context.read<SignInBloc>().add(
+                                    SignInPressed(
+                                      mssv: _studentIdController.text.trim(),
+                                      password: _passwordController.text,
+                                      rememberMe: _rememberMe,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 28),
+                  child: OnboardingFooter(
+                    prompt: OnboardingText.signUpPrompt,
+                    actionText: OnboardingText.signUpButtonText,
+                    onTap: () => context.goTo(RouteName.signUpToken),
+                  ),
+                ),
+              ],
+            ),
+          );
         },
-      ),
-    );
-  }
-
-  Widget _buildBody(BuildContext context, bool isLoading) {
-    return Scaffold(
-      backgroundColor: AppColor.pureWhite,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
-
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColor.veryLightGrey,
-                    shape: BoxShape.circle,
-                  ),
-                  child: IconButton(
-                    icon: const Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: AppColor.primaryText,
-                    ),
-                    onPressed: () {
-                      context.goBack(RouteName.welcome);
-                    },
-                    padding: EdgeInsets.zero,
-                  ),
-                ),
-
-                const SizedBox(height: 30),
-
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      OnboardingText.signInTitle,
-                      style: AppTextStyle.h1.copyWith(
-                        fontWeight: AppTextStyle.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      OnboardingText.signInSubtitle,
-                      style: AppTextStyle.bodyLarge.copyWith(
-                        color: AppColor.secondaryText,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 50),
-
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  OnboardingText.studentIdLabel,
-                  style: AppTextStyle.bodySmall.copyWith(
-                    color: AppColor.secondaryText,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                InputText(
-                  controller: _studentIdController,
-                  leftIcon: Icons.person_outline,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  OnboardingText.passwordLabel,
-                  style: AppTextStyle.bodySmall.copyWith(
-                    color: AppColor.secondaryText,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                InputText(
-                  controller: _passwordController,
-                  isPassword: true,
-                  leftIcon: Icons.lock_outline,
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: Checkbox(
-                            value: _rememberMe,
-                            onChanged: (value) {
-                              setState(() {
-                                _rememberMe = value ?? false;
-                              });
-                            },
-                            activeColor: AppColor.primaryBlue,
-                            side: const BorderSide(
-                              color: AppColor.secondaryText,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          OnboardingText.rememberMe,
-                          style: AppTextStyle.bodySmall.copyWith(
-                            color: AppColor.secondaryText,
-                          ),
-                        ),
-                      ],
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        context.goTo(RouteName.otp);
-                      },
-                      style: TextButton.styleFrom(
-                        padding: EdgeInsets.zero,
-                        minimumSize: Size.zero,
-                        tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                      ),
-                      child: Text(
-                        OnboardingText.forgotPassword,
-                        style: AppTextStyle.bodySmall.copyWith(
-                          color: AppColor.primaryBlue,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                Button(
-                  text: OnboardingText.signInButton,
-                  isLoading: isLoading,
-                  onPressed: () {
-                    context.read<SignInBloc>().add(
-                      SignInPressed(
-                        mssv: _studentIdController.text.trim(),
-                        password: _passwordController.text,
-                        rememberMe: _rememberMe,
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-            const Spacer(),
-            Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    OnboardingText.signUpPrompt,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: AppColor.secondaryText,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      context.goTo(RouteName.signUpToken);
-                    },
-                    style: TextButton.styleFrom(
-                      padding: EdgeInsets.zero,
-                      minimumSize: Size.zero,
-                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    ),
-                    child: Text(
-                      OnboardingText.signUpButtonText,
-                      style: AppTextStyle.bodySmall.copyWith(
-                        color: AppColor.primaryBlue,
-                        fontWeight: AppTextStyle.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

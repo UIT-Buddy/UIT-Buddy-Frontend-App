@@ -14,12 +14,22 @@ class TokenStoreImpl implements TokenStore {
   String _refreshToken = '';
 
   @override
+  bool get hasSession => _refreshToken.isNotEmpty;
+
+  @override
+  Future<void> loadPersistedTokens() async {
+    final persisted = await _secureStore.get<String>(_refreshTokenKey);
+    if (persisted != null && persisted.isNotEmpty) {
+      _refreshToken = persisted;
+    }
+  }
+
+  @override
   Future<String> getAccessToken() async => _accessToken;
 
   @override
   Future<String> getRefreshToken() async {
     if (_refreshToken.isNotEmpty) return _refreshToken;
-    // rememberMe=true: was persisted in secure storage
     return await _secureStore.get<String>(_refreshTokenKey) ?? '';
   }
 
@@ -34,9 +44,8 @@ class TokenStoreImpl implements TokenStore {
     bool rememberMe = false,
   }) async {
     _refreshToken = refreshToken;
-    if (rememberMe) {
-      await _secureStore.set<String>(_refreshTokenKey, refreshToken);
-    }
+    // Always persist to secure storage so the session survives app restarts.
+    await _secureStore.set<String>(_refreshTokenKey, refreshToken);
   }
 
   @override
@@ -53,11 +62,7 @@ class TokenStoreImpl implements TokenStore {
 
   @override
   Future<void> replaceRefreshToken(String newRefreshToken) async {
-    final wasPersisted =
-        await _secureStore.get<String>(_refreshTokenKey) != null;
     _refreshToken = newRefreshToken;
-    if (wasPersisted) {
-      await _secureStore.set<String>(_refreshTokenKey, newRefreshToken);
-    }
+    await _secureStore.set<String>(_refreshTokenKey, newRefreshToken);
   }
 }
