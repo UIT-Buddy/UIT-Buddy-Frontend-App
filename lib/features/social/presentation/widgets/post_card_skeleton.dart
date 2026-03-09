@@ -64,7 +64,11 @@ class PostCardSkeleton extends StatelessWidget {
               const SizedBox(height: 8),
               AspectRatio(
                 aspectRatio: 16 / 10,
-                child: _box(width: double.infinity, height: double.infinity, borderRadius: 0),
+                child: _box(
+                  width: double.infinity,
+                  height: double.infinity,
+                  borderRadius: 0,
+                ),
               ),
             ],
 
