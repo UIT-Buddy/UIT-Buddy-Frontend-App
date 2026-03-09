@@ -42,14 +42,14 @@ install-apk: clean gen-code build-release
 	$(HOME)/Android/Sdk/platform-tools/adb install -r build/app/outputs/apk/release/app-release.apk
 	@echo "\n✓ Installation successful!"
 	@echo "\nAPK installed at:"
-	@$(HOME)/Android/Sdk/platform-tools/adb shell pm path com.example.uit_buddy_mobile
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm path com.uit.buddy.app
 	@echo "\nGranting permissions..."
-	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.example.uit_buddy_mobile android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
-	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.example.uit_buddy_mobile android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
-	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.example.uit_buddy_mobile android.permission.ACCESS_BACKGROUND_LOCATION 2>/dev/null || true
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.uit.buddy.app android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.uit.buddy.app android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.uit.buddy.app android.permission.ACCESS_BACKGROUND_LOCATION 2>/dev/null || true
 	@echo "✓ Permissions granted"
 	@echo "\nLaunching app..."
-	@$(HOME)/Android/Sdk/platform-tools/adb shell am start -n com.example.uit_buddy_mobile/.MainActivity
+	@$(HOME)/Android/Sdk/platform-tools/adb shell am start -n com.uit.buddy.app/.MainActivity
 	@echo "✓ App launched successfully!"
 
 .PHONY: help run gen-code format unit-test clean test build-release install-apk
