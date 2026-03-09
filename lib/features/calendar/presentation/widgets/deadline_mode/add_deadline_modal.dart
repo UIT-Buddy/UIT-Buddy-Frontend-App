@@ -43,8 +43,14 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
 
   CourseEntity? _selectedCourse;
   DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
+  int _selectedHour = 0;
+  int _selectedMinute = 0;
   bool _suppressCourseListener = false;
+
+  // Per-field validation errors
+  String? _nameError;
+  String? _courseError;
+  String? _dateError;
 
   @override
   void initState() {
@@ -52,11 +58,20 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
     context.read<AddDeadlineBloc>().add(const AddDeadlineStarted());
     _courseController.addListener(_onCourseChanged);
     _courseFocusNode.addListener(_onCourseFocusChanged);
+    _nameController.addListener(_onNameChanged);
+  }
+
+  void _onNameChanged() {
+    if (_nameError != null && _nameController.text.isNotEmpty) {
+      setState(() => _nameError = null);
+    }
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _nameController
+      ..removeListener(_onNameChanged)
+      ..dispose();
     _courseController
       ..removeListener(_onCourseChanged)
       ..dispose();
@@ -90,7 +105,10 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
 
   void _selectSuggestion(CourseEntity course) {
     _suppressCourseListener = true;
-    setState(() => _selectedCourse = course);
+    setState(() {
+      _selectedCourse = course;
+      _courseError = null;
+    });
     _courseController
       ..text = course.displayName
       ..selection = TextSelection.collapsed(offset: course.displayName.length);
@@ -120,48 +138,45 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
         child: child!,
       ),
     );
-    if (picked != null) setState(() => _selectedDate = picked);
-  }
-
-  Future<void> _pickTime() async {
-    final picked = await showTimePicker(
-      context: context,
-      initialTime: _selectedTime ?? const TimeOfDay(hour: 23, minute: 59),
-      builder: (ctx, child) => Theme(
-        data: ThemeData(
-          colorScheme: const ColorScheme.light(
-            primary: AppColor.primaryBlue,
-            onPrimary: AppColor.pureWhite,
-            surface: AppColor.pureWhite,
-            onSurface: AppColor.primaryText,
-          ),
-        ),
-        child: child!,
-      ),
-    );
-    if (picked != null) setState(() => _selectedTime = picked);
+    if (picked != null) {
+      setState(() {
+        _selectedDate = picked;
+        _dateError = null;
+      });
+    }
   }
 
   void _onCreatePressed() {
     final name = _nameController.text.trim();
     final course = _selectedCourse;
     final date = _selectedDate;
-    final time = _selectedTime;
 
-    if (name.isEmpty || course == null || date == null || time == null) return;
+    // Validate all fields and collect errors
+    final nameErr = name.isEmpty ? 'Deadline name is required.' : null;
+    final courseErr = course == null ? 'Please select a course.' : null;
+    final dateErr = date == null ? 'Please select a due date.' : null;
+
+    if (nameErr != null || courseErr != null || dateErr != null) {
+      setState(() {
+        _nameError = nameErr;
+        _courseError = courseErr;
+        _dateError = dateErr;
+      });
+      return;
+    }
 
     final deadline = DateTime(
-      date.year,
+      date!.year,
       date.month,
       date.day,
-      time.hour,
-      time.minute,
+      _selectedHour,
+      _selectedMinute,
     );
 
     context.read<AddDeadlineBloc>().add(
       AddDeadlineCreateRequested(
         name: name,
-        courseId: course.courseId,
+        courseId: course!.courseId,
         deadline: deadline,
       ),
     );
@@ -255,6 +270,7 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
                 hintText: CalendarText.hintDeadlineName,
                 leftIcon: Icons.assignment_outlined,
               ),
+              if (_nameError != null) _FieldErrorText(message: _nameError!),
               const SizedBox(height: 20),
 
               // ── Course / Class ────────────────────────────────────────
@@ -268,6 +284,7 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
                   onSuggestionSelected: _selectSuggestion,
                 ),
               ),
+              if (_courseError != null) _FieldErrorText(message: _courseError!),
               const SizedBox(height: 20),
 
               // ── Due Date & Due Time ───────────────────────────────────
@@ -289,7 +306,10 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
                               : null,
                           placeholder: CalendarText.placeholderSelectDate,
                           onTap: _pickDate,
+                          hasError: _dateError != null,
                         ),
+                        if (_dateError != null)
+                          _FieldErrorText(message: _dateError!),
                       ],
                     ),
                   ),
@@ -300,11 +320,13 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
                       children: [
                         const _FieldLabel(label: CalendarText.fieldDueTime),
                         const SizedBox(height: 8),
-                        _DateTimeTile(
-                          icon: Icons.schedule,
-                          value: _selectedTime?.format(context),
-                          placeholder: CalendarText.placeholderSelectTime,
-                          onTap: _pickTime,
+                        _TimeInput(
+                          hour: _selectedHour,
+                          minute: _selectedMinute,
+                          onHourChanged: (v) =>
+                              setState(() => _selectedHour = v),
+                          onMinuteChanged: (v) =>
+                              setState(() => _selectedMinute = v),
                         ),
                       ],
                     ),
@@ -348,6 +370,29 @@ class _FieldLabel extends StatelessWidget {
         fontWeight: FontWeight.w600,
         letterSpacing: 0.8,
         color: AppColor.secondaryText,
+      ),
+    );
+  }
+}
+
+class _FieldErrorText extends StatelessWidget {
+  const _FieldErrorText({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6, left: 4),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, size: 14, color: AppColor.alertRed),
+          const SizedBox(width: 4),
+          Text(
+            message,
+            style: AppTextStyle.captionSmall.copyWith(color: AppColor.alertRed),
+          ),
+        ],
       ),
     );
   }
@@ -550,19 +595,21 @@ class _SuggestionItem extends StatelessWidget {
   }
 }
 
-/// Tappable tile used for both date and time selection.
+/// Tappable tile used for date selection.
 class _DateTimeTile extends StatelessWidget {
   const _DateTimeTile({
     required this.icon,
     required this.value,
     required this.placeholder,
     required this.onTap,
+    this.hasError = false,
   });
 
   final IconData icon;
   final String? value;
   final String placeholder;
   final VoidCallback onTap;
+  final bool hasError;
 
   @override
   Widget build(BuildContext context) {
@@ -574,12 +621,26 @@ class _DateTimeTile extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         decoration: BoxDecoration(
-          color: hasValue ? AppColor.primaryBlue10 : AppColor.veryLightGrey,
+          color: hasError
+              ? AppColor.alertRed.withValues(alpha: 0.06)
+              : hasValue
+              ? AppColor.primaryBlue10
+              : AppColor.veryLightGrey,
           borderRadius: BorderRadius.circular(16),
-          border: hasValue
+          border: hasError
+              ? Border.all(color: AppColor.alertRed, width: 1.5)
+              : hasValue
               ? Border.all(color: AppColor.primaryBlue, width: 1.5)
               : null,
-          boxShadow: hasValue
+          boxShadow: hasError
+              ? [
+                  BoxShadow(
+                    color: AppColor.alertRed.withValues(alpha: 0.10),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ]
+              : hasValue
               ? [
                   BoxShadow(
                     color: AppColor.primaryBlue.withValues(alpha: 0.12),
@@ -594,13 +655,22 @@ class _DateTimeTile extends StatelessWidget {
             Icon(
               icon,
               size: 18,
-              color: hasValue ? AppColor.primaryBlue : AppColor.secondaryText,
+              color: hasError
+                  ? AppColor.alertRed
+                  : hasValue
+                  ? AppColor.primaryBlue
+                  : AppColor.secondaryText,
             ),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 value ?? placeholder,
-                style: hasValue
+                style: hasError
+                    ? AppTextStyle.bodySmall.copyWith(
+                        color: AppColor.alertRed,
+                        fontWeight: FontWeight.w600,
+                      )
+                    : hasValue
                     ? AppTextStyle.bodySmall.copyWith(
                         color: AppColor.primaryBlue,
                         fontWeight: FontWeight.w600,
@@ -612,6 +682,122 @@ class _DateTimeTile extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Inline HH : MM input for selecting a time without a dialog.
+/// Drum-roll scroll picker for hour and minute.
+class _TimeInput extends StatelessWidget {
+  const _TimeInput({
+    required this.hour,
+    required this.minute,
+    required this.onHourChanged,
+    required this.onMinuteChanged,
+  });
+
+  final int hour;
+  final int minute;
+  final ValueChanged<int> onHourChanged;
+  final ValueChanged<int> onMinuteChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _TimeDropdown(
+            value: hour,
+            count: 24,
+            hint: 'HH',
+            onChanged: onHourChanged,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text(
+            ':',
+            style: AppTextStyle.h3.copyWith(
+              color: AppColor.secondaryText,
+              fontWeight: AppTextStyle.bold,
+            ),
+          ),
+        ),
+        Expanded(
+          child: _TimeDropdown(
+            value: minute,
+            count: 60,
+            hint: 'MM',
+            onChanged: onMinuteChanged,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _TimeDropdown extends StatelessWidget {
+  const _TimeDropdown({
+    required this.value,
+    required this.count,
+    required this.hint,
+    required this.onChanged,
+  });
+
+  final int value;
+  final int count;
+  final String hint;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColor.primaryBlue10,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColor.primaryBlue, width: 1.5),
+        boxShadow: [
+          BoxShadow(
+            color: AppColor.primaryBlue.withValues(alpha: 0.12),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<int>(
+          value: value,
+          isExpanded: true,
+          icon: const Icon(
+            Icons.expand_more_rounded,
+            color: AppColor.primaryBlue,
+            size: 20,
+          ),
+          dropdownColor: AppColor.pureWhite,
+          borderRadius: BorderRadius.circular(14),
+          style: AppTextStyle.bodySmall.copyWith(
+            color: AppColor.primaryBlue,
+            fontWeight: FontWeight.w600,
+          ),
+          onChanged: (v) {
+            if (v != null) onChanged(v);
+          },
+          items: List.generate(count, (i) {
+            final label = i.toString().padLeft(2, '0');
+            return DropdownMenuItem<int>(
+              value: i,
+              child: Text(
+                label,
+                style: AppTextStyle.bodySmall.copyWith(
+                  color: AppColor.primaryText,
+                  fontWeight: FontWeight.normal,
+                ),
+              ),
+            );
+          }),
         ),
       ),
     );

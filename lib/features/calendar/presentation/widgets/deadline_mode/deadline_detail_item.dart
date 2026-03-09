@@ -16,6 +16,7 @@ class DeadlineDetailItem extends StatelessWidget {
       case CalendarDeadlineItemEntityStatus.upcoming:
         return AppColor.primaryBlue;
       case CalendarDeadlineItemEntityStatus.nearDeadline:
+        return AppColor.warningOrange;
       case CalendarDeadlineItemEntityStatus.overdue:
         return AppColor.alertRed;
       case CalendarDeadlineItemEntityStatus.empty:
@@ -30,10 +31,41 @@ class DeadlineDetailItem extends StatelessWidget {
       case CalendarDeadlineItemEntityStatus.upcoming:
         return AppColor.primaryBlue10;
       case CalendarDeadlineItemEntityStatus.nearDeadline:
+        return AppColor.warningOrangeLight;
       case CalendarDeadlineItemEntityStatus.overdue:
         return AppColor.alertRed10;
       case CalendarDeadlineItemEntityStatus.empty:
         return Colors.transparent;
+    }
+  }
+
+  IconData _getStatusIcon(CalendarDeadlineItemEntityStatus status) {
+    switch (status) {
+      case CalendarDeadlineItemEntityStatus.done:
+        return Icons.check_circle_outline_rounded;
+      case CalendarDeadlineItemEntityStatus.upcoming:
+        return Icons.schedule_outlined;
+      case CalendarDeadlineItemEntityStatus.nearDeadline:
+        return Icons.warning_amber_outlined;
+      case CalendarDeadlineItemEntityStatus.overdue:
+        return Icons.error_outline_rounded;
+      case CalendarDeadlineItemEntityStatus.empty:
+        return Icons.circle_outlined;
+    }
+  }
+
+  String _getStatusLabel(CalendarDeadlineItemEntityStatus status) {
+    switch (status) {
+      case CalendarDeadlineItemEntityStatus.done:
+        return 'Done';
+      case CalendarDeadlineItemEntityStatus.upcoming:
+        return 'Upcoming';
+      case CalendarDeadlineItemEntityStatus.nearDeadline:
+        return 'Due Soon';
+      case CalendarDeadlineItemEntityStatus.overdue:
+        return 'Overdue';
+      case CalendarDeadlineItemEntityStatus.empty:
+        return '';
     }
   }
 
@@ -97,7 +129,7 @@ class DeadlineDetailItem extends StatelessWidget {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         child: Icon(
-                          Icons.assignment_outlined,
+                          _getStatusIcon(deadlineDetailEntity.status),
                           color: statusColor,
                           size: 20,
                         ),
@@ -123,6 +155,28 @@ class DeadlineDetailItem extends StatelessWidget {
                               deadlineDetailEntity: deadlineDetailEntity,
                             ),
                           ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Status chip
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: bgColor,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(
+                            color: statusColor.withValues(alpha: 0.4),
+                          ),
+                        ),
+                        child: Text(
+                          _getStatusLabel(deadlineDetailEntity.status),
+                          style: AppTextStyle.captionExtraSmall.copyWith(
+                            color: statusColor,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
                     ],

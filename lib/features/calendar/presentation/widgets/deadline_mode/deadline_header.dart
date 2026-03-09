@@ -23,33 +23,51 @@ class DeadlineHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Text(
-          '${_getMonthName(month)} $year',
-          style: AppTextStyle.bodyLarge.copyWith(fontWeight: AppTextStyle.bold),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _getMonthName(month),
+              style: AppTextStyle.h3.copyWith(
+                fontWeight: AppTextStyle.bold,
+                color: AppColor.pureWhite,
+              ),
+            ),
+            Text(
+              '$year',
+              style: AppTextStyle.captionMedium.copyWith(
+                color: AppColor.pureWhite.withValues(alpha: 0.75),
+              ),
+            ),
+          ],
         ),
         const Spacer(),
-        Container(
-          decoration: const BoxDecoration(
-            color: AppColor.veryLightGrey,
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            onPressed: onPreviousMonth,
-            icon: const Icon(Icons.chevron_left),
-          ),
-        ),
+        _NavArrow(icon: Icons.chevron_left, onTap: onPreviousMonth),
         const SizedBox(width: 8),
-        Container(
-          decoration: const BoxDecoration(
-            color: AppColor.veryLightGrey,
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            onPressed: onNextMonth,
-            icon: const Icon(Icons.chevron_right),
-          ),
-        ),
+        _NavArrow(icon: Icons.chevron_right, onTap: onNextMonth),
       ],
+    );
+  }
+}
+
+class _NavArrow extends StatelessWidget {
+  const _NavArrow({required this.icon, this.onTap});
+  final IconData icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.20),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: AppColor.pureWhite, size: 20),
+      ),
     );
   }
 }

@@ -8,6 +8,7 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_event.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_state.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/constants/onboarding_text.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/widgets/onboarding_form_widgets.dart';
 import 'package:uit_buddy_mobile/features/shared/button.dart';
 import 'package:uit_buddy_mobile/features/shared/input_text.dart';
 
@@ -27,7 +28,8 @@ class SignUpInfoScreen extends StatefulWidget {
   State<SignUpInfoScreen> createState() => _SignUpInfoScreenState();
 }
 
-class _SignUpInfoScreenState extends State<SignUpInfoScreen> {
+class _SignUpInfoScreenState extends State<SignUpInfoScreen>
+    with SingleTickerProviderStateMixin {
   late final TextEditingController _studentIdController = TextEditingController(
     text: widget.studentId,
   );
@@ -38,12 +40,32 @@ class _SignUpInfoScreenState extends State<SignUpInfoScreen> {
   final TextEditingController _confirmPasswordController =
       TextEditingController();
 
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
+    _animController.forward();
+  }
+
   @override
   void dispose() {
     _studentIdController.dispose();
     _fullNameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
@@ -58,6 +80,10 @@ class _SignUpInfoScreenState extends State<SignUpInfoScreen> {
             SnackBar(
               content: Text(state.errorMessage ?? 'Sign up failed'),
               backgroundColor: AppColor.alertRed,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -65,165 +91,165 @@ class _SignUpInfoScreenState extends State<SignUpInfoScreen> {
       builder: (context, state) {
         final isLoading = state.status == SignUpInfoStatus.loading;
         return Scaffold(
-          backgroundColor: AppColor.pureWhite,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
+          backgroundColor: AppColor.veryLightGrey,
+          body: Column(
+            children: [
+              OnboardingHeader(
+                onBack: () => context.goBack(RouteName.signUpToken),
+                title: OnboardingText.signUpTitle,
+                subtitle: OnboardingText.signUpSubtitle2,
+              ),
+              Expanded(
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                      child: Column(
+                        children: [
+                          // Verified student info card
+                          _VerifiedStudentCard(
+                            studentId: widget.studentId,
+                            fullName: widget.studentFullName,
+                          ),
+                          const SizedBox(height: 16),
+                          // Password form card
+                          OnboardingFormCard(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const FieldLabel(
+                                  OnboardingText.signUpPasswordLabel,
+                                ),
+                                const SizedBox(height: 6),
+                                InputText(
+                                  controller: _passwordController,
+                                  isPassword: true,
+                                  leftIcon: Icons.lock_outline,
+                                ),
+                                const SizedBox(height: 20),
+                                const FieldLabel(
+                                  OnboardingText.signUpConfirmPasswordLabel,
+                                ),
+                                const SizedBox(height: 6),
+                                InputText(
+                                  controller: _confirmPasswordController,
+                                  isPassword: true,
+                                  leftIcon: Icons.lock_outline,
+                                ),
+                                const SizedBox(height: 24),
+                                Button(
+                                  text: OnboardingText.signUpButton,
+                                  isLoading: isLoading,
+                                  onPressed: () {
+                                    context.read<SignUpInfoBloc>().add(
+                                      SignUpInfoSubmitPressed(
+                                        signupToken: widget.signupToken,
+                                        mssv: widget.studentId,
+                                        password: _passwordController.text,
+                                        confirmPassword:
+                                            _confirmPasswordController.text,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 28),
+                child: OnboardingFooter(
+                  prompt: OnboardingText.signInPromt,
+                  actionText: OnboardingText.signInButtonText,
+                  onTap: () => context.goBack(RouteName.signIn),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Read-only card showing the verified student details from the token step.
+class _VerifiedStudentCard extends StatelessWidget {
+  const _VerifiedStudentCard({required this.studentId, required this.fullName});
+
+  final String studentId;
+  final String fullName;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      decoration: BoxDecoration(
+        color: AppColor.successGreen10,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColor.successGreen.withValues(alpha: 0.3)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppColor.successGreen,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.verified_user_outlined,
+              color: AppColor.pureWhite,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColor.veryLightGrey,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          size: 20,
-                          color: AppColor.primaryText,
-                        ),
-                        onPressed: () {
-                          context.goBack(RouteName.signUpToken);
-                        },
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          OnboardingText.signUpTitle,
-                          style: AppTextStyle.h1.copyWith(
-                            fontWeight: AppTextStyle.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          OnboardingText.signUpSubtitle2,
-                          style: AppTextStyle.bodyLarge.copyWith(
-                            color: AppColor.secondaryText,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                Text(
+                  fullName,
+                  style: AppTextStyle.bodySmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.primaryText,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 50),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      OnboardingText.signUpStudentIdLabel,
-                      style: AppTextStyle.bodySmall.copyWith(
-                        color: AppColor.secondaryText,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    InputText(
-                      controller: _studentIdController,
-                      leftIcon: Icons.person_outline,
-                      readOnly: true,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      OnboardingText.signUpFullNameLabel,
-                      style: AppTextStyle.bodySmall.copyWith(
-                        color: AppColor.secondaryText,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    InputText(
-                      controller: _fullNameController,
-                      leftIcon: Icons.badge_outlined,
-                      readOnly: true,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      OnboardingText.signUpPasswordLabel,
-                      style: AppTextStyle.bodySmall.copyWith(
-                        color: AppColor.secondaryText,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    InputText(
-                      controller: _passwordController,
-                      isPassword: true,
-                      leftIcon: Icons.lock_outline,
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      OnboardingText.signUpConfirmPasswordLabel,
-                      style: AppTextStyle.bodySmall.copyWith(
-                        color: AppColor.secondaryText,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    InputText(
-                      controller: _confirmPasswordController,
-                      isPassword: true,
-                      leftIcon: Icons.lock_outline,
-                    ),
-                    const SizedBox(height: 16),
-                    Button(
-                      text: OnboardingText.signUpButton,
-                      isLoading: isLoading,
-                      onPressed: () {
-                        context.read<SignUpInfoBloc>().add(
-                          SignUpInfoSubmitPressed(
-                            signupToken: widget.signupToken,
-                            mssv: widget.studentId,
-                            password: _passwordController.text,
-                            confirmPassword: _confirmPasswordController.text,
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        OnboardingText.signInPromt,
-                        style: AppTextStyle.bodySmall.copyWith(
-                          color: AppColor.secondaryText,
-                        ),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          context.goBack(RouteName.signIn);
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          OnboardingText.signInButtonText,
-                          style: AppTextStyle.bodySmall.copyWith(
-                            color: AppColor.primaryBlue,
-                            fontWeight: AppTextStyle.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 2),
+                Text(
+                  studentId,
+                  style: AppTextStyle.captionSmall.copyWith(
+                    color: AppColor.secondaryText,
                   ),
                 ),
               ],
             ),
           ),
-        );
-      },
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            decoration: BoxDecoration(
+              color: AppColor.successGreen,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              'Verified',
+              style: AppTextStyle.captionSmall.copyWith(
+                color: AppColor.pureWhite,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
