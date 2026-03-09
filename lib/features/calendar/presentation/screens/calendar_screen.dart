@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
+import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_state.dart';
@@ -14,8 +15,23 @@ import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/courses_
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_calendar_widget.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_detail_section.dart';
 
-class CalendarScreen extends StatelessWidget {
+class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
+
+  @override
+  State<CalendarScreen> createState() => _CalendarScreenState();
+}
+
+class _CalendarScreenState extends State<CalendarScreen> {
+  Future<void> _onRefresh(BuildContext context, CalendarMode mode) async {
+    if (mode == CalendarMode.deadline) {
+      context.read<DeadlineBloc>().add(const DeadlineStarted());
+    } else {
+      context.read<CoursesModeBloc>().add(const CoursesModeStarted());
+    }
+    // Give the bloc a moment to process before dismissing the indicator
+    await Future.delayed(const Duration(milliseconds: 800));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,35 +63,44 @@ class CalendarScreen extends StatelessWidget {
                 Expanded(
                   child: BlocBuilder<CalendarBloc, CalendarState>(
                     builder: (context, state) {
-                      switch (state.mode) {
-                        case CalendarMode.deadline:
-                          return BlocBuilder<DeadlineBloc, DeadlineState>(
-                            builder: (context, deadlineState) {
-                              // Get selected day's deadline details
-                              final selectedItem = deadlineState
-                                  .calendarDeadlineEntity
-                                  ?.items
-                                  .where((item) => item.isSelected)
-                                  .firstOrNull;
+                      return RefreshIndicator(
+                        color: AppColor.primaryBlue,
+                        onRefresh: () => _onRefresh(context, state.mode),
+                        child: switch (state.mode) {
+                          CalendarMode.deadline =>
+                            BlocBuilder<DeadlineBloc, DeadlineState>(
+                              builder: (context, deadlineState) {
+                                final selectedItem = deadlineState
+                                    .calendarDeadlineEntity
+                                    ?.items
+                                    .where((item) => item.isSelected)
+                                    .firstOrNull;
 
-                              final deadlineDetails =
-                                  selectedItem?.details ?? [];
+                                final deadlineDetails =
+                                    selectedItem?.details ?? [];
 
-                              return Column(
-                                children: [
-                                  const DeadlineCalendarWidget(),
-                                  Expanded(
-                                    child: DeadlineDetailSection(
-                                      deadlineDetails: deadlineDetails,
+                                return Column(
+                                  children: [
+                                    const DeadlineCalendarWidget(),
+                                    Expanded(
+                                      child: DeadlineDetailSection(
+                                        deadlineDetails: deadlineDetails,
+                                        selectedDay: selectedItem?.day,
+                                        month: deadlineState
+                                            .calendarDeadlineEntity
+                                            ?.month,
+                                        year: deadlineState
+                                            .calendarDeadlineEntity
+                                            ?.year,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        case CalendarMode.courses:
-                          return const CoursesCalendarWidget();
-                      }
+                                  ],
+                                );
+                              },
+                            ),
+                          CalendarMode.courses => const CoursesCalendarWidget(),
+                        },
+                      );
                     },
                   ),
                 ),

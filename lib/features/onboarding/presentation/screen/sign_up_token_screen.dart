@@ -3,11 +3,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/router/extensions/router_extension.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
-import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_event.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_state.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/constants/onboarding_text.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/widgets/onboarding_form_widgets.dart';
 import 'package:uit_buddy_mobile/features/shared/button.dart';
 import 'package:uit_buddy_mobile/features/shared/input_text.dart';
 
@@ -18,12 +18,33 @@ class SignUpTokenScreen extends StatefulWidget {
   State<SignUpTokenScreen> createState() => _SignUpTokenScreenState();
 }
 
-class _SignUpTokenScreenState extends State<SignUpTokenScreen> {
+class _SignUpTokenScreenState extends State<SignUpTokenScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _tokenController = TextEditingController();
+
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
+    _animController.forward();
+  }
 
   @override
   void dispose() {
     _tokenController.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
@@ -44,6 +65,10 @@ class _SignUpTokenScreenState extends State<SignUpTokenScreen> {
             SnackBar(
               content: Text(state.errorMessage ?? 'Verification failed'),
               backgroundColor: AppColor.alertRed,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -51,120 +76,60 @@ class _SignUpTokenScreenState extends State<SignUpTokenScreen> {
       builder: (context, state) {
         final isLoading = state.status == SignUpTokenStatus.loading;
         return Scaffold(
-          backgroundColor: AppColor.pureWhite,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColor.veryLightGrey,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          size: 20,
-                          color: AppColor.primaryText,
-                        ),
-                        onPressed: () {
-                          context.goBack(RouteName.signIn);
-                        },
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          OnboardingText.signUpTitle,
-                          style: AppTextStyle.h1.copyWith(
-                            fontWeight: AppTextStyle.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          OnboardingText.signUpSubtitle1,
-                          style: AppTextStyle.bodyLarge.copyWith(
-                            color: AppColor.secondaryText,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 50),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      OnboardingText.moodleTokenLabel,
-                      style: AppTextStyle.bodySmall.copyWith(
-                        color: AppColor.secondaryText,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    InputText(
-                      controller: _tokenController,
-                      isPassword: true,
-                      leftIcon: Icons.key_outlined,
-                    ),
-                    const SizedBox(height: 16),
-                    Button(
-                      text: OnboardingText.signUpVerifyButton,
-                      isLoading: isLoading,
-                      onPressed: () {
-                        context.read<SignUpTokenBloc>().add(
-                          SignUpTokenVerifyPressed(
-                            wstoken: _tokenController.text.trim(),
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        OnboardingText.signInPromt,
-                        style: AppTextStyle.bodySmall.copyWith(
-                          color: AppColor.secondaryText,
+          backgroundColor: AppColor.veryLightGrey,
+          body: Column(
+            children: [
+              OnboardingHeader(
+                onBack: () => context.goBack(RouteName.signIn),
+                title: OnboardingText.signUpTitle,
+                subtitle: OnboardingText.signUpSubtitle1,
+              ),
+              Expanded(
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                      child: OnboardingFormCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const FieldLabel(OnboardingText.moodleTokenLabel),
+                            const SizedBox(height: 6),
+                            InputText(
+                              controller: _tokenController,
+                              isPassword: true,
+                              leftIcon: Icons.key_outlined,
+                            ),
+                            const SizedBox(height: 24),
+                            Button(
+                              text: OnboardingText.signUpVerifyButton,
+                              isLoading: isLoading,
+                              onPressed: () {
+                                context.read<SignUpTokenBloc>().add(
+                                  SignUpTokenVerifyPressed(
+                                    wstoken: _tokenController.text.trim(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          context.goBack(RouteName.signIn);
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          OnboardingText.signInButtonText,
-                          style: AppTextStyle.bodySmall.copyWith(
-                            color: AppColor.primaryBlue,
-                            fontWeight: AppTextStyle.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 28),
+                child: OnboardingFooter(
+                  prompt: OnboardingText.signInPromt,
+                  actionText: OnboardingText.signInButtonText,
+                  onTap: () => context.goBack(RouteName.signIn),
+                ),
+              ),
+            ],
           ),
         );
       },
