@@ -66,4 +66,18 @@ class ChatSettingText {
   static const String nicknameHint = 'Enter a nickname...';
   static const String addNickname = 'Add nickname';
   static const String save = 'Save';
+
+  // Create Group screen
+  static const String createGroupTitle = 'Create Group';
+  static const String groupNameHint = 'Group name';
+  static const String createAction = 'Create';
+
+  // Add Member screen
+  static const String addMemberTitle = 'Add Members';
+  static const String addAction = 'Add';
+
+  // Shared contact picker
+  static const String searchContactsHint = 'Search contacts...';
+  static const String noContactsFound = 'No contacts found';
+  static String selectedCount(int n) => '$n selected';
 }

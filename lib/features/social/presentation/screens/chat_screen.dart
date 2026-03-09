@@ -125,6 +125,7 @@ class _ChatScreenState extends State<ChatScreen> {
         icon: const Icon(
           Icons.arrow_back_ios,
           size: 20,
+
           color: AppColor.primaryText,
         ),
         onPressed: () => Navigator.of(context).pop(),
@@ -169,15 +170,15 @@ class _ChatScreenState extends State<ChatScreen> {
                 children: [
                   Text(
                     widget.conversation.name,
-                    style: AppTextStyle.bodySmall.copyWith(
+                    style: AppTextStyle.h4.copyWith(
                       fontWeight: AppTextStyle.bold,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   Text(
-                    widget.conversation.isOnline ? 'Đang hoạt động' : 'Offline',
-                    style: AppTextStyle.captionSmall.copyWith(
+                    widget.conversation.isOnline ? 'Online' : 'Offline',
+                    style: AppTextStyle.bodySmall.copyWith(
                       color: widget.conversation.isOnline
                           ? AppColor.successGreen
                           : AppColor.secondaryText,

@@ -8,8 +8,13 @@ import 'package:uit_buddy_mobile/features/social/presentation/widgets/settings/s
 
 class ChatSettingsMembersSection extends StatelessWidget {
   final List<ChatMemberEntity> members;
+  final VoidCallback onAddMember;
 
-  const ChatSettingsMembersSection({super.key, required this.members});
+  const ChatSettingsMembersSection({
+    super.key,
+    required this.members,
+    required this.onAddMember,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +39,7 @@ class ChatSettingsMembersSection extends StatelessWidget {
             iconColor: AppColor.primaryBlue,
           ),
           title: ChatSettingText.addMemberAction,
-          onTap: () {},
+          onTap: onAddMember,
           titleStyle: AppTextStyle.bodySmall.copyWith(
             color: AppColor.primaryBlue,
             fontWeight: AppTextStyle.medium,

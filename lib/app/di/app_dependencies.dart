@@ -54,6 +54,8 @@ import 'package:uit_buddy_mobile/features/profile/data/repositories/profile_repo
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
@@ -269,6 +271,8 @@ Future<void> _initCalendarDependencies() async {
 void _initSocialDependencies() {
   // Blocs
   serviceLocator.registerFactory(() => NewFeedBloc());
+  serviceLocator.registerFactory(() => ChatSettingsBloc());
+  serviceLocator.registerFactory(() => ContactPickerBloc());
 }
 
 Future<void> _initProfileDependencies() async {

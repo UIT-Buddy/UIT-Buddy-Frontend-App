@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/chat_member_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_state.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/chat_setting_text.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/settings/chat_settings_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/settings/chat_settings_media_section.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/settings/chat_settings_members_section.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/settings/chat_settings_privacy_section.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/add_member_screen.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/create_group_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/settings/chat_settings_quick_actions.dart';
 
 class ChatSettingsScreen extends StatelessWidget {
@@ -20,10 +26,19 @@ class ChatSettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          ChatSettingsBloc()
-            ..add(ChatSettingsStarted(conversation: conversation)),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (_) =>
+              serviceLocator.get<ChatSettingsBloc>()
+                ..add(ChatSettingsStarted(conversation: conversation)),
+        ),
+        BlocProvider(
+          create: (_) =>
+              serviceLocator.get<ContactPickerBloc>()
+                ..add(const ContactPickerStarted()),
+        ),
+      ],
       child: _ChatSettingsView(conversation: conversation),
     );
   }
@@ -73,7 +88,7 @@ class _ChatSettingsView extends StatelessWidget {
       ),
       title: Text(
         ChatSettingText.appBarTitle,
-        style: AppTextStyle.bodySmall.copyWith(fontWeight: AppTextStyle.bold),
+        style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
       ),
       centerTitle: true,
     );
@@ -94,12 +109,17 @@ class _ChatSettingsView extends StatelessWidget {
           onMuteToggle: () => context.read<ChatSettingsBloc>().add(
             const ChatSettingsNotificationToggled(),
           ),
+          onCreateGroup: () => _openCreateGroup(context),
+          onAddMember: () => _openAddMember(context, state.members),
         ),
         const SizedBox(height: 8),
         // ChatSettingsCustomizeSection(conversation: conversation),
         if (conversation.isGroup) ...[
           const SizedBox(height: 8),
-          ChatSettingsMembersSection(members: state.members),
+          ChatSettingsMembersSection(
+            members: state.members,
+            onAddMember: () => _openAddMember(context, state.members),
+          ),
         ],
         const SizedBox(height: 8),
         ChatSettingsMediaSection(
@@ -123,6 +143,38 @@ class _ChatSettingsView extends StatelessWidget {
         const SizedBox(height: 32),
       ],
     );
+  }
+
+  void _push(BuildContext context, Widget screen) {
+    Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        pageBuilder: (context, animation, secondaryAnimation) => screen,
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+        reverseTransitionDuration: const Duration(milliseconds: 260),
+      ),
+    );
+  }
+
+  void _openCreateGroup(BuildContext context) {
+    _push(context, CreateGroupScreen(sourceConversation: conversation));
+  }
+
+  void _openAddMember(BuildContext context, List<ChatMemberEntity> members) {
+    _push(context, AddMemberScreen(existingMembers: members));
   }
 
   void _showLeaveGroupDialog(BuildContext context) {

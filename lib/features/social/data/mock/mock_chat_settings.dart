@@ -91,6 +91,75 @@ const _membersC6 = <ChatMemberEntity>[
   ),
 ];
 
+// ---------------------------------------------------------------------------
+// Friends (full contact list for Create Group / Add Member)
+// ---------------------------------------------------------------------------
+
+const _mockFriends = <ChatMemberEntity>[
+  ChatMemberEntity(
+    id: 'm1',
+    name: 'Đinh Minh Phan',
+    avatarUrl: 'https://i.pravatar.cc/150?img=1',
+    isOnline: true,
+  ),
+  ChatMemberEntity(
+    id: 'm3',
+    name: 'Nguyễn Thị Hồng',
+    avatarUrl: 'https://i.pravatar.cc/150?img=5',
+    isOnline: false,
+  ),
+  ChatMemberEntity(
+    id: 'm4',
+    name: 'Trần Văn Khoa',
+    avatarUrl: 'https://i.pravatar.cc/150?img=8',
+    isOnline: false,
+  ),
+  ChatMemberEntity(
+    id: 'm5',
+    name: 'Lê Hoàng Anh',
+    avatarUrl: 'https://i.pravatar.cc/150?img=12',
+    isOnline: true,
+  ),
+  ChatMemberEntity(
+    id: 'm6',
+    name: 'Phạm Quốc Bảo',
+    avatarUrl: 'https://i.pravatar.cc/150?img=15',
+    isOnline: false,
+  ),
+  ChatMemberEntity(
+    id: 'm7',
+    name: 'Đỗ Thị Mai',
+    avatarUrl: 'https://i.pravatar.cc/150?img=44',
+    isOnline: true,
+  ),
+  ChatMemberEntity(
+    id: 'm8',
+    name: 'Lý Tuấn Kiệt',
+    avatarUrl: 'https://i.pravatar.cc/150?img=22',
+    isOnline: false,
+  ),
+  ChatMemberEntity(
+    id: 'm9',
+    name: 'Võ Hồng Nhung',
+    avatarUrl: 'https://i.pravatar.cc/150?img=47',
+    isOnline: false,
+  ),
+  ChatMemberEntity(
+    id: 'm10',
+    name: 'Bùi Minh Tuấn',
+    avatarUrl: 'https://i.pravatar.cc/150?img=33',
+    isOnline: true,
+  ),
+  ChatMemberEntity(
+    id: 'm11',
+    name: 'Trương Thị Lan',
+    avatarUrl: 'https://i.pravatar.cc/150?img=49',
+    isOnline: false,
+  ),
+];
+
+List<ChatMemberEntity> getMockFriends() => List.unmodifiable(_mockFriends);
+
 List<ChatMemberEntity> getMockMembers(String conversationId) {
   switch (conversationId) {
     case 'c3':

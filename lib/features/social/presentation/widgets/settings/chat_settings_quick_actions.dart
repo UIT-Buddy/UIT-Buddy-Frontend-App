@@ -8,12 +8,16 @@ class ChatSettingsQuickActions extends StatelessWidget {
   final ConversationEntity conversation;
   final bool isMuted;
   final VoidCallback onMuteToggle;
+  final VoidCallback onCreateGroup;
+  final VoidCallback onAddMember;
 
   const ChatSettingsQuickActions({
     super.key,
     required this.conversation,
     required this.isMuted,
     required this.onMuteToggle,
+    required this.onCreateGroup,
+    required this.onAddMember,
   });
 
   @override
@@ -35,13 +39,13 @@ class ChatSettingsQuickActions extends StatelessWidget {
         _QuickActionData(
           icon: Icons.person_add_alt_1_outlined,
           label: ChatSettingText.addMember,
-          onTap: () {},
+          onTap: onAddMember,
         )
       else
         _QuickActionData(
           icon: Icons.group_add_outlined,
           label: ChatSettingText.createGroup,
-          onTap: () {},
+          onTap: onCreateGroup,
         ),
     ];
 
