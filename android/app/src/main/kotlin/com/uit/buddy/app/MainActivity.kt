@@ -1,4 +1,4 @@
-package com.example.uit_buddy_mobile
+package com.uit.buddy.app
 
 import io.flutter.embedding.android.FlutterActivity
 
