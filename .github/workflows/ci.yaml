@@ -85,6 +85,6 @@ jobs:
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
-          groups: testers
+          groups: tester
           file: build/app/outputs/flutter-apk/app-release.apk
           releaseNotes: "Auto-build v1.0.${{ github.run_number }}-${{ env.CURRENT_DATE }}"
