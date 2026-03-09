@@ -20,24 +20,15 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
 
-    emit(state.copyWith(
-      status: NewFeedStatus.loaded,
-      posts: mockPosts,
-    ));
+    emit(state.copyWith(status: NewFeedStatus.loaded, posts: mockPosts));
   }
 
-  void _onTabChanged(
-    NewFeedTabChanged event,
-    Emitter<NewFeedState> emit,
-  ) {
+  void _onTabChanged(NewFeedTabChanged event, Emitter<NewFeedState> emit) {
     final tab = event.tabIndex == 0 ? NewFeedTab.feed : NewFeedTab.message;
     emit(state.copyWith(selectedTab: tab));
   }
 
-  void _onPostLiked(
-    NewFeedPostLiked event,
-    Emitter<NewFeedState> emit,
-  ) {
+  void _onPostLiked(NewFeedPostLiked event, Emitter<NewFeedState> emit) {
     final updatedPosts = state.posts.map((post) {
       if (post.id == event.postId) {
         return post.copyWith(
@@ -57,9 +48,6 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
   ) async {
     emit(state.copyWith(status: NewFeedStatus.loading));
     await Future.delayed(const Duration(milliseconds: 500));
-    emit(state.copyWith(
-      status: NewFeedStatus.loaded,
-      posts: mockPosts,
-    ));
+    emit(state.copyWith(status: NewFeedStatus.loaded, posts: mockPosts));
   }
 }

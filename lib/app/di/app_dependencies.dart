@@ -12,12 +12,28 @@ import 'package:uit_buddy_mobile/core/config/app_env.dart';
 import 'package:uit_buddy_mobile/core/network/http_client.dart';
 import 'package:uit_buddy_mobile/core/storages/secure_storage.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/calendar_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/calendar/data/datasources/course_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/impl/calendar_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/calendar/data/datasources/impl/course_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/repositories/calendar_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/calendar/data/repositories/course_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/repositories/calendar_repository.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/repositories/course_repository.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_deadline_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadline_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_mode_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/search_courses_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
+import 'package:uit_buddy_mobile/features/notification/data/datasources/impl/notification_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/notification/data/datasources/notification_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/notification/data/repositories/notification_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/repositories/notification_repository.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/notification_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/presentation/bloc/notification_screen/notification_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/auth_remote_datasource.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/impl/auth_remote_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/repositories/auth_repository_impl.dart';
@@ -32,22 +48,44 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/reset_pa
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/sign_in_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/profile_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/profile_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/subject_class_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/storage/data/repositories/document_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/repositories/subject_class_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/repositories/document_repository.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/repositories/subject_class_repository.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/document_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/subject_class_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
   await _initAuthDependencies();
   await _initCalendarDependencies();
+  await _initProfileDependencies();
+  await _initNotificationDependencies();
+  await _initStorageDependencies();
   _initSocialDependencies();
 }
 
 Future<void> _initAuthDependencies() async {
-  // Storage
-  serviceLocator.registerLazySingleton<SecureStore>(() => SecureStore());
-  serviceLocator.registerLazySingleton<TokenStore>(
-    () => TokenStoreImpl(secureStore: serviceLocator()),
-  );
+  // Storage — eagerly created so we can load persisted tokens before the app renders
+  final secureStore = SecureStore();
+  serviceLocator.registerSingleton<SecureStore>(secureStore);
+
+  final tokenStore = TokenStoreImpl(secureStore: secureStore);
+  await tokenStore.loadPersistedTokens();
+  serviceLocator.registerSingleton<TokenStore>(tokenStore);
 
   // Public Dio client (no auth interceptor needed for signup/signin/refresh)
   serviceLocator.registerLazySingleton<Dio>(() {
@@ -79,10 +117,23 @@ Future<void> _initAuthDependencies() async {
           handler.next(response);
         },
         onError: (error, handler) {
+          final uri = error.requestOptions.uri;
+          final method = error.requestOptions.method;
+          final statusCode = error.response?.statusCode;
+          final errorType = error.type.name;
+          final responseData = error.response?.data;
+
           log(
-            '${error.response?.statusCode} ${error.requestOptions.method} ${error.requestOptions.uri}\n${error.message}',
+            'HTTP ERROR\n'
+            'Method: $method\n'
+            'URL: $uri\n'
+            'Status Code: $statusCode\n'
+            'Error Type: $errorType\n'
+            'Error Message: ${error.message}\n'
+            'Response Data: $responseData',
             name: 'publicDio',
             error: error,
+            stackTrace: error.stackTrace,
           );
           handler.next(error);
         },
@@ -167,30 +218,137 @@ Future<void> _initAuthDependencies() async {
 }
 
 Future<void> _initCalendarDependencies() async {
-  // Datasource
+  // Datasources
   serviceLocator.registerLazySingleton<CalendarDatasourceInterface>(
     () => CalendarDatasourceImpl(),
   );
+  serviceLocator.registerLazySingleton<CourseDatasourceInterface>(
+    () => CourseDatasourceImpl(),
+  );
 
-  // Repository
+  // Repositories
   serviceLocator.registerLazySingleton<CalendarRepository>(
     () => CalendarRepositoryImpl(calendarDatasourceInterface: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<CourseRepository>(
+    () => CourseRepositoryImpl(courseDatasourceInterface: serviceLocator()),
   );
 
   // Usecases
   serviceLocator.registerLazySingleton(
     () => GetDeadlineUsecase(calendarRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => GetCoursesUsecase(courseRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(() => SearchCoursesUsecase());
+  serviceLocator.registerLazySingleton(
+    () => CreateDeadlineUsecase(calendarRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetCoursesModeUsecase(courseRepository: serviceLocator()),
+  );
 
-  // Blocs
+  // Blocs / Cubits
   serviceLocator.registerFactory(() => CalendarBloc());
-
   serviceLocator.registerFactory(
     () => DeadlineBloc(getDeadlineUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => CoursesModeBloc(getCoursesModeUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => AddDeadlineBloc(
+      getCoursesUsecase: serviceLocator(),
+      searchCoursesUsecase: serviceLocator(),
+      createDeadlineUsecase: serviceLocator(),
+    ),
   );
 }
 
 void _initSocialDependencies() {
   // Blocs
   serviceLocator.registerFactory(() => NewFeedBloc());
+}
+
+Future<void> _initProfileDependencies() async {
+  // Datasource
+  serviceLocator.registerLazySingleton<ProfileDatasourceInterface>(
+    () => ProfileInfoDatasourceImpl(),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<ProfileRepository>(
+    () => ProfileRepositoryImpl(profileDatasourceInterface: serviceLocator()),
+  );
+
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => GetProfileUsecase(profileRepository: serviceLocator()),
+  );
+
+  // Blocs
+  serviceLocator.registerFactory(
+    () => ProfileBloc(getProfileUsecase: serviceLocator()),
+  );
+}
+
+Future<void> _initNotificationDependencies() async {
+  // Datasource
+  serviceLocator.registerLazySingleton<NotificationDatasourceInterface>(
+    () => NotificationDatasourceImpl(),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<NotificationRepository>(
+    () => NotificationRepositoryImpl(
+      notificationDatasourceInterface: serviceLocator(),
+    ),
+  );
+
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => GetNotificationUsecase(notificationRepository: serviceLocator()),
+  );
+
+  // Blocs
+  serviceLocator.registerFactory(
+    () => NotificationBloc(getNotificationUsecase: serviceLocator()),
+  );
+}
+
+Future<void> _initStorageDependencies() async {
+  // Datasources
+  serviceLocator.registerLazySingleton<SubjectClassDatasourceInterface>(
+    () => SubjectClassDatasourceImpl(),
+  );
+  serviceLocator.registerLazySingleton<DocumentDatasourceInterface>(
+    () => DocumentDatasourceImpl(),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<SubjectClassRepository>(
+    () => SubjectClassRepositoryImpl(
+      subjectClassDatasourceInterface: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerLazySingleton<DocumentRepository>(
+    () => DocumentRepositoryImpl(documentDatasourceInterface: serviceLocator()),
+  );
+
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => SubjectClassUsecase(subjectClassRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DocumentUsecase(documentRepository: serviceLocator()),
+  );
+
+  // Blocs
+  serviceLocator.registerFactory(
+    () => StorageBloc(
+      subjectClassUsecase: serviceLocator(),
+      documentUsecase: serviceLocator(),
+    ),
+  );
 }

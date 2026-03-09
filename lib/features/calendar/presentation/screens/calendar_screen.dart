@@ -4,6 +4,8 @@ import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_state.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_state.dart';
@@ -27,48 +29,58 @@ class CalendarScreen extends StatelessWidget {
           create: (context) =>
               serviceLocator<DeadlineBloc>()..add(const DeadlineStarted()),
         ),
+        BlocProvider(
+          create: (context) =>
+              serviceLocator<CoursesModeBloc>()
+                ..add(const CoursesModeStarted()),
+        ),
       ],
       child: Scaffold(
-        body: Padding(
-          padding: const EdgeInsets.only(top: 40, left: 15, right: 15),
-          child: Column(
-            children: [
-              const CalendarScreenHeaderWidget(),
-              Expanded(
-                child: BlocBuilder<CalendarBloc, CalendarState>(
-                  builder: (context, state) {
-                    switch (state.mode) {
-                      case CalendarMode.deadline:
-                        return BlocBuilder<DeadlineBloc, DeadlineState>(
-                          builder: (context, deadlineState) {
-                            // Get selected day's deadline details
-                            final selectedItem = deadlineState
-                                .calendarDeadlineEntity
-                                ?.items
-                                .where((item) => item.isSelected)
-                                .firstOrNull;
+        body: SafeArea(
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.04,
+            ),
+            child: Column(
+              children: [
+                const CalendarScreenHeaderWidget(),
+                Expanded(
+                  child: BlocBuilder<CalendarBloc, CalendarState>(
+                    builder: (context, state) {
+                      switch (state.mode) {
+                        case CalendarMode.deadline:
+                          return BlocBuilder<DeadlineBloc, DeadlineState>(
+                            builder: (context, deadlineState) {
+                              // Get selected day's deadline details
+                              final selectedItem = deadlineState
+                                  .calendarDeadlineEntity
+                                  ?.items
+                                  .where((item) => item.isSelected)
+                                  .firstOrNull;
 
-                            final deadlineDetails = selectedItem?.details ?? [];
+                              final deadlineDetails =
+                                  selectedItem?.details ?? [];
 
-                            return Column(
-                              children: [
-                                const DeadlineCalendarWidget(),
-                                Expanded(
-                                  child: DeadlineDetailSection(
-                                    deadlineDetails: deadlineDetails,
+                              return Column(
+                                children: [
+                                  const DeadlineCalendarWidget(),
+                                  Expanded(
+                                    child: DeadlineDetailSection(
+                                      deadlineDetails: deadlineDetails,
+                                    ),
                                   ),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      case CalendarMode.courses:
-                        return const CoursesCalendarWidget();
-                    }
-                  },
+                                ],
+                              );
+                            },
+                          );
+                        case CalendarMode.courses:
+                          return const CoursesCalendarWidget();
+                      }
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

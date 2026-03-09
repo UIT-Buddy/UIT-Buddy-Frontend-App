@@ -25,53 +25,90 @@ class InputText extends StatefulWidget {
 
 class _InputTextState extends State<InputText> {
   late bool _obscureText;
+  final FocusNode _focusNode = FocusNode();
+  bool _isFocused = false;
 
   @override
   void initState() {
     super.initState();
     _obscureText = widget.isPassword;
+    _focusNode.addListener(() {
+      setState(() => _isFocused = _focusNode.hasFocus);
+    });
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return TextField(
-      controller: widget.controller,
-      obscureText: _obscureText,
-      readOnly: widget.readOnly,
-      style: const TextStyle(color: AppColor.primaryText),
-      decoration: InputDecoration(
-        hintText: widget.hintText,
-        hintStyle: const TextStyle(color: AppColor.secondaryText),
-        filled: true,
-        fillColor: AppColor.veryLightGrey,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 15,
-          vertical: 10,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide.none,
-        ),
-        prefixIcon: widget.leftIcon != null
-            ? Icon(widget.leftIcon, color: AppColor.secondaryText)
-            : null,
-        suffixIcon: widget.isPassword
-            ? IconButton(
-                icon: Icon(
-                  _obscureText ? Icons.visibility : Icons.visibility_off,
-                  color: AppColor.secondaryText,
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: _isFocused
+            ? [
+                BoxShadow(
+                  color: AppColor.primaryBlue.withValues(alpha: 0.18),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
-                onPressed: () => setState(() => _obscureText = !_obscureText),
-              )
-            : null,
+              ]
+            : [],
+      ),
+      child: TextField(
+        controller: widget.controller,
+        focusNode: _focusNode,
+        obscureText: _obscureText,
+        readOnly: widget.readOnly,
+        style: const TextStyle(color: AppColor.primaryText),
+        decoration: InputDecoration(
+          hintText: widget.hintText,
+          hintStyle: const TextStyle(color: AppColor.secondaryText),
+          filled: true,
+          fillColor: _isFocused
+              ? AppColor.primaryBlue10
+              : AppColor.veryLightGrey,
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 15,
+            vertical: 14,
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: BorderSide.none,
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(
+              color: AppColor.primaryBlue,
+              width: 1.5,
+            ),
+          ),
+          prefixIcon: widget.leftIcon != null
+              ? Icon(
+                  widget.leftIcon,
+                  color: _isFocused
+                      ? AppColor.primaryBlue
+                      : AppColor.secondaryText,
+                )
+              : null,
+          suffixIcon: widget.isPassword
+              ? IconButton(
+                  icon: Icon(
+                    _obscureText ? Icons.visibility : Icons.visibility_off,
+                    color: AppColor.secondaryText,
+                  ),
+                  onPressed: () => setState(() => _obscureText = !_obscureText),
+                )
+              : null,
+        ),
       ),
     );
   }

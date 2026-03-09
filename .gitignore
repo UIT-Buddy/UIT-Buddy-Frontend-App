@@ -53,3 +53,6 @@ app.*.map.json
 
 # TMP
 tmp.md
+
+# Firebase
+google-services.json

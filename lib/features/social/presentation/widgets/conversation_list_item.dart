@@ -110,7 +110,11 @@ class ConversationListItem extends StatelessWidget {
                 shape: BoxShape.circle,
                 border: Border.all(color: AppColor.pureWhite, width: 1.5),
               ),
-              child: const Icon(Icons.group, size: 9, color: AppColor.pureWhite),
+              child: const Icon(
+                Icons.group,
+                size: 9,
+                color: AppColor.pureWhite,
+              ),
             ),
           )
         else if (conversation.isOnline)

@@ -4,11 +4,11 @@ import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/extensions/router_extension.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
-import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/otp/otp_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/otp/otp_event.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/otp/otp_state.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/constants/onboarding_text.dart';
+import 'package:uit_buddy_mobile/features/onboarding/presentation/widgets/onboarding_form_widgets.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/widgets/otp_input_field.dart';
 import 'package:uit_buddy_mobile/features/shared/button.dart';
 import 'package:uit_buddy_mobile/features/shared/input_text.dart';
@@ -32,13 +32,34 @@ class _OtpScreenBody extends StatefulWidget {
   State<_OtpScreenBody> createState() => _OtpScreenBodyState();
 }
 
-class _OtpScreenBodyState extends State<_OtpScreenBody> {
+class _OtpScreenBodyState extends State<_OtpScreenBody>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _mssvController = TextEditingController();
   String _otpCode = '';
+
+  late final AnimationController _animController;
+  late final Animation<double> _fadeAnim;
+  late final Animation<Offset> _slideAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _animController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+    _fadeAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
+    _slideAnim = Tween<Offset>(begin: const Offset(0, 0.12), end: Offset.zero)
+        .animate(
+          CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic),
+        );
+    _animController.forward();
+  }
 
   @override
   void dispose() {
     _mssvController.dispose();
+    _animController.dispose();
     super.dispose();
   }
 
@@ -50,7 +71,11 @@ class _OtpScreenBodyState extends State<_OtpScreenBody> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(state.errorMessage ?? 'Failed to send OTP'),
-              backgroundColor: Colors.red,
+              backgroundColor: AppColor.alertRed,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           );
         }
@@ -60,147 +85,86 @@ class _OtpScreenBodyState extends State<_OtpScreenBody> {
         final isLoading = state.status == OtpStatus.loading;
 
         return Scaffold(
-          backgroundColor: AppColor.pureWhite,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColor.veryLightGrey,
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          size: 20,
-                          color: AppColor.primaryText,
-                        ),
-                        onPressed: () {
-                          context.goBack(RouteName.signIn);
-                        },
-                        padding: EdgeInsets.zero,
-                      ),
-                    ),
-                    const SizedBox(height: 30),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isSent
-                              ? OnboardingText.otpTitle
-                              : OnboardingText.forgotPasswordTitle,
-                          style: AppTextStyle.h1.copyWith(
-                            fontWeight: AppTextStyle.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          isSent
-                              ? OnboardingText.otpSubtitle
-                              : OnboardingText.forgotPasswordSubtitle,
-                          style: AppTextStyle.bodyLarge.copyWith(
-                            color: AppColor.secondaryText,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(height: 50),
-
-                if (!isSent) ...[
-                  Text(
-                    OnboardingText.mssvInputLabel,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: AppColor.secondaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  InputText(
-                    controller: _mssvController,
-                    leftIcon: Icons.badge_outlined,
-                  ),
-                  const SizedBox(height: 16),
-                  Button(
-                    text: OnboardingText.sendOtpButton,
-                    isLoading: isLoading,
-                    onPressed: () {
-                      final mssv = _mssvController.text.trim();
-                      if (mssv.isNotEmpty) {
-                        context.read<OtpBloc>().add(
-                          OtpSendRequested(mssv: mssv),
-                        );
-                      }
-                    },
-                  ),
-                ] else ...[
-                  Text(
-                    OnboardingText.otpInputLabel,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: AppColor.secondaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  OtpInputField(onChanged: (value) => _otpCode = value),
-                  const SizedBox(height: 16),
-                  Button(
-                    text: OnboardingText.otpButton,
-                    onPressed: () {
-                      if (_otpCode.length == 6) {
-                        context.goTo(
-                          RouteName.buildResetPasswordPath(
-                            state.mssv,
-                            _otpCode,
-                          ),
-                        );
-                      }
-                    },
-                  ),
-                ],
-
-                const Spacer(),
-                Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        OnboardingText.signInPromt,
-                        style: AppTextStyle.bodySmall.copyWith(
-                          color: AppColor.secondaryText,
+          backgroundColor: AppColor.veryLightGrey,
+          body: Column(
+            children: [
+              OnboardingHeader(
+                onBack: () => context.goBack(RouteName.signIn),
+                title: isSent
+                    ? OnboardingText.otpTitle
+                    : OnboardingText.forgotPasswordTitle,
+                subtitle: isSent
+                    ? OnboardingText.otpSubtitle
+                    : OnboardingText.forgotPasswordSubtitle,
+              ),
+              Expanded(
+                child: FadeTransition(
+                  opacity: _fadeAnim,
+                  child: SlideTransition(
+                    position: _slideAnim,
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 24),
+                      child: OnboardingFormCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (!isSent) ...[
+                              const FieldLabel('Student ID (MSSV)'),
+                              const SizedBox(height: 6),
+                              InputText(
+                                controller: _mssvController,
+                                leftIcon: Icons.badge_outlined,
+                              ),
+                              const SizedBox(height: 24),
+                              Button(
+                                text: OnboardingText.sendOtpButton,
+                                isLoading: isLoading,
+                                onPressed: () {
+                                  final mssv = _mssvController.text.trim();
+                                  if (mssv.isNotEmpty) {
+                                    context.read<OtpBloc>().add(
+                                      OtpSendRequested(mssv: mssv),
+                                    );
+                                  }
+                                },
+                              ),
+                            ] else ...[
+                              const FieldLabel('Enter OTP code'),
+                              const SizedBox(height: 12),
+                              OtpInputField(
+                                onChanged: (value) => _otpCode = value,
+                              ),
+                              const SizedBox(height: 24),
+                              Button(
+                                text: OnboardingText.otpButton,
+                                onPressed: () {
+                                  if (_otpCode.length == 6) {
+                                    context.goTo(
+                                      RouteName.buildResetPasswordPath(
+                                        state.mssv,
+                                        _otpCode,
+                                      ),
+                                    );
+                                  }
+                                },
+                              ),
+                            ],
+                          ],
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          context.goBack(RouteName.signIn);
-                        },
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          OnboardingText.signInButtonText,
-                          style: AppTextStyle.bodySmall.copyWith(
-                            color: AppColor.primaryBlue,
-                            fontWeight: AppTextStyle.bold,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 28),
+                child: OnboardingFooter(
+                  prompt: OnboardingText.signInPromt,
+                  actionText: OnboardingText.signInButtonText,
+                  onTap: () => context.goBack(RouteName.signIn),
+                ),
+              ),
+            ],
           ),
         );
       },

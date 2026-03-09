@@ -9,17 +9,35 @@ class OnboardingImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: AppColor.pureWhite,
+    return SizedBox.expand(
       child: Stack(
+        fit: StackFit.expand,
         children: [
           // Main onboarding image
-          Image.asset(
-            onboardingImage,
-            fit: BoxFit.cover,
-            width: double.infinity,
+          Image.asset(onboardingImage, fit: BoxFit.cover),
+
+          // Gradient fade at bottom to blend into the card
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 160,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.transparent,
+                    AppColor.veryLightGrey.withValues(alpha: 0.6),
+                    AppColor.veryLightGrey,
+                  ],
+                ),
+              ),
+            ),
           ),
-          // Hiding rectangle overlaid at the bottom
+
+          // Legacy hiding rectangle (kept for exact pixel match if needed)
           Positioned(
             bottom: 0,
             left: 0,

@@ -37,10 +37,7 @@ class PostAuthorRow extends StatelessWidget {
                 const SizedBox(height: 2),
                 Row(
                   children: [
-                    Text(
-                      authorClass,
-                      style: AppTextStyle.captionMedium,
-                    ),
+                    Text(authorClass, style: AppTextStyle.captionMedium),
                     const SizedBox(width: 6),
                     Container(
                       width: 3,
@@ -51,20 +48,13 @@ class PostAuthorRow extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      timeAgo,
-                      style: AppTextStyle.captionMedium,
-                    ),
+                    Text(timeAgo, style: AppTextStyle.captionMedium),
                   ],
                 ),
               ],
             ),
           ),
-          const Icon(
-            Icons.more_horiz,
-            color: AppColor.secondaryText,
-            size: 20,
-          ),
+          const Icon(Icons.more_horiz, color: AppColor.secondaryText, size: 20),
         ],
       ),
     );
