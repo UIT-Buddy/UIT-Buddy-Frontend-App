@@ -9,10 +9,12 @@ import '../../../../mocks/mocks.mocks.dart';
 
 void main() {
   late MockAuthRepository mockRepository;
+  late MockFirebaseRepository mockFirebaseRepository;
   late SignInUsecase usecase;
 
   const tMssv = '21521234';
   const tPassword = 'password123';
+  const tFcmToken = 'fcm_token_123';
   const tUser = SignUpCompleteUserEntity(
     mssv: tMssv,
     fullName: 'Test User',
@@ -26,8 +28,15 @@ void main() {
 
   setUp(() {
     mockRepository = MockAuthRepository();
+    mockFirebaseRepository = MockFirebaseRepository();
     provideDummy<Either<Failure, SignUpCompleteEntity>>(const Right(tEntity));
-    usecase = SignInUsecase(authRepository: mockRepository);
+    when(
+      mockFirebaseRepository.getFcmToken(),
+    ).thenAnswer((_) async => tFcmToken);
+    usecase = SignInUsecase(
+      authRepository: mockRepository,
+      firebaseRepository: mockFirebaseRepository,
+    );
   });
 
   group('SignInUsecase', () {
@@ -39,7 +48,7 @@ void main() {
             mssv: tMssv,
             password: tPassword,
             rememberMe: false,
-            fcmToken: '',
+            fcmToken: tFcmToken,
           ),
         ).thenAnswer((_) async => const Right(tEntity));
 
@@ -53,7 +62,7 @@ void main() {
             mssv: tMssv,
             password: tPassword,
             rememberMe: false,
-            fcmToken: '',
+            fcmToken: tFcmToken,
           ),
         );
         verifyNoMoreInteractions(mockRepository);
@@ -67,7 +76,7 @@ void main() {
           mssv: tMssv,
           password: tPassword,
           rememberMe: false,
-          fcmToken: '',
+          fcmToken: tFcmToken,
         ),
       ).thenAnswer((_) async => Left(tFailure));
 
@@ -81,7 +90,7 @@ void main() {
           mssv: tMssv,
           password: tPassword,
           rememberMe: false,
-          fcmToken: '',
+          fcmToken: tFcmToken,
         ),
       );
       verifyNoMoreInteractions(mockRepository);
@@ -93,7 +102,7 @@ void main() {
           mssv: tMssv,
           password: tPassword,
           rememberMe: true,
-          fcmToken: '',
+          fcmToken: tFcmToken,
         ),
       ).thenAnswer((_) async => const Right(tEntity));
 
@@ -106,7 +115,7 @@ void main() {
           mssv: tMssv,
           password: tPassword,
           rememberMe: true,
-          fcmToken: '',
+          fcmToken: tFcmToken,
         ),
       );
     });

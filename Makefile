@@ -47,6 +47,7 @@ install-apk: clean gen-code build-release
 	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.uit.buddy.app android.permission.ACCESS_FINE_LOCATION 2>/dev/null || true
 	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.uit.buddy.app android.permission.ACCESS_COARSE_LOCATION 2>/dev/null || true
 	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.uit.buddy.app android.permission.ACCESS_BACKGROUND_LOCATION 2>/dev/null || true
+	@$(HOME)/Android/Sdk/platform-tools/adb shell pm grant com.uit.buddy.app android.permission.POST_NOTIFICATIONS 2>/dev/null || true
 	@echo "✓ Permissions granted"
 	@echo "\nLaunching app..."
 	@$(HOME)/Android/Sdk/platform-tools/adb shell am start -n com.uit.buddy.app/.MainActivity
