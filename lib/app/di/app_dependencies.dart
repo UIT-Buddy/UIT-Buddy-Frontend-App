@@ -34,10 +34,15 @@ import 'package:uit_buddy_mobile/features/notification/data/repositories/notific
 import 'package:uit_buddy_mobile/features/notification/domain/repositories/notification_repository.dart';
 import 'package:uit_buddy_mobile/features/notification/domain/usecases/notification_usecase.dart';
 import 'package:uit_buddy_mobile/features/notification/presentation/bloc/notification_screen/notification_bloc.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/auth_remote_datasource.dart';
+import 'package:uit_buddy_mobile/features/onboarding/data/datasources/firebase_remote_datasource.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/impl/auth_remote_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/repositories/auth_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/onboarding/data/repositories/firebase_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/auth_repository.dart';
+import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/firebase_repository.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/forget_password_usecase.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/reset_password_usecase.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/signin_usecase.dart';
@@ -70,6 +75,7 @@ import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
+  await Firebase.initializeApp();
   await _initAuthDependencies();
   await _initCalendarDependencies();
   await _initProfileDependencies();
@@ -167,6 +173,14 @@ Future<void> _initAuthDependencies() async {
     );
   }, instanceName: 'authenticatedDio');
 
+  // Firebase datasource & repository
+  serviceLocator.registerLazySingleton<FirebaseRemoteDatasource>(
+    () => FirebaseRemoteDatasourceImpl(FirebaseMessaging.instance),
+  );
+  serviceLocator.registerLazySingleton<FirebaseRepository>(
+    () => FirebaseRepositoryImpl(serviceLocator()),
+  );
+
   // Datasource
   serviceLocator.registerLazySingleton<AuthRemoteDatasource>(
     () => AuthRemoteDatasourceImpl(
@@ -187,10 +201,16 @@ Future<void> _initAuthDependencies() async {
     () => SignUpInitUsecase(authRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => SignUpCompleteUsecase(authRepository: serviceLocator()),
+    () => SignUpCompleteUsecase(
+      authRepository: serviceLocator(),
+      firebaseRepository: serviceLocator(),
+    ),
   );
   serviceLocator.registerLazySingleton(
-    () => SignInUsecase(authRepository: serviceLocator()),
+    () => SignInUsecase(
+      authRepository: serviceLocator(),
+      firebaseRepository: serviceLocator(),
+    ),
   );
   serviceLocator.registerLazySingleton(
     () => ForgetPasswordUsecase(authRepository: serviceLocator()),
