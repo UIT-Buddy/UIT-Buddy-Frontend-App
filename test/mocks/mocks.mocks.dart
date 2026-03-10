@@ -15,12 +15,14 @@ import 'package:uit_buddy_mobile/features/onboarding/domain/entities/signup_init
     as _i6;
 import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/auth_repository.dart'
     as _i2;
-import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/forget_password_usecase.dart'
-    as _i10;
-import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/reset_password_usecase.dart'
-    as _i11;
-import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/signin_usecase.dart'
+import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/firebase_repository.dart'
     as _i9;
+import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/forget_password_usecase.dart'
+    as _i11;
+import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/reset_password_usecase.dart'
+    as _i12;
+import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/signin_usecase.dart'
+    as _i10;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -174,17 +176,51 @@ class MockAuthRepository extends _i1.Mock implements _i2.AuthRepository {
           as _i3.Future<_i4.Either<_i5.Failure, void>>);
 }
 
+/// A class which mocks [FirebaseRepository].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockFirebaseRepository extends _i1.Mock
+    implements _i9.FirebaseRepository {
+  MockFirebaseRepository() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i3.Future<bool> requestPermission() =>
+      (super.noSuchMethod(
+            Invocation.method(#requestPermission, []),
+            returnValue: _i3.Future<bool>.value(false),
+          )
+          as _i3.Future<bool>);
+
+  @override
+  _i3.Future<String?> getFcmToken() =>
+      (super.noSuchMethod(
+            Invocation.method(#getFcmToken, []),
+            returnValue: _i3.Future<String?>.value(),
+          )
+          as _i3.Future<String?>);
+
+  @override
+  _i3.Stream<String?> onTokenRefresh() =>
+      (super.noSuchMethod(
+            Invocation.method(#onTokenRefresh, []),
+            returnValue: _i3.Stream<String?>.empty(),
+          )
+          as _i3.Stream<String?>);
+}
+
 /// A class which mocks [SignInUsecase].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockSignInUsecase extends _i1.Mock implements _i9.SignInUsecase {
+class MockSignInUsecase extends _i1.Mock implements _i10.SignInUsecase {
   MockSignInUsecase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   _i3.Future<_i4.Either<_i5.Failure, _i8.SignUpCompleteEntity>> call(
-    _i9.SignInParams? params,
+    _i10.SignInParams? params,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
@@ -204,14 +240,14 @@ class MockSignInUsecase extends _i1.Mock implements _i9.SignInUsecase {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockForgetPasswordUsecase extends _i1.Mock
-    implements _i10.ForgetPasswordUsecase {
+    implements _i11.ForgetPasswordUsecase {
   MockForgetPasswordUsecase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   _i3.Future<_i4.Either<_i5.Failure, void>> call(
-    _i10.ForgetPasswordParams? params,
+    _i11.ForgetPasswordParams? params,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
@@ -229,14 +265,14 @@ class MockForgetPasswordUsecase extends _i1.Mock
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockResetPasswordUsecase extends _i1.Mock
-    implements _i11.ResetPasswordUsecase {
+    implements _i12.ResetPasswordUsecase {
   MockResetPasswordUsecase() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
   _i3.Future<_i4.Either<_i5.Failure, void>> call(
-    _i11.ResetPasswordParams? params,
+    _i12.ResetPasswordParams? params,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#call, [params]),
