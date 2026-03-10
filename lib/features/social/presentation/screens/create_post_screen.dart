@@ -1,8 +1,10 @@
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_author_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_bottom_toolbar.dart';
@@ -145,7 +147,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 16),
-                  const PostAuthorHeader(name: 'Minh', avatarLetter: 'M'),
+                  _buildAuthorHeader(context),
                   const SizedBox(height: 16),
                   PostContentInput(
                     controller: _contentController,
@@ -181,6 +183,15 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildAuthorHeader(BuildContext context) {
+    final user = context.read<SessionBloc>().state.user;
+    return PostAuthorHeader(
+      name: user?.fullName ?? '',
+      avatarLetter: user?.userLetterAvatar ?? 'U',
+      avatarUrl: user?.avatarUrl,
     );
   }
 

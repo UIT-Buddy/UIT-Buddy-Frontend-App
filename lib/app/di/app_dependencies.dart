@@ -54,6 +54,12 @@ import 'package:uit_buddy_mobile/features/profile/data/repositories/profile_repo
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
+import 'package:uit_buddy_mobile/features/session/data/datasources/impl/session_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/session/data/datasources/session_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/session/data/repositories/session_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/session/domain/repositories/session_repository.dart';
+import 'package:uit_buddy_mobile/features/session/domain/usecases/get_current_user_usecase.dart';
+import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
@@ -73,6 +79,7 @@ final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
   await _initAuthDependencies();
+  _initSessionDependencies();
   await _initCalendarDependencies();
   await _initProfileDependencies();
   await _initNotificationDependencies();
@@ -216,6 +223,30 @@ Future<void> _initAuthDependencies() async {
   );
   serviceLocator.registerFactory(
     () => ResetPasswordBloc(resetPasswordUsecase: serviceLocator()),
+  );
+}
+
+void _initSessionDependencies() {
+  // Datasource — uses authenticatedDio since /api/user/me requires a token
+  serviceLocator.registerLazySingleton<SessionDatasourceInterface>(
+    () => SessionDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<SessionRepository>(
+    () => SessionRepositoryImpl(datasource: serviceLocator()),
+  );
+
+  // Usecase
+  serviceLocator.registerLazySingleton(
+    () => GetCurrentUserUsecase(repository: serviceLocator()),
+  );
+
+  // Bloc — singleton so the same instance is shared across the whole app
+  serviceLocator.registerLazySingleton(
+    () => SessionBloc(getCurrentUserUsecase: serviceLocator()),
   );
 }
 
