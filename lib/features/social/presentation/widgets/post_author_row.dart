@@ -5,14 +5,14 @@ import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 class PostAuthorRow extends StatelessWidget {
   final String authorName;
   final String authorClass;
-  final String authorAvatarUrl;
+  final String? authorAvatarUrl;
   final String timeAgo;
 
   const PostAuthorRow({
     super.key,
     required this.authorName,
     required this.authorClass,
-    required this.authorAvatarUrl,
+    this.authorAvatarUrl,
     required this.timeAgo,
   });
 
@@ -61,10 +61,24 @@ class PostAuthorRow extends StatelessWidget {
   }
 
   Widget _buildAvatar() {
+    if (authorAvatarUrl != null && authorAvatarUrl!.isNotEmpty) {
+      return CircleAvatar(
+        radius: 20,
+        backgroundColor: AppColor.veryLightGrey,
+        backgroundImage: NetworkImage(authorAvatarUrl!),
+      );
+    }
+
     return CircleAvatar(
       radius: 20,
-      backgroundColor: AppColor.veryLightGrey,
-      backgroundImage: NetworkImage(authorAvatarUrl),
+      backgroundColor: AppColor.primaryBlue20,
+      child: Text(
+        authorName.isNotEmpty ? authorName[0].toUpperCase() : '?',
+        style: AppTextStyle.bodySmall.copyWith(
+          color: AppColor.primaryBlue,
+          fontWeight: AppTextStyle.bold,
+        ),
+      ),
     );
   }
 }

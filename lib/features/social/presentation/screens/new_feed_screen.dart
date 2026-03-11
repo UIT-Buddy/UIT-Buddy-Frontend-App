@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
@@ -18,14 +19,45 @@ class NewFeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => NewFeedBloc()..add(const NewFeedStarted()),
+      create: (_) =>
+          serviceLocator<NewFeedBloc>()..add(const NewFeedStarted()),
       child: const _NewFeedView(),
     );
   }
 }
 
-class _NewFeedView extends StatelessWidget {
+class _NewFeedView extends StatefulWidget {
   const _NewFeedView();
+
+  @override
+  State<_NewFeedView> createState() => _NewFeedViewState();
+}
+
+class _NewFeedViewState extends State<_NewFeedView> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      context.read<NewFeedBloc>().add(const NewFeedLoadMore());
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -80,30 +112,47 @@ class _NewFeedView extends StatelessWidget {
               state.errorMessage ?? SocialText.errorLoading,
               style: AppTextStyle.bodyMedium,
             ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () =>
+                  context.read<NewFeedBloc>().add(const NewFeedRefreshed()),
+              child: const Text('Thử lại'),
+            ),
           ],
         ),
       );
     }
 
+    // +1 for CreatePostBar, +1 for bottom loader slot when there's more to load
+    final itemCount =
+        state.posts.length + 1 + (state.hasMore || state.isLoadingMore ? 1 : 0);
+
     return RefreshIndicator(
       color: AppColor.primaryBlue,
       onRefresh: () async {
         context.read<NewFeedBloc>().add(const NewFeedRefreshed());
-        // Wait for the state to change from loading to loaded
         await context.read<NewFeedBloc>().stream.firstWhere(
           (s) => s.status != NewFeedStatus.loading,
         );
       },
       child: ListView.builder(
+        controller: _scrollController,
         padding: EdgeInsets.zero,
-        itemCount: state.posts.length + 1, // +1 for CreatePostBar
+        cacheExtent: 800,
+        itemCount: itemCount,
         itemBuilder: (context, index) {
-          if (index == 0) {
-            return const CreatePostBar();
+          if (index == 0) return const CreatePostBar();
+
+          final postIndex = index - 1;
+
+          // Bottom loader slot
+          if (postIndex == state.posts.length) {
+            return _buildBottomLoader(state);
           }
 
-          final post = state.posts[index - 1];
+          final post = state.posts[postIndex];
           return PostCard(
+            key: ValueKey(post.id),
             post: post,
             onLikeTap: () {
               context.read<NewFeedBloc>().add(
@@ -114,6 +163,23 @@ class _NewFeedView extends StatelessWidget {
         },
       ),
     );
+  }
+
+  Widget _buildBottomLoader(NewFeedState state) {
+    if (state.isLoadingMore) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            color: AppColor.primaryBlue,
+          ),
+        ),
+      );
+    }
+    // hasMore is true but not currently loading — placeholder while scroll
+    // threshold triggers the event
+    return const SizedBox.shrink();
   }
 
   Widget _buildMessageTab() {

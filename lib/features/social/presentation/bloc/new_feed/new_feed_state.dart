@@ -14,5 +14,8 @@ abstract class NewFeedState with _$NewFeedState {
     @Default([]) List<PostEntity> posts,
     @Default(NewFeedTab.feed) NewFeedTab selectedTab,
     String? errorMessage,
+    String? nextCursor,
+    @Default(true) bool hasMore,
+    @Default(false) bool isLoadingMore,
   }) = _NewFeedState;
 }

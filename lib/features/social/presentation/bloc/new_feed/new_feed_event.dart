@@ -32,3 +32,7 @@ class NewFeedPostLiked extends NewFeedEvent {
 class NewFeedRefreshed extends NewFeedEvent {
   const NewFeedRefreshed();
 }
+
+class NewFeedLoadMore extends NewFeedEvent {
+  const NewFeedLoadMore();
+}

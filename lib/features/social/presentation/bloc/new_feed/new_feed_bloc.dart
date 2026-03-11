@@ -1,26 +1,43 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uit_buddy_mobile/features/social/data/mock/mock_posts.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_state.dart';
 
 class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
-  NewFeedBloc() : super(const NewFeedState()) {
+  NewFeedBloc({required GetNewfeedUsecase getNewfeedUsecase})
+    : _getNewfeedUsecase = getNewfeedUsecase,
+      super(const NewFeedState()) {
     on<NewFeedStarted>(_onNewFeedStarted);
     on<NewFeedTabChanged>(_onTabChanged);
     on<NewFeedPostLiked>(_onPostLiked);
     on<NewFeedRefreshed>(_onRefreshed);
+    on<NewFeedLoadMore>(_onLoadMore);
   }
+
+  final GetNewfeedUsecase _getNewfeedUsecase;
 
   Future<void> _onNewFeedStarted(
     NewFeedStarted event,
     Emitter<NewFeedState> emit,
   ) async {
     emit(state.copyWith(status: NewFeedStatus.loading));
-
-    // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
-
-    emit(state.copyWith(status: NewFeedStatus.loaded, posts: mockPosts));
+    final result = await _getNewfeedUsecase(const GetNewfeedParams());
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: NewFeedStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (paged) => emit(
+        state.copyWith(
+          status: NewFeedStatus.loaded,
+          posts: paged.items,
+          nextCursor: paged.nextCursor,
+          hasMore: paged.hasMore,
+        ),
+      ),
+    );
   }
 
   void _onTabChanged(NewFeedTabChanged event, Emitter<NewFeedState> emit) {
@@ -46,8 +63,52 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     NewFeedRefreshed event,
     Emitter<NewFeedState> emit,
   ) async {
-    emit(state.copyWith(status: NewFeedStatus.loading));
-    await Future.delayed(const Duration(milliseconds: 500));
-    emit(state.copyWith(status: NewFeedStatus.loaded, posts: mockPosts));
+    emit(
+      state.copyWith(
+        status: NewFeedStatus.loading,
+        nextCursor: null,
+        hasMore: true,
+      ),
+    );
+    final result = await _getNewfeedUsecase(const GetNewfeedParams());
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          status: NewFeedStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (paged) => emit(
+        state.copyWith(
+          status: NewFeedStatus.loaded,
+          posts: paged.items,
+          nextCursor: paged.nextCursor,
+          hasMore: paged.hasMore,
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onLoadMore(
+    NewFeedLoadMore event,
+    Emitter<NewFeedState> emit,
+  ) async {
+    if (!state.hasMore || state.isLoadingMore) return;
+
+    emit(state.copyWith(isLoadingMore: true));
+    final result = await _getNewfeedUsecase(
+      GetNewfeedParams(cursor: state.nextCursor),
+    );
+    result.fold(
+      (failure) => emit(state.copyWith(isLoadingMore: false)),
+      (paged) => emit(
+        state.copyWith(
+          isLoadingMore: false,
+          posts: [...state.posts, ...paged.items],
+          nextCursor: paged.nextCursor,
+          hasMore: paged.hasMore,
+        ),
+      ),
+    );
   }
 }

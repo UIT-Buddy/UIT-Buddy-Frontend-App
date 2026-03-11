@@ -60,6 +60,11 @@ import 'package:uit_buddy_mobile/features/session/data/repositories/session_repo
 import 'package:uit_buddy_mobile/features/session/domain/repositories/session_repository.dart';
 import 'package:uit_buddy_mobile/features/session/domain/usecases/get_current_user_usecase.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/social_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/social_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/social_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/social_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
@@ -300,8 +305,27 @@ Future<void> _initCalendarDependencies() async {
 }
 
 void _initSocialDependencies() {
+  // Datasource
+  serviceLocator.registerLazySingleton<SocialDatasourceInterface>(
+    () => SocialDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<SocialRepository>(
+    () => SocialRepositoryImpl(datasource: serviceLocator()),
+  );
+
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => GetNewfeedUsecase(repository: serviceLocator()),
+  );
+
   // Blocs
-  serviceLocator.registerFactory(() => NewFeedBloc());
+  serviceLocator.registerFactory(
+    () => NewFeedBloc(getNewfeedUsecase: serviceLocator()),
+  );
   serviceLocator.registerFactory(() => ChatSettingsBloc());
   serviceLocator.registerFactory(() => ContactPickerBloc());
 }
