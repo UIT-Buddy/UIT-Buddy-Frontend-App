@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/create_post_screen.dart';
 
@@ -25,12 +26,16 @@ class CreatePostBar extends StatelessWidget {
           Expanded(
             child: GestureDetector(
               onTap: () {
+                final bloc = context.read<NewFeedBloc>();
                 Navigator.of(context).push(
                   PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        const CreatePostScreen(),
+                    pageBuilder: (ctx, animation, secondaryAnimation) =>
+                        BlocProvider.value(
+                          value: bloc,
+                          child: const CreatePostScreen(),
+                        ),
                     transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
+                        (ctx, animation, secondaryAnimation, child) {
                           final curved = CurvedAnimation(
                             parent: animation,
                             curve: Curves.easeOutCubic,

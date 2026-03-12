@@ -1,4 +1,5 @@
 import 'package:fpdart/fpdart.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uit_buddy_mobile/core/common/paged_result.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/social_datasource_interface.dart';
@@ -26,6 +27,26 @@ class SocialRepositoryImpl implements SocialRepository {
           hasMore: result.hasMore,
         ),
       );
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, PostEntity>> createPost({
+    required String title,
+    String? content,
+    List<XFile> images = const [],
+    List<XFile> videos = const [],
+  }) async {
+    try {
+      final model = await _datasource.createPost(
+        title: title,
+        content: content,
+        images: images,
+        videos: videos,
+      );
+      return Right(model.toEntity());
     } on Exception catch (e) {
       return Left(Failure.fromException(e));
     }

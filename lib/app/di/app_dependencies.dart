@@ -64,6 +64,7 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/impl/social_da
 import 'package:uit_buddy_mobile/features/social/data/datasources/social_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/social_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/social_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/create_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
@@ -321,10 +322,16 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton(
     () => GetNewfeedUsecase(repository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => CreatePostUsecase(repository: serviceLocator()),
+  );
 
   // Blocs
   serviceLocator.registerFactory(
-    () => NewFeedBloc(getNewfeedUsecase: serviceLocator()),
+    () => NewFeedBloc(
+      getNewfeedUsecase: serviceLocator(),
+      createPostUsecase: serviceLocator(),
+    ),
   );
   serviceLocator.registerFactory(() => ChatSettingsBloc());
   serviceLocator.registerFactory(() => ContactPickerBloc());

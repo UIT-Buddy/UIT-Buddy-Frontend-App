@@ -5,6 +5,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_event.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_author_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_bottom_toolbar.dart';
@@ -20,23 +23,23 @@ class CreatePostScreen extends StatefulWidget {
 }
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
+  final _titleController = TextEditingController();
   final _contentController = TextEditingController();
   final _focusNode = FocusNode();
   final _imagePicker = ImagePicker();
 
-  bool _hasContent = false;
+  bool _hasTitle = false;
   final List<XFile> _mediaFiles = [];
   final List<PlatformFile> _attachedFiles = [];
 
-  bool get _canPost =>
-      _hasContent || _mediaFiles.isNotEmpty || _attachedFiles.isNotEmpty;
+  bool get _canPost => _hasTitle;
 
   @override
   void initState() {
     super.initState();
-    _contentController.addListener(() {
-      final hasText = _contentController.text.trim().isNotEmpty;
-      if (hasText != _hasContent) setState(() => _hasContent = hasText);
+    _titleController.addListener(() {
+      final hasText = _titleController.text.trim().isNotEmpty;
+      if (hasText != _hasTitle) setState(() => _hasTitle = hasText);
     });
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _focusNode.requestFocus();
@@ -45,10 +48,21 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   @override
   void dispose() {
+    _titleController.dispose();
     _contentController.dispose();
     _focusNode.dispose();
     super.dispose();
   }
+
+  // ─── Helpers ───────────────────────────────────────────────────────────────
+
+  List<XFile> get _images => _mediaFiles
+      .where((f) => !(f.mimeType?.startsWith('video/') ?? false))
+      .toList();
+
+  List<XFile> get _videos => _mediaFiles
+      .where((f) => f.mimeType?.startsWith('video/') ?? false)
+      .toList();
 
   // ─── Media picking ─────────────────────────────────────────────────────────
 
@@ -131,57 +145,138 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
+  // ─── Submit ────────────────────────────────────────────────────────────────
+
+  void _onPostPressed() {
+    if (!_canPost) return;
+    context.read<NewFeedBloc>().add(
+      NewFeedPostSubmitted(
+        title: _titleController.text.trim(),
+        content: _contentController.text.trim().isEmpty
+            ? null
+            : _contentController.text.trim(),
+        images: _images,
+        videos: _videos,
+      ),
+    );
+  }
+
   // ─── Build ─────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.pureWhite,
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  _buildAuthorHeader(context),
-                  const SizedBox(height: 16),
-                  PostContentInput(
-                    controller: _contentController,
-                    focusNode: _focusNode,
-                  ),
-                  if (_mediaFiles.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    PostMediaGrid(
-                      files: _mediaFiles,
-                      onRemove: (i) =>
-                          setState(() => _mediaFiles.removeAt(i)),
-                    ),
-                  ],
-                  if (_attachedFiles.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    PostFileChips(
-                      files: _attachedFiles,
-                      onRemove: (i) =>
-                          setState(() => _attachedFiles.removeAt(i)),
-                    ),
-                  ],
-                  const SizedBox(height: 12),
-                ],
-              ),
+    return BlocListener<NewFeedBloc, NewFeedState>(
+      listenWhen: (prev, curr) =>
+          prev.isSubmittingPost && !curr.isSubmittingPost,
+      listener: (context, state) {
+        if (state.submitPostError != null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.submitPostError!),
+              backgroundColor: AppColor.alertRed,
             ),
-          ),
-          PostBottomToolbar(
-            onPickGallery: _pickFromGallery,
-            onPickCamera: _pickFromCamera,
-            onPickFile: _pickFile,
-            charCount: _contentController.text.length,
-            showCharCount: _hasContent,
-          ),
-        ],
+          );
+        } else {
+          Navigator.of(context).pop();
+        }
+      },
+      child: BlocBuilder<NewFeedBloc, NewFeedState>(
+        buildWhen: (prev, curr) =>
+            prev.isSubmittingPost != curr.isSubmittingPost,
+        builder: (context, state) {
+          return Scaffold(
+            backgroundColor: AppColor.pureWhite,
+            appBar: _buildAppBar(state.isSubmittingPost),
+            body: Stack(
+              children: [
+                Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 16),
+                            _buildAuthorHeader(context),
+                            const SizedBox(height: 12),
+                            _buildTitleInput(),
+                            const Divider(
+                              height: 20,
+                              color: AppColor.dividerGrey,
+                            ),
+                            PostContentInput(
+                              controller: _contentController,
+                              focusNode: _focusNode,
+                            ),
+                            if (_mediaFiles.isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              PostMediaGrid(
+                                files: _mediaFiles,
+                                onRemove: (i) =>
+                                    setState(() => _mediaFiles.removeAt(i)),
+                              ),
+                            ],
+                            if (_attachedFiles.isNotEmpty) ...[
+                              const SizedBox(height: 8),
+                              PostFileChips(
+                                files: _attachedFiles,
+                                onRemove: (i) =>
+                                    setState(() => _attachedFiles.removeAt(i)),
+                              ),
+                            ],
+                            const SizedBox(height: 12),
+                          ],
+                        ),
+                      ),
+                    ),
+                    PostBottomToolbar(
+                      onPickGallery: _pickFromGallery,
+                      onPickCamera: _pickFromCamera,
+                      onPickFile: _pickFile,
+                      charCount: _titleController.text.length,
+                      showCharCount: _hasTitle,
+                    ),
+                  ],
+                ),
+                if (state.isSubmittingPost)
+                  const Positioned.fill(
+                    child: ColoredBox(
+                      color: Color(0x66FFFFFF),
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          color: AppColor.primaryBlue,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildTitleInput() {
+    return TextField(
+      controller: _titleController,
+      maxLines: 1,
+      maxLength: 255,
+      textCapitalization: TextCapitalization.sentences,
+      style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
+      decoration: InputDecoration(
+        hintText: SocialText.createPostHint,
+        hintStyle: AppTextStyle.h3.copyWith(
+          color: AppColor.tertiaryText,
+          fontWeight: AppTextStyle.regular,
+        ),
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        filled: false,
+        contentPadding: EdgeInsets.zero,
+        counterText: '',
       ),
     );
   }
@@ -195,13 +290,13 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
     );
   }
 
-  PreferredSizeWidget _buildAppBar() {
+  PreferredSizeWidget _buildAppBar(bool isSubmitting) {
     return AppBar(
       backgroundColor: AppColor.pureWhite,
       elevation: 0,
       scrolledUnderElevation: 0.5,
       leading: IconButton(
-        onPressed: () => Navigator.of(context).pop(),
+        onPressed: isSubmitting ? null : () => Navigator.of(context).pop(),
         icon: const Icon(Icons.close, color: AppColor.primaryText, size: 24),
         splashRadius: 20,
       ),
@@ -215,9 +310,9 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
           padding: const EdgeInsets.only(right: 12),
           child: AnimatedOpacity(
             duration: const Duration(milliseconds: 200),
-            opacity: _canPost ? 1.0 : 0.5,
+            opacity: (_canPost && !isSubmitting) ? 1.0 : 0.5,
             child: ElevatedButton(
-              onPressed: _canPost ? _onPostPressed : null,
+              onPressed: (_canPost && !isSubmitting) ? _onPostPressed : null,
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColor.primaryBlue,
                 disabledBackgroundColor: AppColor.primaryBlue20,
@@ -233,13 +328,22 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
                 elevation: 0,
                 minimumSize: const Size(0, 34),
               ),
-              child: Text(
-                SocialText.post,
-                style: AppTextStyle.bodySmall.copyWith(
-                  color: AppColor.pureWhite,
-                  fontWeight: AppTextStyle.medium,
-                ),
-              ),
+              child: isSubmitting
+                  ? const SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColor.pureWhite,
+                      ),
+                    )
+                  : Text(
+                      SocialText.post,
+                      style: AppTextStyle.bodySmall.copyWith(
+                        color: AppColor.pureWhite,
+                        fontWeight: AppTextStyle.medium,
+                      ),
+                    ),
             ),
           ),
         ),
@@ -249,9 +353,5 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         child: Divider(height: 1, color: AppColor.dividerGrey),
       ),
     );
-  }
-
-  void _onPostPressed() {
-    Navigator.of(context).pop(_contentController.text.trim());
   }
 }

@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uit_buddy_mobile/core/common/paged_result.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/social_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/models/post_model.dart';
@@ -34,6 +35,45 @@ class SocialDatasourceImpl implements SocialDatasourceInterface {
       items: dataList,
       nextCursor: nextCursor,
       hasMore: hasMore,
+    );
+  }
+
+  @override
+  Future<PostModel> createPost({
+    required String title,
+    String? content,
+    List<XFile> images = const [],
+    List<XFile> videos = const [],
+  }) async {
+    final formData = FormData();
+    formData.fields.add(MapEntry('title', title));
+    if (content != null && content.isNotEmpty) {
+      formData.fields.add(MapEntry('content', content));
+    }
+    for (final img in images) {
+      formData.files.add(
+        MapEntry(
+          'images',
+          await MultipartFile.fromFile(img.path, filename: img.name),
+        ),
+      );
+    }
+    for (final vid in videos) {
+      formData.files.add(
+        MapEntry(
+          'videos',
+          await MultipartFile.fromFile(vid.path, filename: vid.name),
+        ),
+      );
+    }
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/posts',
+      data: formData,
+    );
+
+    return PostModel.fromJson(
+      response.data!['data'] as Map<String, dynamic>,
     );
   }
 }

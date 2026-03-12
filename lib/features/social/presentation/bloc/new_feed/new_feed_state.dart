@@ -17,5 +17,7 @@ abstract class NewFeedState with _$NewFeedState {
     String? nextCursor,
     @Default(true) bool hasMore,
     @Default(false) bool isLoadingMore,
+    @Default(false) bool isSubmittingPost,
+    String? submitPostError,
   }) = _NewFeedState;
 }
