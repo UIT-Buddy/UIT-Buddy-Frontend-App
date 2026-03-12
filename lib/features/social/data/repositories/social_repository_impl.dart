@@ -33,20 +33,20 @@ class SocialRepositoryImpl implements SocialRepository {
   }
 
   @override
-  Future<Either<Failure, PostEntity>> createPost({
+  Future<Either<Failure, void>> createPost({
     required String title,
     String? content,
     List<XFile> images = const [],
     List<XFile> videos = const [],
   }) async {
     try {
-      final model = await _datasource.createPost(
+      await _datasource.createPost(
         title: title,
         content: content,
         images: images,
         videos: videos,
       );
-      return Right(model.toEntity());
+      return Right(null);
     } on Exception catch (e) {
       return Left(Failure.fromException(e));
     }

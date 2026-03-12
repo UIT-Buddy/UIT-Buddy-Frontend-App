@@ -39,7 +39,7 @@ class SocialDatasourceImpl implements SocialDatasourceInterface {
   }
 
   @override
-  Future<PostModel> createPost({
+  Future<void> createPost({
     required String title,
     String? content,
     List<XFile> images = const [],
@@ -67,13 +67,10 @@ class SocialDatasourceImpl implements SocialDatasourceInterface {
       );
     }
 
-    final response = await _dio.post<Map<String, dynamic>>(
+     await _dio.post<Map<String, dynamic>>(
       '/api/posts',
       data: formData,
     );
 
-    return PostModel.fromJson(
-      response.data!['data'] as Map<String, dynamic>,
-    );
   }
 }

@@ -138,13 +138,10 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
           submitPostError: failure.message,
         ),
       ),
-      (newPost) => emit(
-        state.copyWith(
-          isSubmittingPost: false,
-          submitPostError: null,
-          posts: [newPost, ...state.posts],
-        ),
-      ),
+      (newPost) {
+        emit(state.copyWith(isSubmittingPost: false, submitPostError: null));
+        add(const NewFeedStarted());
+      },
     );
   }
 }

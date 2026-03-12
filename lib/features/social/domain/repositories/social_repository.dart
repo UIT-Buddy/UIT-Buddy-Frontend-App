@@ -10,7 +10,7 @@ abstract interface class SocialRepository {
     int limit = 10,
   });
 
-  Future<Either<Failure, PostEntity>> createPost({
+  Future<Either<Failure, void>> createPost({
     required String title,
     String? content,
     List<XFile> images = const [],

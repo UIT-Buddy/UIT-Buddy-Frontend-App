@@ -6,6 +6,7 @@ class SocialText {
 
   // Create Post
   static const String createPostHint = "What's on your mind?";
+  static const String createPostTitleHint = "Enter your post title";
   static const String createPostTitle = 'Create Post';
   static const String post = 'Post';
   static const String publicVisibility = 'Public';

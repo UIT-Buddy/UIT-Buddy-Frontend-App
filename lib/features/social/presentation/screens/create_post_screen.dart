@@ -266,7 +266,7 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
       textCapitalization: TextCapitalization.sentences,
       style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
       decoration: InputDecoration(
-        hintText: SocialText.createPostHint,
+        hintText: SocialText.createPostTitleHint,
         hintStyle: AppTextStyle.h3.copyWith(
           color: AppColor.tertiaryText,
           fontWeight: AppTextStyle.regular,
