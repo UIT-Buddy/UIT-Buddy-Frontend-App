@@ -59,6 +59,7 @@ import 'package:uit_buddy_mobile/features/profile/data/repositories/profile_repo
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/home_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
@@ -82,6 +83,11 @@ Future<void> initDependencies() async {
   await _initNotificationDependencies();
   await _initStorageDependencies();
   _initSocialDependencies();
+  _initHomeDependencies();
+}
+
+void _initHomeDependencies() {
+  serviceLocator.registerFactory(() => HomeBloc());
 }
 
 Future<void> _initAuthDependencies() async {
