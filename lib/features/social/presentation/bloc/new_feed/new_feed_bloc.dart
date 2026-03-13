@@ -1,6 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/create_post_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_state.dart';
 
@@ -8,8 +10,12 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
   NewFeedBloc({
     required GetNewfeedUsecase getNewfeedUsecase,
     required CreatePostUsecase createPostUsecase,
+    required DeletePostUsecase deletePostUsecase,
+    required ToggleLikeUsecase toggleLikeUsecase,
   }) : _getNewfeedUsecase = getNewfeedUsecase,
        _createPostUsecase = createPostUsecase,
+       _deletePostUsecase = deletePostUsecase,
+       _toggleLikeUsecase = toggleLikeUsecase,
        super(const NewFeedState()) {
     on<NewFeedStarted>(_onNewFeedStarted);
     on<NewFeedTabChanged>(_onTabChanged);
@@ -17,10 +23,13 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     on<NewFeedRefreshed>(_onRefreshed);
     on<NewFeedLoadMore>(_onLoadMore);
     on<NewFeedPostSubmitted>(_onPostSubmitted);
+    on<NewFeedPostDeleted>(_onPostDeleted);
   }
 
   final GetNewfeedUsecase _getNewfeedUsecase;
   final CreatePostUsecase _createPostUsecase;
+  final DeletePostUsecase _deletePostUsecase;
+  final ToggleLikeUsecase _toggleLikeUsecase;
 
   Future<void> _onNewFeedStarted(
     NewFeedStarted event,
@@ -51,18 +60,34 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     emit(state.copyWith(selectedTab: tab));
   }
 
-  void _onPostLiked(NewFeedPostLiked event, Emitter<NewFeedState> emit) {
-    final updatedPosts = state.posts.map((post) {
-      if (post.id == event.postId) {
-        return post.copyWith(
-          isLiked: !post.isLiked,
-          likeCount: post.isLiked ? post.likeCount - 1 : post.likeCount + 1,
-        );
-      }
-      return post;
-    }).toList();
+  Future<void> _onPostLiked(
+    NewFeedPostLiked event,
+    Emitter<NewFeedState> emit,
+  ) async {
+    final previousPosts = state.posts;
 
-    emit(state.copyWith(posts: updatedPosts));
+    // Optimistic update
+    emit(
+      state.copyWith(
+        posts: previousPosts.map((post) {
+          if (post.id != event.postId) return post;
+          return post.copyWith(
+            isLiked: !post.isLiked,
+            likeCount: post.isLiked ? post.likeCount - 1 : post.likeCount + 1,
+          );
+        }).toList(),
+      ),
+    );
+
+    final result = await _toggleLikeUsecase(
+      ToggleLikeParams(postId: event.postId),
+    );
+
+    // Rollback on failure
+    result.fold(
+      (_) => emit(state.copyWith(posts: previousPosts)),
+      (_) {},
+    );
   }
 
   Future<void> _onRefreshed(
@@ -138,10 +163,38 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
           submitPostError: failure.message,
         ),
       ),
-      (newPost) {
-        emit(state.copyWith(isSubmittingPost: false, submitPostError: null));
-        add(const NewFeedStarted());
-      },
+      (newPost) => emit(
+        state.copyWith(
+          isSubmittingPost: false,
+          submitPostError: null,
+          posts: [newPost, ...state.posts],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _onPostDeleted(
+    NewFeedPostDeleted event,
+    Emitter<NewFeedState> emit,
+  ) async {
+    // Optimistic removal
+    final previousPosts = state.posts;
+    emit(
+      state.copyWith(
+        posts: previousPosts
+            .where((p) => p.id != event.postId)
+            .toList(),
+      ),
+    );
+
+    final result = await _deletePostUsecase(
+      DeletePostParams(postId: event.postId),
+    );
+
+    // Rollback on failure
+    result.fold(
+      (failure) => emit(state.copyWith(posts: previousPosts)),
+      (_) {},
     );
   }
 }

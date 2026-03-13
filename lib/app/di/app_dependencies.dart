@@ -64,11 +64,21 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/impl/social_da
 import 'package:uit_buddy_mobile/features/social/data/datasources/social_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/social_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/social_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/create_comment_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/create_post_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_post_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_comment_replies_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_comments_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_comment_like_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
@@ -325,12 +335,53 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton(
     () => CreatePostUsecase(repository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => DeletePostUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ToggleLikeUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetPostDetailUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetPostCommentsUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => CreateCommentUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ReplyToCommentUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DeleteCommentUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ToggleCommentLikeUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetCommentRepliesUsecase(repository: serviceLocator()),
+  );
 
   // Blocs
   serviceLocator.registerFactory(
     () => NewFeedBloc(
       getNewfeedUsecase: serviceLocator(),
       createPostUsecase: serviceLocator(),
+      deletePostUsecase: serviceLocator(),
+      toggleLikeUsecase: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerFactory(
+    () => PostDetailBloc(
+      getPostDetailUsecase: serviceLocator(),
+      getPostCommentsUsecase: serviceLocator(),
+      createCommentUsecase: serviceLocator(),
+      replyToCommentUsecase: serviceLocator(),
+      deleteCommentUsecase: serviceLocator(),
+      toggleCommentLikeUsecase: serviceLocator(),
+      getCommentRepliesUsecase: serviceLocator(),
+      toggleLikeUsecase: serviceLocator(),
     ),
   );
   serviceLocator.registerFactory(() => ChatSettingsBloc());

@@ -3,6 +3,7 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/post_media_enti
 class PostEntity {
   final String id;
   final String title;
+  final String authorMssv;
   final String authorName;
   final String authorClass;
   final String? authorAvatarUrl;
@@ -18,6 +19,7 @@ class PostEntity {
   const PostEntity({
     required this.id,
     required this.title,
+    required this.authorMssv,
     required this.authorName,
     required this.authorClass,
     this.authorAvatarUrl,
@@ -34,6 +36,7 @@ class PostEntity {
   PostEntity copyWith({
     String? id,
     String? title,
+    String? authorMssv,
     String? authorName,
     String? authorClass,
     String? authorAvatarUrl,
@@ -49,6 +52,7 @@ class PostEntity {
     return PostEntity(
       id: id ?? this.id,
       title: title ?? this.title,
+      authorMssv: authorMssv ?? this.authorMssv,
       authorName: authorName ?? this.authorName,
       authorClass: authorClass ?? this.authorClass,
       authorAvatarUrl: authorAvatarUrl ?? this.authorAvatarUrl,

@@ -54,3 +54,12 @@ class NewFeedPostSubmitted extends NewFeedEvent {
   @override
   List<Object?> get props => [title, content];
 }
+
+class NewFeedPostDeleted extends NewFeedEvent {
+  final String postId;
+
+  const NewFeedPostDeleted({required this.postId});
+
+  @override
+  List<Object?> get props => [postId];
+}

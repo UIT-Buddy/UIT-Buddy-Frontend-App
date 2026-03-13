@@ -7,6 +7,7 @@ extension PostModelMapper on PostModel {
   PostEntity toEntity() => PostEntity(
     id: id,
     title: title,
+    authorMssv: author.mssv,
     authorName: author.fullName,
     authorClass: author.homeClassCode,
     authorAvatarUrl: author.avatarUrl,

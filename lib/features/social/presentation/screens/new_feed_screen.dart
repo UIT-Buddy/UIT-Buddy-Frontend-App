@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_state.dart';
@@ -11,6 +12,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/widgets/create_pos
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/message_tab.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
 
 class NewFeedScreen extends StatelessWidget {
@@ -151,14 +153,38 @@ class _NewFeedViewState extends State<_NewFeedView> {
           }
 
           final post = state.posts[postIndex];
+          final currentMssv =
+              context.read<SessionBloc>().state.user?.mssv;
           return PostCard(
             key: ValueKey(post.id),
             post: post,
+            currentUserMssv: currentMssv,
             onLikeTap: () {
               context.read<NewFeedBloc>().add(
                 NewFeedPostLiked(postId: post.id),
               );
             },
+            onDeleteTap: () {
+              context.read<NewFeedBloc>().add(
+                NewFeedPostDeleted(postId: post.id),
+              );
+            },
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PostDetailScreen(
+                  postId: post.id,
+                  initialPost: post,
+                ),
+              ),
+            ),
+            onCommentTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => PostDetailScreen(
+                  postId: post.id,
+                  initialPost: post,
+                ),
+              ),
+            ),
           );
         },
       ),

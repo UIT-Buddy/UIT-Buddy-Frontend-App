@@ -6,14 +6,14 @@ import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/social_repository.dart';
 
-class CreatePostUsecase implements UseCase<void, CreatePostParams> {
+class CreatePostUsecase implements UseCase<PostEntity, CreatePostParams> {
   CreatePostUsecase({required SocialRepository repository})
     : _repository = repository;
 
   final SocialRepository _repository;
 
   @override
-    Future<Either<Failure, void>> call(CreatePostParams params) =>
+  Future<Either<Failure, PostEntity>> call(CreatePostParams params) =>
       _repository.createPost(
         title: params.title,
         content: params.content,

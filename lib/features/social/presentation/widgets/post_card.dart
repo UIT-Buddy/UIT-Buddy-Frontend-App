@@ -11,12 +11,30 @@ import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_stats
 class PostCard extends StatelessWidget {
   final PostEntity post;
   final VoidCallback onLikeTap;
+  final VoidCallback? onDeleteTap;
+  final VoidCallback? onCommentTap;
+  final VoidCallback? onTap;
+  final String? currentUserMssv;
 
-  const PostCard({super.key, required this.post, required this.onLikeTap});
+  const PostCard({
+    super.key,
+    required this.post,
+    required this.onLikeTap,
+    this.onDeleteTap,
+    this.onCommentTap,
+    this.onTap,
+    this.currentUserMssv,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final isAuthor =
+        currentUserMssv != null && currentUserMssv == post.authorMssv;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.deferToChild,
+      child: Container(
       decoration: const BoxDecoration(
         border: Border(
           bottom: BorderSide(color: AppColor.dividerGrey, width: 6),
@@ -30,6 +48,9 @@ class PostCard extends StatelessWidget {
             authorClass: post.authorClass,
             authorAvatarUrl: post.authorAvatarUrl,
             timeAgo: post.timeAgo,
+            isAuthor: isAuthor,
+            postContent: post.contentSnippet,
+            onDeleteConfirmed: onDeleteTap,
           ),
           if (post.title.isNotEmpty) _buildTitle(),
           _buildContent(),
@@ -41,11 +62,16 @@ class PostCard extends StatelessWidget {
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: PostActionBar(isLiked: post.isLiked, onLikeTap: onLikeTap),
+            child: PostActionBar(
+              isLiked: post.isLiked,
+              onLikeTap: onLikeTap,
+              onCommentTap: onCommentTap,
+            ),
           ),
           const SizedBox(height: 4),
         ],
       ),
+    ),
     );
   }
 
