@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/entities/profile_entity.dart';
 
-enum ProfileStatus { initial, loading, loaded, error }
+enum ProfileStatus { initial, loading, loaded, error, signingOut, signedOut }
 
 class ProfileState extends Equatable {
   const ProfileState({

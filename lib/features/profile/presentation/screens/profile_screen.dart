@@ -37,107 +37,133 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => serviceLocator<ProfileBloc>()..add(const ProfileStarted()),
-      child: Scaffold(
-        backgroundColor: AppColor.veryLightGrey,
-        body: BlocBuilder<ProfileBloc, ProfileState>(
-          builder: (context, state) {
-            if (state.status == ProfileStatus.error) {
-              return Center(
-                child: Text(
-                  state.errorMessage ?? 'Something went wrong.',
-                  style: AppTextStyle.bodyMedium,
-                ),
-              );
-            }
+      child: BlocListener<ProfileBloc, ProfileState>(
+        listenWhen: (previous, current) =>
+            current.status == ProfileStatus.signedOut ||
+            current.status == ProfileStatus.error,
+        listener: (context, state) {
+          if (state.status == ProfileStatus.signedOut) {
+            context.go(RouteName.signIn);
+          } else if (state.status == ProfileStatus.error) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage ?? 'Something went wrong.'),
+                backgroundColor: AppColor.alertRed,
+              ),
+            );
+          }
+        },
+        child: Scaffold(
+          backgroundColor: AppColor.veryLightGrey,
+          body: BlocBuilder<ProfileBloc, ProfileState>(
+            builder: (context, state) {
+              final isLoading =
+                  state.status == ProfileStatus.initial ||
+                  state.status == ProfileStatus.loading;
+              final isSigningOut = state.status == ProfileStatus.signingOut;
+              final profile = state.profileInfo ?? _placeholder;
 
-            final isLoading =
-                state.status == ProfileStatus.initial ||
-                state.status == ProfileStatus.loading;
-            final profile = state.profileInfo ?? _placeholder;
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    // Cover + Avatar + Name
+                    ProfileCoverHeaderWidget(
+                      profileInfo: profile,
+                      onNotificationTap: () =>
+                          context.push(RouteName.notification),
+                      onSettingsTap: () {
+                        // Navigate to settings
+                      },
+                    ),
 
-            return SingleChildScrollView(
-              child: Column(
-                children: [
-                  // Cover + Avatar + Name
-                  ProfileCoverHeaderWidget(
-                    profileInfo: profile,
-                    onNotificationTap: () =>
-                        context.push(RouteName.notification),
-                    onSettingsTap: () {
-                      // Navigate to settings
-                    },
-                  ),
+                    // Inline loading indicator
+                    if (isLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(bottom: 8),
+                        child: CircularProgressIndicator(),
+                      )
+                    else
+                      const SizedBox(height: 8),
 
-                  // Inline loading indicator
-                  if (isLoading)
-                    const Padding(
-                      padding: EdgeInsets.only(bottom: 8),
-                      child: CircularProgressIndicator(),
-                    )
-                  else
-                    const SizedBox(height: 8),
+                    // Quick action tabs
+                    ProfileActionTabsWidget(
+                      onTasksTap: () => context.push(
+                        RouteName.tasks,
+                        extra: {'direction': 'forward'},
+                      ),
+                      onYourInfoTap: () => context.push(RouteName.yourInfo),
+                      onYourPostsTap: () => context.push(RouteName.yourPosts),
+                      onGroupsTap: () => context.push(RouteName.groupsJoined),
+                    ),
 
-                  // Quick action tabs
-                  ProfileActionTabsWidget(
-                    onTasksTap: () {},
-                    onYourInfoTap: () {},
-                    onYourPostsTap: () {},
-                    onGroupsTap: () {},
-                  ),
+                    const SizedBox(height: 12),
 
-                  const SizedBox(height: 12),
+                    // Academic summary
+                    ProfileAcademicSummaryWidget(
+                      profileInfo: profile,
+                      onSeeDetailsTap: () => context.push(RouteName.academicDetail),
+                    ),
 
-                  // Academic summary
-                  ProfileAcademicSummaryWidget(
-                    profileInfo: profile,
-                    onSeeDetailsTap: () {},
-                  ),
+                    const SizedBox(height: 12),
 
-                  const SizedBox(height: 12),
+                    // Social media
+                    ProfileSocialMediaWidget(
+                      profileInfo: profile,
+                      onViewPostsTap: () => context.push(RouteName.yourPosts),
+                    ),
 
-                  // Social media
-                  ProfileSocialMediaWidget(
-                    profileInfo: profile,
-                    onViewPostsTap: () {},
-                  ),
+                    const SizedBox(height: 20),
 
-                  const SizedBox(height: 20),
-
-                  // Log out
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: () {
-                          // Handle log out
-                        },
-                        icon: const Icon(
-                          Icons.logout,
-                          color: AppColor.alertRed,
-                          size: 20,
-                        ),
-                        label: const Text('Log out'),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColor.alertRed,
-                          side: const BorderSide(color: AppColor.alertRed),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    // Log out
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: isSigningOut
+                              ? null
+                              : () => context
+                                  .read<ProfileBloc>()
+                                  .add(const SignOutRequested()),
+                          icon: isSigningOut
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: AppColor.alertRed,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.logout,
+                                  color: AppColor.alertRed,
+                                  size: 20,
+                                ),
+                          label: Text(
+                            isSigningOut ? 'Signing out...' : 'Log out',
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          textStyle: AppTextStyle.bodyLarge.copyWith(
-                            fontWeight: AppTextStyle.medium,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: AppColor.alertRed,
+                            side: const BorderSide(color: AppColor.alertRed),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            padding:
+                                const EdgeInsets.symmetric(vertical: 14),
+                            textStyle: AppTextStyle.bodyLarge.copyWith(
+                              fontWeight: AppTextStyle.medium,
+                            ),
                           ),
                         ),
                       ),
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
-                ],
-              ),
-            );
-          },
+                    const SizedBox(height: 24),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
