@@ -27,7 +27,7 @@ import 'package:uit_buddy_mobile/features/profile/presentation/screens/semester_
 import 'package:uit_buddy_mobile/features/root/screens/wrapper_screen.dart';
 
 final goRouter = GoRouter(
-  initialLocation: RouteName.home,
+  initialLocation: RouteName.welcome,
   redirect: (context, state) {
     final tokenStore = serviceLocator<TokenStore>();
     final onAuthFlow =
