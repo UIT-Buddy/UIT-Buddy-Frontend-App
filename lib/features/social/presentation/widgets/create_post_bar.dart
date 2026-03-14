@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/create_post_screen.dart';
 
@@ -18,17 +21,21 @@ class CreatePostBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _buildAvatar(),
+          _buildAvatar(context),
           const SizedBox(width: 12),
           Expanded(
             child: GestureDetector(
               onTap: () {
+                final bloc = context.read<NewFeedBloc>();
                 Navigator.of(context).push(
                   PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) =>
-                        const CreatePostScreen(),
+                    pageBuilder: (ctx, animation, secondaryAnimation) =>
+                        BlocProvider.value(
+                          value: bloc,
+                          child: const CreatePostScreen(),
+                        ),
                     transitionsBuilder:
-                        (context, animation, secondaryAnimation, child) {
+                        (ctx, animation, secondaryAnimation, child) {
                           final curved = CurvedAnimation(
                             parent: animation,
                             curve: Curves.easeOutCubic,
@@ -70,7 +77,28 @@ class CreatePostBar extends StatelessWidget {
     );
   }
 
-  Widget _buildAvatar() {
+  Widget _buildAvatar(BuildContext context) {
+    final user = context.read<SessionBloc>().state.user;
+    final avatarUrl = user?.avatarUrl;
+    final avatarLetter = user?.userLetterAvatar ?? 'U';
+
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      return ClipOval(
+        child: Image.network(
+          avatarUrl,
+          width: 40,
+          height: 40,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              _buildLetterAvatar(avatarLetter),
+        ),
+      );
+    }
+
+    return _buildLetterAvatar(avatarLetter);
+  }
+
+  Widget _buildLetterAvatar(String letter) {
     return Container(
       width: 40,
       height: 40,
@@ -78,10 +106,10 @@ class CreatePostBar extends StatelessWidget {
         shape: BoxShape.circle,
         gradient: AppColor.blueAvatarGradient,
       ),
-      child: const Center(
+      child: Center(
         child: Text(
-          'M',
-          style: TextStyle(
+          letter,
+          style: const TextStyle(
             color: AppColor.pureWhite,
             fontWeight: FontWeight.w600,
             fontSize: 16,
