@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
@@ -22,6 +24,7 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topPadding = MediaQuery.of(context).padding.top;
+    final avatarImage = _resolveAvatarImage(profileInfo.avatarUrl);
 
     return Column(
       children: [
@@ -80,10 +83,10 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     radius: _avatarRadius,
-                    backgroundImage: AssetImage(profileInfo.avatarUrl),
+                    backgroundImage: avatarImage,
                     onBackgroundImageError: (_, _) {},
-                    child: _isValidAsset(profileInfo.avatarUrl)
-                        ? null
+                    child: avatarImage != null
+                      ? null
                         : Image.asset(
                             'assets/images/placeholder/user-icon.png',
                           ),
@@ -106,12 +109,41 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
 
         // MSSV
         Text('MSSV: ${profileInfo.mssv}', style: AppTextStyle.captionMedium),
+        const SizedBox(height: 4),
+
+        // Bio
+        Text(
+          profileInfo.bio,
+          textAlign: TextAlign.center,
+          style: AppTextStyle.bodySmall.copyWith(
+            color: AppColor.secondaryText,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
         const SizedBox(height: 16),
       ],
     );
   }
 
-  bool _isValidAsset(String path) => path.isNotEmpty;
+  ImageProvider? _resolveAvatarImage(String path) {
+    if (path.isEmpty) return null;
+
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return NetworkImage(path);
+    }
+
+    if (path.startsWith('data:image')) {
+      final parts = path.split(',');
+      if (parts.length != 2) return null;
+      try {
+        return MemoryImage(base64Decode(parts[1]));
+      } catch (_) {
+        return null;
+      }
+    }
+
+    return AssetImage(path);
+  }
 }
 
 class _CircleIconButton extends StatelessWidget {

@@ -9,6 +9,7 @@ extension ProfileMapper on model.ProfileModel {
     fullName: fullName,
     email: email,
     avatarUrl: avatarUrl,
+    bio: bio,
     coverUrl: coverUrl,
     stats: stats.toEntity(),
   );

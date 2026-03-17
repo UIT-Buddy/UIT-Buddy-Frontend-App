@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -41,10 +42,23 @@ class _YourInfoBody extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColor.veryLightGrey,
       body: SafeArea(
-        child: BlocBuilder<YourInfoBloc, YourInfoState>(
-          builder: (context, state) {
-            return Column(
-              children: [
+        child: BlocListener<YourInfoBloc, YourInfoState>(
+          listenWhen: (previous, current) =>
+              previous.errorMessage != current.errorMessage &&
+              current.errorMessage != null,
+          listener: (context, state) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                backgroundColor: AppColor.alertRed,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+          child: BlocBuilder<YourInfoBloc, YourInfoState>(
+            builder: (context, state) {
+              return Column(
+                children: [
                 // Header
                 Padding(
                   padding: const EdgeInsets.symmetric(
@@ -122,6 +136,14 @@ class _YourInfoBody extends StatelessWidget {
                               label: 'EMAIL',
                               value: state.yourInfo!.email,
                             ),
+                            _InfoField(
+                              label: 'BIO',
+                              value: state.yourInfo!.bio,
+                            ),
+                            _AvatarInfoField(
+                              label: 'AVATAR URL',
+                              avatarUrl: state.yourInfo!.avatarUrl,
+                            ),
                           ],
                         ),
                         const SizedBox(height: 20),
@@ -145,9 +167,10 @@ class _YourInfoBody extends StatelessWidget {
                       ],
                     ),
                   ),
-              ],
-            );
-          },
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -158,7 +181,7 @@ class _InfoSection extends StatelessWidget {
   const _InfoSection({required this.title, required this.fields});
 
   final String title;
-  final List<_InfoField> fields;
+  final List<Widget> fields;
 
   @override
   Widget build(BuildContext context) {
@@ -224,6 +247,99 @@ class _InfoField extends StatelessWidget {
         const SizedBox(height: 3),
         Text(value, style: AppTextStyle.bodySmall),
       ],
+    );
+  }
+}
+
+class _AvatarInfoField extends StatelessWidget {
+  const _AvatarInfoField({required this.label, required this.avatarUrl});
+
+  final String label;
+  final String avatarUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyle.captionMedium.copyWith(
+            fontWeight: AppTextStyle.medium,
+            letterSpacing: 0.4,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(10),
+          child: _AvatarImage(url: avatarUrl, size: 72),
+        ),
+      ],
+    );
+  }
+}
+
+class _AvatarImage extends StatelessWidget {
+  const _AvatarImage({required this.url, required this.size});
+
+  final String url;
+  final double size;
+
+  bool get _isNetworkUrl =>
+      url.startsWith('http://') ||
+      url.startsWith('https://') ||
+      url.startsWith('blob:');
+
+  bool get _isDataUrl => url.startsWith('data:image');
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isDataUrl) {
+      final parts = url.split(',');
+      if (parts.length == 2) {
+        try {
+          final imageBytes = base64Decode(parts[1]);
+          return Image.memory(
+            imageBytes,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+          );
+        } catch (_) {
+          return _fallbackImage();
+        }
+      }
+    }
+
+    if (_isNetworkUrl) {
+      return Image.network(
+        url,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => _fallbackImage(),
+      );
+    }
+
+    if (url.isNotEmpty) {
+      return Image.asset(
+        url,
+        width: size,
+        height: size,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => _fallbackImage(),
+      );
+    }
+
+    return _fallbackImage();
+  }
+
+  Widget _fallbackImage() {
+    return Image.asset(
+      'assets/images/placeholder/user-icon.png',
+      width: size,
+      height: size,
+      fit: BoxFit.cover,
     );
   }
 }

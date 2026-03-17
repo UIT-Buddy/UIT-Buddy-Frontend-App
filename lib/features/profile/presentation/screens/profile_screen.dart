@@ -22,6 +22,7 @@ class ProfileScreen extends StatelessWidget {
     fullName: 'Full Name',
     email: '—',
     avatarUrl: 'assets/images/placeholder/user-icon.png',
+    bio: '-',
     coverUrl: 'assets/images/placeholder/bg-placeholder-transparent.png',
     stats: ProfileStatsEntity(
       currentGpa: 0.0,

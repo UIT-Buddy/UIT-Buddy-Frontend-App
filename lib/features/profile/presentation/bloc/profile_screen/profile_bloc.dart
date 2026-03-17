@@ -25,9 +25,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ) async {
     emit(state.copyWith(status: ProfileStatus.loading));
 
-    final result = await _getProfileUsecase(
-      const GetProfileParams(email: 'current_user'),
-    );
+    final result = await _getProfileUsecase(const NoParams());
 
     result.fold(
       (failure) => emit(

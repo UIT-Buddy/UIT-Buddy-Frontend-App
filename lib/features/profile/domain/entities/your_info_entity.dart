@@ -6,6 +6,8 @@ class YourInfoEntity extends Equatable {
   final String mssv;
   final String fullName;
   final String email;
+  final String avatarUrl;
+  final String bio;
   final String gender;
   final String homeClass;
   final String faculty;
@@ -15,6 +17,8 @@ class YourInfoEntity extends Equatable {
     required this.mssv,
     required this.fullName,
     required this.email,
+    required this.avatarUrl,
+    required this.bio,
     required this.gender,
     required this.homeClass,
     required this.faculty,
@@ -26,6 +30,8 @@ class YourInfoEntity extends Equatable {
     mssv,
     fullName,
     email,
+    avatarUrl,
+    bio,
     gender,
     homeClass,
     faculty,

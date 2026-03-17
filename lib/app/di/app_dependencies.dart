@@ -338,13 +338,13 @@ void _initSocialDependencies() {
 Future<void> _initProfileDependencies() async {
   // Datasources
   serviceLocator.registerLazySingleton<ProfileDatasourceInterface>(
-    () => ProfileInfoDatasourceImpl(),
+    () => ProfileInfoDatasourceImpl(dio: serviceLocator(instanceName: 'authenticatedDio')),
   );
   serviceLocator.registerLazySingleton<TaskDatasourceInterface>(
     () => TaskDatasourceImpl(),
   );
   serviceLocator.registerLazySingleton<YourInfoDatasourceInterface>(
-    () => YourInfoDatasourceImpl(),
+    () => YourInfoDatasourceImpl(dio: serviceLocator(instanceName: 'authenticatedDio')),
   );
   serviceLocator.registerLazySingleton<PostDatasourceInterface>(
     () => PostDatasourceImpl(),
