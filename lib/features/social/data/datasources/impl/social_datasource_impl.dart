@@ -38,7 +38,7 @@ class SocialDatasourceImpl implements SocialDatasourceInterface {
   }
 
   @override
-  Future<PostModel> createPost({
+  Future<void> createPost({
     required String title,
     String? content,
     List<XFile> images = const [],
@@ -66,14 +66,12 @@ class SocialDatasourceImpl implements SocialDatasourceInterface {
       );
     }
 
-    final response = await _dio.post<Map<String, dynamic>>(
+   await _dio.post<Map<String, dynamic>>(
       '/api/posts',
       data: formData,
     );
 
-    return PostModel.fromJson(
-      response.data!['data'] as Map<String, dynamic>,
-    );
+    
   }
 
   @override
@@ -83,7 +81,7 @@ class SocialDatasourceImpl implements SocialDatasourceInterface {
 
   @override
   Future<void> toggleLike(String postId) async {
-    await _dio.post<void>('/api/posts/$postId/like');
+    await _dio.post<void>('/api/reactions/posts/$postId/like');
   }
 
   @override

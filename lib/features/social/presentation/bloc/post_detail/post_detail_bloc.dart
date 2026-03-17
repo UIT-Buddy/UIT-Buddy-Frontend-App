@@ -59,10 +59,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     Emitter<PostDetailState> emit,
   ) async {
     emit(
-      state.copyWith(
-        status: PostDetailStatus.loading,
-        post: event.initialPost,
-      ),
+      state.copyWith(status: PostDetailStatus.loading, post: event.initialPost),
     );
 
     final postResult = await _getPostDetailUsecase(
@@ -121,10 +118,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     final result = await _toggleLikeUsecase(
       ToggleLikeParams(postId: previousPost.id),
     );
-    result.fold(
-      (_) => emit(state.copyWith(post: previousPost)),
-      (_) {},
-    );
+    result.fold((_) => emit(state.copyWith(post: previousPost)), (_) {});
   }
 
   // ─── Comments ──────────────────────────────────────────────────────────────
@@ -150,7 +144,10 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
           submitCommentError: failure.message,
         ),
       ),
-      (_) => success = true,
+      (_) {
+        success = true;
+        _onStarted(PostDetailStarted(postId: postId), emit);
+      },
     );
     if (!success) return;
 
@@ -186,10 +183,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     emit(state.copyWith(isSubmittingComment: true, submitCommentError: null));
 
     final result = await _replyToCommentUsecase(
-      ReplyToCommentParams(
-        commentId: event.commentId,
-        content: event.content,
-      ),
+      ReplyToCommentParams(commentId: event.commentId, content: event.content),
     );
 
     bool success = false;
@@ -269,10 +263,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     );
     result.fold(
       (_) => emit(
-        state.copyWith(
-          comments: previousComments,
-          replies: previousReplies,
-        ),
+        state.copyWith(comments: previousComments, replies: previousReplies),
       ),
       (_) {},
     );
@@ -298,8 +289,9 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     } else {
       final updatedReplies = <String, List<CommentEntity>>{};
       for (final entry in state.replies.entries) {
-        updatedReplies[entry.key] =
-            entry.value.where((c) => c.id != event.commentId).toList();
+        updatedReplies[entry.key] = entry.value
+            .where((c) => c.id != event.commentId)
+            .toList();
       }
       emit(state.copyWith(replies: updatedReplies));
     }
@@ -309,10 +301,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     );
     result.fold(
       (_) => emit(
-        state.copyWith(
-          comments: previousComments,
-          replies: previousReplies,
-        ),
+        state.copyWith(comments: previousComments, replies: previousReplies),
       ),
       (_) {},
     );
@@ -323,17 +312,16 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     Emitter<PostDetailState> emit,
   ) async {
     final postId = state.post?.id;
-    if (!state.hasMoreComments || state.isLoadingMoreComments || postId == null) {
+    if (!state.hasMoreComments ||
+        state.isLoadingMoreComments ||
+        postId == null) {
       return;
     }
 
     emit(state.copyWith(isLoadingMoreComments: true));
 
     final result = await _getPostCommentsUsecase(
-      GetPostCommentsParams(
-        postId: postId,
-        cursor: state.commentsCursor,
-      ),
+      GetPostCommentsParams(postId: postId, cursor: state.commentsCursor),
     );
     result.fold(
       (_) => emit(state.copyWith(isLoadingMoreComments: false)),
@@ -364,18 +352,12 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     result.fold(
       (_) => emit(
         state.copyWith(
-          loadingReplies: {
-            ...state.loadingReplies,
-            event.commentId: false,
-          },
+          loadingReplies: {...state.loadingReplies, event.commentId: false},
         ),
       ),
       (paged) => emit(
         state.copyWith(
-          loadingReplies: {
-            ...state.loadingReplies,
-            event.commentId: false,
-          },
+          loadingReplies: {...state.loadingReplies, event.commentId: false},
           replies: {...state.replies, event.commentId: paged.items},
         ),
       ),
@@ -398,11 +380,6 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     PostDetailReplyCancelled event,
     Emitter<PostDetailState> emit,
   ) {
-    emit(
-      state.copyWith(
-        replyingToCommentId: null,
-        replyingToAuthorName: null,
-      ),
-    );
+    emit(state.copyWith(replyingToCommentId: null, replyingToAuthorName: null));
   }
 }

@@ -86,7 +86,16 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     // Rollback on failure
     result.fold(
       (_) => emit(state.copyWith(posts: previousPosts)),
-      (_) {},
+      (_) {
+        // update list with the new like count
+        emit(state.copyWith(posts: previousPosts.map((post) {
+          if (post.id != event.postId) return post;
+          return post.copyWith(
+            isLiked: !post.isLiked,
+            likeCount: post.isLiked ? post.likeCount - 1 : post.likeCount + 1,
+          );
+        }).toList()));
+      },
     );
   }
 
@@ -163,13 +172,7 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
           submitPostError: failure.message,
         ),
       ),
-      (newPost) => emit(
-        state.copyWith(
-          isSubmittingPost: false,
-          submitPostError: null,
-          posts: [newPost, ...state.posts],
-        ),
-      ),
+      (_) =>  add(NewFeedStarted()),
     );
   }
 

@@ -10,7 +10,8 @@ abstract class PostModel with _$PostModel {
   const factory PostModel({
     required String id,
     required String title,
-    required String contentSnippet,
+    required String? content,
+    required String? contentSnippet,
     @Default([]) List<PostMediaModel> medias,
     required PostAuthorModel author,
     required int likeCount,

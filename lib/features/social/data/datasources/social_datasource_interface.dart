@@ -8,7 +8,7 @@ abstract interface class SocialDatasourceInterface {
 
   Future<PagedResult<PostModel>> getPosts({String? cursor, int limit = 10});
 
-  Future<PostModel> createPost({
+  Future<void> createPost({
     required String title,
     String? content,
     List<XFile> images = const [],
