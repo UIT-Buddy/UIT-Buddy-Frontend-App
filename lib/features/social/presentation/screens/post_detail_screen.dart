@@ -79,7 +79,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PostDetailBloc, PostDetailState>(
-          listenWhen: (prev, curr) =>
+      listenWhen: (prev, curr) =>
           curr.submitCommentError != null &&
           prev.submitCommentError != curr.submitCommentError,
       listener: (context, state) {
@@ -89,6 +89,11 @@ class _PostDetailViewState extends State<_PostDetailView> {
               state.submitCommentError ?? PostDetailText.genericError,
             ),
             backgroundColor: AppColor.alertRed,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
           ),
         );
       },
@@ -98,15 +103,16 @@ class _PostDetailViewState extends State<_PostDetailView> {
         final currentMssv = currentUser?.mssv;
 
         return Scaffold(
-          backgroundColor: AppColor.veryLightGrey,
+          backgroundColor: AppColor.pureWhite,
           appBar: AppBar(
             backgroundColor: AppColor.pureWhite,
             elevation: 0,
-            scrolledUnderElevation: 0.5,
+            scrolledUnderElevation: 1,
             shadowColor: AppColor.shadowColor,
+            surfaceTintColor: Colors.transparent,
             leading: IconButton(
               icon: const Icon(
-                Icons.arrow_back_ios_new,
+                Icons.arrow_back_ios_new_rounded,
                 size: 18,
                 color: AppColor.primaryText,
               ),
@@ -119,6 +125,14 @@ class _PostDetailViewState extends State<_PostDetailView> {
               ),
             ),
             centerTitle: true,
+            bottom: const PreferredSize(
+              preferredSize: Size.fromHeight(1),
+              child: Divider(
+                height: 1,
+                thickness: 1,
+                color: AppColor.dividerGrey,
+              ),
+            ),
           ),
           body: Column(
             children: [
@@ -178,35 +192,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
     }
 
     if (state.status == PostDetailStatus.error && state.post == null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              color: AppColor.alertRed,
-              size: 48,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              state.errorMessage ?? PostDetailText.errorLoadingPost,
-              style: AppTextStyle.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            TextButton(
-              onPressed: () {
-                if (state.post != null) {
-                  context.read<PostDetailBloc>().add(
-                    PostDetailStarted(postId: state.post!.id),
-                  );
-                }
-              },
-              child: const Text(PostDetailText.retry),
-            ),
-          ],
-        ),
-      );
+      return _buildErrorState(context, state);
     }
 
     return CustomScrollView(
@@ -234,17 +220,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
 
         // ── Comments list ─────────────────────────────────────────────────
         if (state.comments.isEmpty && state.status == PostDetailStatus.loaded)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 32),
-              child: Center(
-                child: Text(
-                  PostDetailText.noComments,
-                  style: AppTextStyle.captionLarge,
-                ),
-              ),
-            ),
-          )
+          SliverToBoxAdapter(child: _buildEmptyComments())
         else
           SliverList(
             delegate: SliverChildBuilderDelegate(
@@ -291,22 +267,128 @@ class _PostDetailViewState extends State<_PostDetailView> {
           child: _buildLoadMoreIndicator(state),
         ),
 
-        const SliverToBoxAdapter(child: SizedBox(height: 16)),
+        const SliverToBoxAdapter(child: SizedBox(height: 20)),
       ],
+    );
+  }
+
+  Widget _buildErrorState(BuildContext context, PostDetailState state) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppColor.alertRed10,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.error_outline_rounded,
+                color: AppColor.alertRed,
+                size: 36,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              state.errorMessage ?? PostDetailText.errorLoadingPost,
+              style: AppTextStyle.bodyMedium.copyWith(
+                color: AppColor.secondaryText,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            FilledButton.icon(
+              onPressed: () {
+                if (state.post != null) {
+                  context.read<PostDetailBloc>().add(
+                    PostDetailStarted(postId: state.post!.id),
+                  );
+                }
+              },
+              icon: const Icon(Icons.refresh_rounded, size: 18),
+              label: const Text(PostDetailText.retry),
+              style: FilledButton.styleFrom(
+                backgroundColor: AppColor.primaryBlue,
+                foregroundColor: AppColor.pureWhite,
+                textStyle: AppTextStyle.bodySmall.copyWith(
+                  fontWeight: AppTextStyle.medium,
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyComments() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.chat_bubble_outline_rounded,
+            size: 44,
+            color: AppColor.tertiaryText,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            PostDetailText.noComments,
+            style: AppTextStyle.captionLarge,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildCommentsHeader(PostDetailState state) {
     final count = state.post?.commentCount ?? state.comments.length;
     return Container(
-      color: AppColor.pureWhite,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
-      margin: const EdgeInsets.only(top: 8),
-      child: Text(
-        PostDetailText.commentsHeader(count),
-        style: AppTextStyle.bodySmall.copyWith(
-          fontWeight: AppTextStyle.bold,
-        ),
+      margin: const EdgeInsets.only(top: 4),
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 10),
+      child: Row(
+        children: [
+          const Icon(
+            Icons.chat_bubble_outline_rounded,
+            size: 16,
+            color: AppColor.primaryBlue,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'Comments',
+            style: AppTextStyle.bodySmall.copyWith(
+              fontWeight: AppTextStyle.bold,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: AppColor.primaryBlue10,
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              '$count',
+              style: AppTextStyle.captionSmall.copyWith(
+                color: AppColor.primaryBlue,
+                fontWeight: AppTextStyle.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -325,9 +407,23 @@ class _PostDetailViewState extends State<_PostDetailView> {
     }
     if (!state.hasMoreComments && state.comments.isNotEmpty) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        child: Center(
-          child: Text(PostDetailText.allCommentsShown, style: AppTextStyle.captionMedium),
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
+        child: Row(
+          children: [
+            const Expanded(
+              child: Divider(color: AppColor.dividerGrey),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Text(
+                PostDetailText.allCommentsShown,
+                style: AppTextStyle.captionMedium,
+              ),
+            ),
+            const Expanded(
+              child: Divider(color: AppColor.dividerGrey),
+            ),
+          ],
         ),
       );
     }
