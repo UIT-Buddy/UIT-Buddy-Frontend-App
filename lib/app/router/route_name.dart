@@ -20,4 +20,7 @@ class RouteName {
   static const String storage = '/storage';
   static const String profile = '/profile';
   static const String notification = '/notification';
+  static const String note = '/note';
+  static const String website = '/website';
+  static const String weather = '/weather';
 }

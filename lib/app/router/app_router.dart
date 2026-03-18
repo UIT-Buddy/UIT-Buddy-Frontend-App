@@ -13,6 +13,9 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_in
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_up_info_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_up_token_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/welcome_screen.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/screens/note_screen.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/screens/website_screen.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/screens/weather_screen.dart';
 import 'package:uit_buddy_mobile/features/root/screens/wrapper_screen.dart';
 
 final goRouter = GoRouter(
@@ -110,6 +113,30 @@ final goRouter = GoRouter(
         context: context,
         state: state,
         child: const NotificationScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.note,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const NoteScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.website,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const WebsiteScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.weather,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const WeatherScreen(),
       ),
     ),
   ],
