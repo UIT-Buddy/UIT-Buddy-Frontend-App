@@ -13,6 +13,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/edit_post/edi
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_author_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_content_input.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_network_video_tile.dart';
 
 class EditPostScreen extends StatelessWidget {
   const EditPostScreen({super.key, required this.post});
@@ -395,16 +396,7 @@ class _ReadOnlyMediaTile extends StatelessWidget {
 
   Widget _buildMedia() {
     if (media.type == PostMediaType.video) {
-      return Container(
-        color: AppColor.primaryText,
-        child: const Center(
-          child: Icon(
-            Icons.play_circle_outline,
-            color: Colors.white,
-            size: 48,
-          ),
-        ),
-      );
+      return PostNetworkVideoTile(url: media.url);
     }
 
     return Image.network(

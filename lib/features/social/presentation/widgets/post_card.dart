@@ -8,6 +8,7 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/post_media_enti
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_action_bar.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_author_row.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_stats_row.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_network_video_tile.dart';
 
 class PostCard extends StatelessWidget {
   final PostEntity post;
@@ -219,12 +220,7 @@ class _MediaTile extends StatelessWidget {
 
   Widget _buildMedia() {
     if (media.type == PostMediaType.video) {
-      return Container(
-        color: AppColor.primaryText,
-        child: const Center(
-          child: Icon(Icons.play_circle_outline, color: Colors.white, size: 48),
-        ),
-      );
+      return PostNetworkVideoTile(url: media.url);
     }
 
     return Image.network(
