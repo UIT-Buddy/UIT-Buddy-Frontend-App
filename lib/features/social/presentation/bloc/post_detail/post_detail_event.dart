@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 
+
 abstract class PostDetailEvent extends Equatable {
   const PostDetailEvent();
 
@@ -90,4 +91,13 @@ class PostDetailReplyingSet extends PostDetailEvent {
 
 class PostDetailReplyCancelled extends PostDetailEvent {
   const PostDetailReplyCancelled();
+}
+
+class PostDetailPostEdited extends PostDetailEvent {
+  final PostEntity updatedPost;
+
+  const PostDetailPostEdited({required this.updatedPost});
+
+  @override
+  List<Object?> get props => [updatedPost.id];
 }

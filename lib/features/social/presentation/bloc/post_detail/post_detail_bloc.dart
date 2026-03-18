@@ -41,6 +41,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     on<PostDetailRepliesLoaded>(_onRepliesLoaded);
     on<PostDetailReplyingSet>(_onReplyingSet);
     on<PostDetailReplyCancelled>(_onReplyCancelled);
+    on<PostDetailPostEdited>(_onPostEdited);
   }
 
   final GetPostDetailUsecase _getPostDetailUsecase;
@@ -80,18 +81,18 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
 
     emit(state.copyWith(status: PostDetailStatus.loaded, post: post));
 
+    await _onRefreshComments(post!.id, emit);
+  }
+  Future<void> _onRefreshComments(
+    String postId,
+    Emitter<PostDetailState> emit,
+  ) async {
     final commentsResult = await _getPostCommentsUsecase(
-      GetPostCommentsParams(postId: event.postId),
+      GetPostCommentsParams(postId: postId),
     );
     commentsResult.fold(
-      (_) {},
-      (paged) => emit(
-        state.copyWith(
-          comments: paged.items,
-          commentsCursor: paged.nextCursor,
-          hasMoreComments: paged.hasMore,
-        ),
-      ),
+      (_) => emit(state.copyWith(status: PostDetailStatus.error)),
+      (paged) => emit(state.copyWith(comments: paged.items, commentsCursor: paged.nextCursor, hasMoreComments: paged.hasMore)),
     );
   }
 
@@ -146,7 +147,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
       ),
       (_) {
         success = true;
-        _onStarted(PostDetailStarted(postId: postId), emit);
+         _onRefreshComments(postId, emit);
       },
     );
     if (!success) return;
@@ -381,5 +382,12 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     Emitter<PostDetailState> emit,
   ) {
     emit(state.copyWith(replyingToCommentId: null, replyingToAuthorName: null));
+  }
+
+  void _onPostEdited(
+    PostDetailPostEdited event,
+    Emitter<PostDetailState> emit,
+  ) {
+    emit(state.copyWith(post: event.updatedPost));
   }
 }

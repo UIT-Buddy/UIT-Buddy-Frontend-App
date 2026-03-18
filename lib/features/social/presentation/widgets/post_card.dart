@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:uit_buddy_mobile/core/utils/datetime.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
@@ -12,6 +13,7 @@ class PostCard extends StatelessWidget {
   final PostEntity post;
   final VoidCallback onLikeTap;
   final VoidCallback? onDeleteTap;
+  final VoidCallback? onEditTap;
   final VoidCallback? onCommentTap;
   final VoidCallback? onTap;
   final String? currentUserMssv;
@@ -21,6 +23,7 @@ class PostCard extends StatelessWidget {
     required this.post,
     required this.onLikeTap,
     this.onDeleteTap,
+    this.onEditTap,
     this.onCommentTap,
     this.onTap,
     this.currentUserMssv,
@@ -47,10 +50,11 @@ class PostCard extends StatelessWidget {
             authorName: post.authorName,
             authorClass: post.authorClass,
             authorAvatarUrl: post.authorAvatarUrl,
-            timeAgo: post.timeAgo,
+            timeAgo: DateTimeUtils.getTimeAgo(post.createdAt),
             isAuthor: isAuthor,
             postContent: post.contentSnippet,
             onDeleteConfirmed: onDeleteTap,
+            onEditTap: onEditTap,
           ),
           if (post.title.isNotEmpty) _buildTitle(),
           _buildContent(),

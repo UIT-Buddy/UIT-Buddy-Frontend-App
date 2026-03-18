@@ -24,6 +24,7 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     on<NewFeedLoadMore>(_onLoadMore);
     on<NewFeedPostSubmitted>(_onPostSubmitted);
     on<NewFeedPostDeleted>(_onPostDeleted);
+    on<NewFeedPostUpdated>(_onPostUpdated);
   }
 
   final GetNewfeedUsecase _getNewfeedUsecase;
@@ -172,7 +173,11 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
           submitPostError: failure.message,
         ),
       ),
-      (_) =>  add(NewFeedStarted()),
+      (_) {
+        emit(state.copyWith(isSubmittingPost: false));
+
+        add(NewFeedStarted());
+      },
     );
   }
 
@@ -198,6 +203,19 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     result.fold(
       (failure) => emit(state.copyWith(posts: previousPosts)),
       (_) {},
+    );
+  }
+
+  void _onPostUpdated(
+    NewFeedPostUpdated event,
+    Emitter<NewFeedState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        posts: state.posts
+            .map((p) => p.id == event.updatedPost.id ? event.updatedPost : p)
+            .toList(),
+      ),
     );
   }
 }

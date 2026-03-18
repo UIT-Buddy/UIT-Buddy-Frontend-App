@@ -26,4 +26,31 @@ class SocialText {
   static const String noPostsYet = 'No posts yet';
   static const String errorLoading = 'Failed to load posts';
   static const String messagePlaceholder = 'Messages coming soon...';
+
+  // Edit Post screen
+  static const String editPostTitle = 'Edit post';
+  static const String save = 'Save';
+  static const String genericError =
+      'An error occurred. Please try again later.';
+
+  // Post menu — actions
+  static const String copyPostContent = 'Copy content';
+  static const String savePost = 'Save post';
+  static const String editPost = 'Edit post';
+  static const String deletePost = 'Delete post';
+  static const String hidePost = 'Hide post';
+  static const String reportPost = 'Report post';
+
+  // Post menu — feedback snackbars
+  static const String postContentCopied = 'Content copied';
+  static const String postSaved = 'Post saved';
+  static const String postHidden = 'Post hidden';
+  static const String postReported = 'Report submitted';
+
+  // Delete post dialog
+  static const String deletePostTitle = 'Delete post';
+  static const String deletePostBody =
+      'This post will be permanently deleted and cannot be recovered. Are you sure you want to delete it?';
+  static const String cancel = 'Cancel';
+  static const String delete = 'Delete';
 }

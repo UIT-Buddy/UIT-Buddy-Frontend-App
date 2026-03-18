@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/core/utils/datetime.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/comment_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/post_detail_text.dart';
 
@@ -98,7 +99,7 @@ class CommentItemWidget extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      comment.timeAgo,
+                      DateTimeUtils.getTimeAgo(comment.createdAt),
                       style: AppTextStyle.captionMedium,
                     ),
                     const SizedBox(width: 14),
@@ -279,7 +280,7 @@ class _ReplyItemWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 4, top: 4),
                 child: Row(
                   children: [
-                    Text(reply.timeAgo, style: AppTextStyle.captionMedium),
+                    Text(DateTimeUtils.getTimeAgo(reply.createdAt), style: AppTextStyle.captionMedium),
                     const SizedBox(width: 14),
                     _LikeButton(
                       isLiked: reply.isLiked,

@@ -9,6 +9,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/p
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/post_detail_text.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/comments/comment_input_bar.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/comments/comment_item.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
@@ -55,6 +56,16 @@ class _PostDetailViewState extends State<_PostDetailView> {
       ..dispose();
     _commentFocusNode.dispose();
     super.dispose();
+  }
+
+  Future<void> _navigateToEdit(BuildContext context, PostEntity post) async {
+    final bloc = context.read<PostDetailBloc>();
+    final updated = await Navigator.of(context).push<PostEntity>(
+      MaterialPageRoute(builder: (_) => EditPostScreen(post: post)),
+    );
+    if (updated != null) {
+      bloc.add(PostDetailPostEdited(updatedPost: updated));
+    }
   }
 
   void _onScroll() {
@@ -212,6 +223,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
                   .add(const PostDetailPostLikeToggled()),
               onCommentTap: () => _commentFocusNode.requestFocus(),
               onDeleteTap: null,
+              onEditTap: () => _navigateToEdit(context, state.post!),
             ),
           ),
 

@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 
 abstract class NewFeedEvent extends Equatable {
   const NewFeedEvent();
@@ -62,4 +63,13 @@ class NewFeedPostDeleted extends NewFeedEvent {
 
   @override
   List<Object?> get props => [postId];
+}
+
+class NewFeedPostUpdated extends NewFeedEvent {
+  final PostEntity updatedPost;
+
+  const NewFeedPostUpdated({required this.updatedPost});
+
+  @override
+  List<Object?> get props => [updatedPost.id];
 }

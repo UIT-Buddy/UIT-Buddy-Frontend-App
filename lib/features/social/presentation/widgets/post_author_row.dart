@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
 
 enum _PostMenuAction { copyText, savePost, report, hide, edit, delete }
 
@@ -13,6 +14,7 @@ class PostAuthorRow extends StatelessWidget {
   final bool isAuthor;
   final String postContent;
   final VoidCallback? onDeleteConfirmed;
+  final VoidCallback? onEditTap;
 
   const PostAuthorRow({
     super.key,
@@ -23,6 +25,7 @@ class PostAuthorRow extends StatelessWidget {
     this.isAuthor = false,
     this.postContent = '',
     this.onDeleteConfirmed,
+    this.onEditTap,
   });
 
   @override
@@ -86,13 +89,13 @@ class PostAuthorRow extends StatelessWidget {
         _menuItem(
           value: _PostMenuAction.copyText,
           icon: Icons.content_copy_rounded,
-          label: 'Sao chép nội dung',
+          label: SocialText.copyPostContent,
           color: AppColor.primaryText,
         ),
         _menuItem(
           value: _PostMenuAction.savePost,
           icon: Icons.bookmark_border_rounded,
-          label: 'Lưu bài viết',
+          label: SocialText.savePost,
           color: AppColor.primaryText,
         ),
         if (isAuthor) ...[
@@ -100,13 +103,13 @@ class PostAuthorRow extends StatelessWidget {
           _menuItem(
             value: _PostMenuAction.edit,
             icon: Icons.edit_outlined,
-            label: 'Chỉnh sửa bài viết',
+            label: SocialText.editPost,
             color: AppColor.primaryText,
           ),
           _menuItem(
             value: _PostMenuAction.delete,
             icon: Icons.delete_outline_rounded,
-            label: 'Xóa bài viết',
+            label: SocialText.deletePost,
             color: AppColor.alertRed,
           ),
         ] else ...[
@@ -114,13 +117,13 @@ class PostAuthorRow extends StatelessWidget {
           _menuItem(
             value: _PostMenuAction.hide,
             icon: Icons.visibility_off_outlined,
-            label: 'Ẩn bài viết',
+            label: SocialText.hidePost,
             color: AppColor.primaryText,
           ),
           _menuItem(
             value: _PostMenuAction.report,
             icon: Icons.flag_outlined,
-            label: 'Báo cáo bài viết',
+            label: SocialText.reportPost,
             color: AppColor.alertRed,
           ),
         ],
@@ -160,7 +163,7 @@ class PostAuthorRow extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Đã sao chép nội dung'),
+              content: Text(SocialText.postContentCopied),
               duration: Duration(seconds: 2),
             ),
           );
@@ -169,19 +172,18 @@ class PostAuthorRow extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Đã lưu bài viết'),
+              content: Text(SocialText.postSaved),
               duration: Duration(seconds: 2),
             ),
           );
         }
       case _PostMenuAction.edit:
-        // TODO: Navigate to edit screen
-        break;
+        onEditTap?.call();
       case _PostMenuAction.hide:
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Đã ẩn bài viết'),
+              content: Text(SocialText.postHidden),
               duration: Duration(seconds: 2),
             ),
           );
@@ -190,7 +192,7 @@ class PostAuthorRow extends StatelessWidget {
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Đã gửi báo cáo'),
+              content: Text(SocialText.postReported),
               duration: Duration(seconds: 2),
             ),
           );
@@ -205,15 +207,13 @@ class PostAuthorRow extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text('Xóa bài viết'),
-        content: const Text(
-          'Bài viết sẽ bị xóa vĩnh viễn và không thể khôi phục. Bạn có chắc muốn xóa không?',
-        ),
+        title: const Text(SocialText.deletePostTitle),
+        content: const Text(SocialText.deletePostBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(false),
             child: Text(
-              'Hủy',
+              SocialText.cancel,
               style: AppTextStyle.bodySmall.copyWith(
                 color: AppColor.secondaryText,
               ),
@@ -230,7 +230,7 @@ class PostAuthorRow extends StatelessWidget {
               elevation: 0,
             ),
             child: Text(
-              'Xóa',
+              SocialText.delete,
               style: AppTextStyle.bodySmall.copyWith(color: Colors.white),
             ),
           ),
