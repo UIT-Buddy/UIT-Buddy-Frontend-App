@@ -12,6 +12,8 @@ import 'package:uit_buddy_mobile/features/social/presentation/widgets/create_pos
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/message_tab.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
 
@@ -93,6 +95,16 @@ class _NewFeedViewState extends State<_NewFeedView> {
     );
   }
 
+  Future<void> _navigateToEdit(BuildContext context, PostEntity post) async {
+    final bloc = context.read<NewFeedBloc>();
+    final updated = await Navigator.of(context).push<PostEntity>(
+      MaterialPageRoute(builder: (_) => EditPostScreen(post: post)),
+    );
+    if (updated != null) {
+      bloc.add(NewFeedPostUpdated(updatedPost: updated));
+    }
+  }
+
   Widget _buildFeedTab(BuildContext context, NewFeedState state) {
     if (state.status == NewFeedStatus.loading) {
       return ListView.builder(
@@ -169,6 +181,7 @@ class _NewFeedViewState extends State<_NewFeedView> {
                 NewFeedPostDeleted(postId: post.id),
               );
             },
+            onEditTap: () => _navigateToEdit(context, post),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => PostDetailScreen(

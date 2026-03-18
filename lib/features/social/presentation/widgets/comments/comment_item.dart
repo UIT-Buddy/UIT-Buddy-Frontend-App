@@ -1,9 +1,15 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/core/utils/datetime.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/comment_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/post_detail_text.dart';
+
+// Slightly darker grey for reply bubbles to show hierarchy against parent grey
+const _kReplyBubbleColor = Color(0xFFEBEBF0);
+const _kThreadLineColor = Color(0xFFDDE1E7);
 
 class CommentItemWidget extends StatelessWidget {
   final CommentEntity comment;
@@ -32,125 +38,91 @@ class CommentItemWidget extends StatelessWidget {
   });
 
   bool get _isAuthor =>
-      currentUserMssv != null &&
-      currentUserMssv == comment.author?.mssv;
+      currentUserMssv != null && currentUserMssv == comment.author?.mssv;
+
+  bool get _showThreadLine =>
+      (loadedReplies != null && loadedReplies!.isNotEmpty) ||
+      isLoadingReplies ||
+      (comment.replyCount > 0 && loadedReplies == null && !isLoadingReplies);
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildCommentRow(context),
-          if (comment.replyCount > 0 &&
-              loadedReplies == null &&
-              !isLoadingReplies)
-            _buildViewRepliesButton(),
-          if (isLoadingReplies) _buildRepliesLoader(),
-          if (loadedReplies != null && loadedReplies!.isNotEmpty)
-            _buildRepliesList(context),
-        ],
-      ),
-    );
-  }
+    final hasReplies = loadedReplies != null && loadedReplies!.isNotEmpty;
+    final showViewReplies =
+        comment.replyCount > 0 && loadedReplies == null && !isLoadingReplies;
 
-  Widget _buildCommentRow(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildAvatar(comment.author),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Bubble
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.veryLightGrey,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      comment.author?.fullName ?? PostDetailText.anonymous,
-                      style: AppTextStyle.bodySmall.copyWith(
-                        fontWeight: AppTextStyle.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 3),
-                    Text(
-                      comment.content,
-                      style: AppTextStyle.bodySmall,
-                    ),
-                  ],
-                ),
-              ),
-              // Actions row
-              Padding(
-                padding: const EdgeInsets.only(left: 4, top: 4),
-                child: Row(
-                  children: [
-                    Text(
-                      comment.timeAgo,
-                      style: AppTextStyle.captionMedium,
-                    ),
-                    const SizedBox(width: 14),
-                    _LikeButton(
-                      isLiked: comment.isLiked,
-                      likeCount: comment.likeCount,
-                      onTap: onLikeTap,
-                    ),
-                    if (onReplyTap != null) ...[
-                      const SizedBox(width: 14),
-                      GestureDetector(
-                        onTap: onReplyTap,
-                        child: Text(
-                          PostDetailText.reply,
-                          style: AppTextStyle.captionMedium,
-                        ),
-                      ),
-                    ],
-                    const Spacer(),
-                    _CommentMenuButton(
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Avatar + vertical thread line ──────────────────────────────
+            _AvatarThreadColumn(
+              author: comment.author,
+              radius: 16,
+              showLine: _showThreadLine,
+            ),
+            const SizedBox(width: 8),
+            // ── Bubble + actions + replies ─────────────────────────────────
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _CommentBubble(
+                    authorName:
+                        comment.author?.fullName ?? PostDetailText.anonymous,
+                    content: comment.content,
+                    color: AppColor.veryLightGrey,
+                    withShadow: false,
+                  ),
+                  _ActionsRow(
+                    createdAt: comment.createdAt,
+                    isLiked: comment.isLiked,
+                    likeCount: comment.likeCount,
+                    onLikeTap: onLikeTap,
+                    onReplyTap: onReplyTap,
+                    menuButton: _CommentMenuButton(
                       isAuthor: _isAuthor,
                       content: comment.content,
                       onDelete: onDeleteTap,
                     ),
-                  ],
-                ),
+                  ),
+                  if (showViewReplies) _buildViewRepliesButton(),
+                  if (isLoadingReplies) _buildRepliesLoader(),
+                  if (hasReplies) _buildRepliesList(context),
+                  const SizedBox(height: 4),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
   Widget _buildViewRepliesButton() {
     return Padding(
-      padding: const EdgeInsets.only(left: 44, top: 4),
+      padding: const EdgeInsets.only(top: 8),
       child: GestureDetector(
         onTap: onViewRepliesTap,
         child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 20,
-              height: 1,
-              color: AppColor.secondaryText,
-              margin: const EdgeInsets.only(right: 8),
+              width: 18,
+              height: 1.5,
+              margin: const EdgeInsets.only(right: 6),
+              decoration: BoxDecoration(
+                color: AppColor.primaryBlue,
+                borderRadius: BorderRadius.circular(1),
+              ),
             ),
             Text(
               PostDetailText.viewReplies(comment.replyCount),
               style: AppTextStyle.captionMedium.copyWith(
                 fontWeight: AppTextStyle.bold,
-                color: AppColor.secondaryText,
+                color: AppColor.primaryBlue,
               ),
             ),
           ],
@@ -161,7 +133,7 @@ class CommentItemWidget extends StatelessWidget {
 
   Widget _buildRepliesLoader() {
     return const Padding(
-      padding: EdgeInsets.only(left: 44, top: 8),
+      padding: EdgeInsets.only(top: 10),
       child: SizedBox(
         height: 20,
         width: 20,
@@ -175,17 +147,19 @@ class CommentItemWidget extends StatelessWidget {
 
   Widget _buildRepliesList(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 36, top: 6),
+      padding: const EdgeInsets.only(top: 8),
       child: Column(
-        children: loadedReplies!.map((reply) {
+        children: loadedReplies!.asMap().entries.map((entry) {
+          final isLast = entry.key == loadedReplies!.length - 1;
+          final reply = entry.value;
           final isReplyAuthor =
-              currentUserMssv != null &&
-              currentUserMssv == reply.author?.mssv;
+              currentUserMssv != null && currentUserMssv == reply.author?.mssv;
           return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: EdgeInsets.only(bottom: isLast ? 0 : 8),
             child: _ReplyItemWidget(
               reply: reply,
               isAuthor: isReplyAuthor,
+              isLast: isLast,
               onLikeTap: () => onReplyLikeTap?.call(reply.id),
               onDeleteTap: () => onReplyDeleteTap?.call(reply.id),
             ),
@@ -194,140 +168,253 @@ class CommentItemWidget extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildAvatar(CommentAuthorEntity? author) {
+// ─── Shared: avatar column with optional thread line ─────────────────────────
+
+class _AvatarThreadColumn extends StatelessWidget {
+  final CommentAuthorEntity? author;
+  final double radius;
+  final bool showLine;
+
+  const _AvatarThreadColumn({
+    required this.author,
+    required this.radius,
+    required this.showLine,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     final url = author?.avatarUrl;
     final letter = author?.avatarLetter ?? '?';
+    final size = radius * 2;
 
+    Widget avatar;
     if (url != null && url.isNotEmpty) {
-      return CircleAvatar(
-        radius: 16,
+      avatar = CircleAvatar(
+        radius: radius,
         backgroundColor: AppColor.veryLightGrey,
-        backgroundImage: NetworkImage(url),
+        backgroundImage: CachedNetworkImageProvider(url),
+      );
+    } else {
+      avatar = CircleAvatar(
+        radius: radius,
+        backgroundColor: AppColor.primaryBlue20,
+        child: Text(
+          letter,
+          style: (radius >= 16
+                  ? AppTextStyle.captionSmall
+                  : AppTextStyle.captionExtraSmall)
+              .copyWith(
+            color: AppColor.primaryBlue,
+            fontWeight: AppTextStyle.bold,
+          ),
+        ),
       );
     }
-    return CircleAvatar(
-      radius: 16,
-      backgroundColor: AppColor.primaryBlue20,
-      child: Text(
-        letter,
-        style: AppTextStyle.captionSmall.copyWith(
-          color: AppColor.primaryBlue,
-          fontWeight: AppTextStyle.bold,
-        ),
+
+    return SizedBox(
+      width: size,
+      child: Column(
+        children: [
+          avatar,
+          if (showLine)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 5),
+                child: Center(
+                  child: Container(
+                    width: 2,
+                    decoration: BoxDecoration(
+                      color: _kThreadLineColor,
+                      borderRadius: BorderRadius.circular(1),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
 }
 
-// ─── Reply item ──────────────────────────────────────────────────────────────
+// ─── Shared: comment / reply bubble ──────────────────────────────────────────
+
+class _CommentBubble extends StatelessWidget {
+  final String authorName;
+  final String content;
+  final Color color;
+  final bool withShadow;
+
+  const _CommentBubble({
+    required this.authorName,
+    required this.content,
+    required this.color,
+    this.withShadow = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: withShadow
+            ? [
+                BoxShadow(
+                  color: AppColor.shadowColor,
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
+                ),
+              ]
+            : null,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            authorName,
+            style: AppTextStyle.bodySmall.copyWith(
+              fontWeight: AppTextStyle.bold,
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(content, style: AppTextStyle.bodySmall),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Shared: actions row (time · like · reply) ────────────────────────────────
+
+class _ActionsRow extends StatelessWidget {
+  final DateTime createdAt;
+  final bool isLiked;
+  final int likeCount;
+  final VoidCallback onLikeTap;
+  final VoidCallback? onReplyTap;
+  final Widget menuButton;
+
+  const _ActionsRow({
+    required this.createdAt,
+    required this.isLiked,
+    required this.likeCount,
+    required this.onLikeTap,
+    this.onReplyTap,
+    required this.menuButton,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 4, top: 0),
+      child: Row(
+        children: [
+          Text(
+            DateTimeUtils.getTimeAgo(createdAt),
+            style: AppTextStyle.captionMedium,
+          ),
+          const SizedBox(width: 14),
+          _LikeButton(
+            isLiked: isLiked,
+            likeCount: likeCount,
+            onTap: onLikeTap,
+          ),
+          if (onReplyTap != null) ...[
+            const SizedBox(width: 14),
+            GestureDetector(
+              onTap: onReplyTap,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.reply_rounded,
+                    size: 14,
+                    color: AppColor.secondaryText,
+                  ),
+                  const SizedBox(width: 3),
+                  Text(
+                    PostDetailText.reply,
+                    style: AppTextStyle.captionMedium,
+                  ),
+                ],
+              ),
+            ),
+          ],
+          const Spacer(),
+          menuButton,
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Reply item ───────────────────────────────────────────────────────────────
 
 class _ReplyItemWidget extends StatelessWidget {
   final CommentEntity reply;
   final bool isAuthor;
+  final bool isLast;
   final VoidCallback onLikeTap;
   final VoidCallback? onDeleteTap;
 
   const _ReplyItemWidget({
     required this.reply,
     required this.isAuthor,
+    required this.isLast,
     required this.onLikeTap,
     this.onDeleteTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildAvatar(),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColor.veryLightGrey,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      reply.author?.fullName ?? PostDetailText.anonymous,
-                      style: AppTextStyle.captionLarge.copyWith(
-                        fontWeight: AppTextStyle.bold,
-                        color: AppColor.primaryText,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      reply.content,
-                      style: AppTextStyle.captionLarge.copyWith(
-                        color: AppColor.primaryText,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 4, top: 4),
-                child: Row(
-                  children: [
-                    Text(reply.timeAgo, style: AppTextStyle.captionMedium),
-                    const SizedBox(width: 14),
-                    _LikeButton(
-                      isLiked: reply.isLiked,
-                      likeCount: reply.likeCount,
-                      onTap: onLikeTap,
-                    ),
-                    const Spacer(),
-                    _CommentMenuButton(
-                      isAuthor: isAuthor,
-                      content: reply.content,
-                      onDelete: onDeleteTap,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Avatar column — no thread line on last reply
+          _AvatarThreadColumn(
+            author: reply.author,
+            radius: 14,
+            showLine: false,
           ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildAvatar() {
-    final url = reply.author?.avatarUrl;
-    final letter = reply.author?.avatarLetter ?? '?';
-
-    if (url != null && url.isNotEmpty) {
-      return CircleAvatar(
-        radius: 14,
-        backgroundColor: AppColor.veryLightGrey,
-        backgroundImage: NetworkImage(url),
-      );
-    }
-    return CircleAvatar(
-      radius: 14,
-      backgroundColor: AppColor.primaryBlue20,
-      child: Text(
-        letter,
-        style: AppTextStyle.captionExtraSmall.copyWith(
-          color: AppColor.primaryBlue,
-          fontWeight: AppTextStyle.bold,
-        ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _CommentBubble(
+                  authorName:
+                      reply.author?.fullName ?? PostDetailText.anonymous,
+                  content: reply.content,
+                  color: _kReplyBubbleColor,
+                  withShadow: false,
+                ),
+                _ActionsRow(
+                  createdAt: reply.createdAt,
+                  isLiked: reply.isLiked,
+                  likeCount: reply.likeCount,
+                  onLikeTap: onLikeTap,
+                  menuButton: _CommentMenuButton(
+                    isAuthor: isAuthor,
+                    content: reply.content,
+                    onDelete: onDeleteTap,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-// ─── Like button ─────────────────────────────────────────────────────────────
+// ─── Like button ──────────────────────────────────────────────────────────────
 
 class _LikeButton extends StatelessWidget {
   final bool isLiked;
@@ -347,25 +434,35 @@ class _LikeButton extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text(
-            PostDetailText.like,
-            style: AppTextStyle.captionMedium.copyWith(
-              color: isLiked ? AppColor.alertRed : AppColor.secondaryText,
-              fontWeight:
-                  isLiked ? AppTextStyle.bold : AppTextStyle.regular,
-            ),
+          Icon(
+            isLiked ? Icons.favorite_rounded : Icons.favorite_border_rounded,
+            size: 14,
+            color: isLiked ? AppColor.alertRed : AppColor.secondaryText,
           ),
-          if (likeCount > 0) ...[
-            const SizedBox(width: 4),
-            Text('$likeCount', style: AppTextStyle.captionMedium),
-          ],
+          const SizedBox(width: 4),
+          if (likeCount > 0)
+            Text(
+              '$likeCount',
+              style: AppTextStyle.captionMedium.copyWith(
+                color: isLiked ? AppColor.alertRed : AppColor.secondaryText,
+                fontWeight:
+                    isLiked ? AppTextStyle.bold : AppTextStyle.regular,
+              ),
+            )
+          else
+            Text(
+              PostDetailText.like,
+              style: AppTextStyle.captionMedium.copyWith(
+                color: AppColor.secondaryText,
+              ),
+            ),
         ],
       ),
     );
   }
 }
 
-// ─── Menu button ─────────────────────────────────────────────────────────────
+// ─── Menu button ──────────────────────────────────────────────────────────────
 
 enum _CommentMenuAction { copy, delete, report }
 

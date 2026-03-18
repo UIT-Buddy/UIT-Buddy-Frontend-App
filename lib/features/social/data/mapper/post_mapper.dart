@@ -11,7 +11,7 @@ extension PostModelMapper on PostModel {
     authorName: author.fullName,
     authorClass: author.homeClassCode,
     authorAvatarUrl: author.avatarUrl,
-    contentSnippet: contentSnippet,
+    contentSnippet: content ?? contentSnippet ?? "",
     medias: medias.map((m) => m.toEntity()).toList(),
     createdAt: createdAt,
     likeCount: likeCount,

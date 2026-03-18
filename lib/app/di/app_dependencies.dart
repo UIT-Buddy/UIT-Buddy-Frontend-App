@@ -60,10 +60,18 @@ import 'package:uit_buddy_mobile/features/session/data/repositories/session_repo
 import 'package:uit_buddy_mobile/features/session/domain/repositories/session_repository.dart';
 import 'package:uit_buddy_mobile/features/session/domain/usecases/get_current_user_usecase.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/impl/social_datasource_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/social_datasource_interface.dart';
-import 'package:uit_buddy_mobile/features/social/data/repositories/social_repository_impl.dart';
-import 'package:uit_buddy_mobile/features/social/domain/repositories/social_repository.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/comment_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/comment_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/post_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/reaction_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/post_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/reaction_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/comment_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/post_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/reaction_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/post_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/reaction_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/create_comment_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/create_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_comment_usecase.dart';
@@ -75,8 +83,10 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_comment_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_like_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/update_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/edit_post/edit_post_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
@@ -316,19 +326,35 @@ Future<void> _initCalendarDependencies() async {
 }
 
 void _initSocialDependencies() {
-  // Datasource
-  serviceLocator.registerLazySingleton<SocialDatasourceInterface>(
-    () => SocialDatasourceImpl(
+  // Datasources
+  serviceLocator.registerLazySingleton<PostDatasourceInterface>(
+    () => PostDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+  serviceLocator.registerLazySingleton<CommentDatasourceInterface>(
+    () => CommentDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+  serviceLocator.registerLazySingleton<ReactionDatasourceInterface>(
+    () => ReactionDatasourceImpl(
       dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
 
-  // Repository
-  serviceLocator.registerLazySingleton<SocialRepository>(
-    () => SocialRepositoryImpl(datasource: serviceLocator()),
+  // Repositories
+  serviceLocator.registerLazySingleton<PostRepository>(
+    () => PostRepositoryImpl(datasource: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<CommentRepository>(
+    () => CommentRepositoryImpl(datasource: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<ReactionRepository>(
+    () => ReactionRepositoryImpl(datasource: serviceLocator()),
   );
 
-  // Usecases
+  // Usecases — Post
   serviceLocator.registerLazySingleton(
     () => GetNewfeedUsecase(repository: serviceLocator()),
   );
@@ -339,11 +365,18 @@ void _initSocialDependencies() {
     () => DeletePostUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
+    () => GetPostDetailUsecase(repository: serviceLocator()),
+  );
+
+  // Usecases — Reaction
+  serviceLocator.registerLazySingleton(
     () => ToggleLikeUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => GetPostDetailUsecase(repository: serviceLocator()),
+    () => ToggleCommentLikeUsecase(repository: serviceLocator()),
   );
+
+  // Usecases — Comment
   serviceLocator.registerLazySingleton(
     () => GetPostCommentsUsecase(repository: serviceLocator()),
   );
@@ -357,13 +390,16 @@ void _initSocialDependencies() {
     () => DeleteCommentUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => ToggleCommentLikeUsecase(repository: serviceLocator()),
+    () => GetCommentRepliesUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => GetCommentRepliesUsecase(repository: serviceLocator()),
+    () => UpdatePostUsecase(repository: serviceLocator()),
   );
 
   // Blocs
+  serviceLocator.registerFactory(
+    () => EditPostBloc(updatePostUsecase: serviceLocator()),
+  );
   serviceLocator.registerFactory(
     () => NewFeedBloc(
       getNewfeedUsecase: serviceLocator(),

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
@@ -84,12 +85,12 @@ class CreatePostBar extends StatelessWidget {
 
     if (avatarUrl != null && avatarUrl.isNotEmpty) {
       return ClipOval(
-        child: Image.network(
-          avatarUrl,
+        child: CachedNetworkImage(
+          imageUrl: avatarUrl,
           width: 40,
           height: 40,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) =>
+          errorWidget: (context, url, error) =>
               _buildLetterAvatar(avatarLetter),
         ),
       );

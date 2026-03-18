@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
@@ -33,12 +34,12 @@ class PostAuthorHeader extends StatelessWidget {
   Widget _buildAvatar() {
     if (avatarUrl != null && avatarUrl!.isNotEmpty) {
       return ClipOval(
-        child: Image.network(
-          avatarUrl!,
+        child: CachedNetworkImage(
+          imageUrl: avatarUrl!,
           width: 44,
           height: 44,
           fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _buildLetterAvatar(),
+          errorWidget: (context, url, error) => _buildLetterAvatar(),
         ),
       );
     }

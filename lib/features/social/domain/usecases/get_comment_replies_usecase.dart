@@ -4,23 +4,23 @@ import 'package:uit_buddy_mobile/core/common/paged_result.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/comment_entity.dart';
-import 'package:uit_buddy_mobile/features/social/domain/repositories/social_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_repository.dart';
 
 class GetCommentRepliesUsecase
     implements UseCase<PagedResult<CommentEntity>, GetCommentRepliesParams> {
-  GetCommentRepliesUsecase({required SocialRepository repository})
-    : _repository = repository;
+  GetCommentRepliesUsecase({required CommentRepository repository})
+      : _repository = repository;
 
-  final SocialRepository _repository;
+  final CommentRepository _repository;
 
   @override
   Future<Either<Failure, PagedResult<CommentEntity>>> call(
     GetCommentRepliesParams params,
   ) => _repository.getCommentReplies(
-    commentId: params.commentId,
-    cursor: params.cursor,
-    limit: params.limit,
-  );
+        commentId: params.commentId,
+        cursor: params.cursor,
+        limit: params.limit,
+      );
 }
 
 class GetCommentRepliesParams extends Equatable {

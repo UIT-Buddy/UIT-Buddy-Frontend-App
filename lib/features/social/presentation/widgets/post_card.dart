@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:uit_buddy_mobile/core/utils/datetime.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
@@ -7,11 +9,13 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/post_media_enti
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_action_bar.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_author_row.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_stats_row.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_network_video_tile.dart';
 
 class PostCard extends StatelessWidget {
   final PostEntity post;
   final VoidCallback onLikeTap;
   final VoidCallback? onDeleteTap;
+  final VoidCallback? onEditTap;
   final VoidCallback? onCommentTap;
   final VoidCallback? onTap;
   final String? currentUserMssv;
@@ -21,6 +25,7 @@ class PostCard extends StatelessWidget {
     required this.post,
     required this.onLikeTap,
     this.onDeleteTap,
+    this.onEditTap,
     this.onCommentTap,
     this.onTap,
     this.currentUserMssv,
@@ -47,10 +52,11 @@ class PostCard extends StatelessWidget {
             authorName: post.authorName,
             authorClass: post.authorClass,
             authorAvatarUrl: post.authorAvatarUrl,
-            timeAgo: post.timeAgo,
+            timeAgo: DateTimeUtils.getTimeAgo(post.createdAt),
             isAuthor: isAuthor,
             postContent: post.contentSnippet,
             onDeleteConfirmed: onDeleteTap,
+            onEditTap: onEditTap,
           ),
           if (post.title.isNotEmpty) _buildTitle(),
           _buildContent(),
@@ -215,37 +221,27 @@ class _MediaTile extends StatelessWidget {
 
   Widget _buildMedia() {
     if (media.type == PostMediaType.video) {
-      return Container(
-        color: AppColor.primaryText,
-        child: const Center(
-          child: Icon(Icons.play_circle_outline, color: Colors.white, size: 48),
-        ),
-      );
+      return PostNetworkVideoTile(url: media.url);
     }
 
-    return Image.network(
-      media.url,
+    return CachedNetworkImage(
+      imageUrl: media.url,
       fit: BoxFit.cover,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return Shimmer.fromColors(
-          baseColor: AppColor.dividerGrey,
-          highlightColor: AppColor.veryLightGrey,
-          child: Container(color: Colors.white),
-        );
-      },
-      errorBuilder: (context, error, stackTrace) {
-        return Container(
-          color: AppColor.veryLightGrey,
-          child: const Center(
-            child: Icon(
-              Icons.image_not_supported_outlined,
-              color: AppColor.secondaryText,
-              size: 32,
-            ),
+      placeholder: (context, url) => Shimmer.fromColors(
+        baseColor: AppColor.dividerGrey,
+        highlightColor: AppColor.veryLightGrey,
+        child: Container(color: Colors.white),
+      ),
+      errorWidget: (context, url, error) => Container(
+        color: AppColor.veryLightGrey,
+        child: const Center(
+          child: Icon(
+            Icons.image_not_supported_outlined,
+            color: AppColor.secondaryText,
+            size: 32,
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 

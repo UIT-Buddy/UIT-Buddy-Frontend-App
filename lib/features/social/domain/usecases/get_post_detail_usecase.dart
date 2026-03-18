@@ -3,13 +3,13 @@ import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
-import 'package:uit_buddy_mobile/features/social/domain/repositories/social_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/post_repository.dart';
 
 class GetPostDetailUsecase implements UseCase<PostEntity, GetPostDetailParams> {
-  GetPostDetailUsecase({required SocialRepository repository})
-    : _repository = repository;
+  GetPostDetailUsecase({required PostRepository repository})
+      : _repository = repository;
 
-  final SocialRepository _repository;
+  final PostRepository _repository;
 
   @override
   Future<Either<Failure, PostEntity>> call(GetPostDetailParams params) =>

@@ -24,6 +24,7 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     on<NewFeedLoadMore>(_onLoadMore);
     on<NewFeedPostSubmitted>(_onPostSubmitted);
     on<NewFeedPostDeleted>(_onPostDeleted);
+    on<NewFeedPostUpdated>(_onPostUpdated);
   }
 
   final GetNewfeedUsecase _getNewfeedUsecase;
@@ -86,7 +87,16 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     // Rollback on failure
     result.fold(
       (_) => emit(state.copyWith(posts: previousPosts)),
-      (_) {},
+      (_) {
+        // update list with the new like count
+        emit(state.copyWith(posts: previousPosts.map((post) {
+          if (post.id != event.postId) return post;
+          return post.copyWith(
+            isLiked: !post.isLiked,
+            likeCount: post.isLiked ? post.likeCount - 1 : post.likeCount + 1,
+          );
+        }).toList()));
+      },
     );
   }
 
@@ -163,13 +173,11 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
           submitPostError: failure.message,
         ),
       ),
-      (newPost) => emit(
-        state.copyWith(
-          isSubmittingPost: false,
-          submitPostError: null,
-          posts: [newPost, ...state.posts],
-        ),
-      ),
+      (_) {
+        emit(state.copyWith(isSubmittingPost: false));
+
+        add(NewFeedStarted());
+      },
     );
   }
 
@@ -195,6 +203,19 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     result.fold(
       (failure) => emit(state.copyWith(posts: previousPosts)),
       (_) {},
+    );
+  }
+
+  void _onPostUpdated(
+    NewFeedPostUpdated event,
+    Emitter<NewFeedState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        posts: state.posts
+            .map((p) => p.id == event.updatedPost.id ? event.updatedPost : p)
+            .toList(),
+      ),
     );
   }
 }

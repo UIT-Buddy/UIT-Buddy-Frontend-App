@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
@@ -141,7 +142,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 CircleAvatar(
                   radius: 18,
                   backgroundColor: AppColor.veryLightGrey,
-                  backgroundImage: NetworkImage(widget.conversation.avatarUrl),
+                  backgroundImage: CachedNetworkImageProvider(widget.conversation.avatarUrl),
                 ),
                 if (widget.conversation.isOnline)
                   Positioned(

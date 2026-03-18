@@ -1,39 +1,35 @@
 import 'package:equatable/equatable.dart';
 import 'package:fpdart/fpdart.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/post_repository.dart';
 
-class CreatePostUsecase implements UseCase<Unit, CreatePostParams> {
-  CreatePostUsecase({required PostRepository repository})
+class UpdatePostUsecase implements UseCase<Unit, UpdatePostParams> {
+  UpdatePostUsecase({required PostRepository repository})
       : _repository = repository;
 
   final PostRepository _repository;
 
   @override
-  Future<Either<Failure, Unit>> call(CreatePostParams params) =>
-      _repository.createPost(
+  Future<Either<Failure, Unit>> call(UpdatePostParams params) =>
+      _repository.updatePost(
+        postId: params.postId,
         title: params.title,
         content: params.content,
-        images: params.images,
-        videos: params.videos,
       );
 }
 
-class CreatePostParams extends Equatable {
+class UpdatePostParams extends Equatable {
+  final String postId;
   final String title;
   final String? content;
-  final List<XFile> images;
-  final List<XFile> videos;
 
-  const CreatePostParams({
+  const UpdatePostParams({
+    required this.postId,
     required this.title,
     this.content,
-    this.images = const [],
-    this.videos = const [],
   });
 
   @override
-  List<Object?> get props => [title, content];
+  List<Object?> get props => [postId, title, content];
 }

@@ -55,13 +55,16 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   // ─── Helpers ───────────────────────────────────────────────────────────────
+  static final List<String> imageExts = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
 
+  // minetype sometime is not correct, so i use the extension to determine the type
   List<XFile> get _images => _mediaFiles
-      .where((f) => !(f.mimeType?.startsWith('video/') ?? false))
+      .where((f) => imageExts.contains(f.name.split('.').last.toLowerCase()))
       .toList();
+  static final List<String> videoExts = ['mp4', 'mov', 'avi', 'mkv', 'webm', 'm4v'];
 
   List<XFile> get _videos => _mediaFiles
-      .where((f) => f.mimeType?.startsWith('video/') ?? false)
+      .where((f) => videoExts.contains(f.name.split('.').last.toLowerCase()))
       .toList();
 
   // ─── Media picking ─────────────────────────────────────────────────────────
@@ -149,6 +152,8 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
 
   void _onPostPressed() {
     if (!_canPost) return;
+    debugPrint('images: ${_images.map((f) => f.name).toList()}');
+    debugPrint('videos: ${_videos.map((f) => f.name).toList()}');
     context.read<NewFeedBloc>().add(
       NewFeedPostSubmitted(
         title: _titleController.text.trim(),
