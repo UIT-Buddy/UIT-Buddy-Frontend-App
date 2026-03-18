@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
@@ -204,7 +205,7 @@ class CommentItemWidget extends StatelessWidget {
       return CircleAvatar(
         radius: 16,
         backgroundColor: AppColor.veryLightGrey,
-        backgroundImage: NetworkImage(url),
+        backgroundImage: CachedNetworkImageProvider(url),
       );
     }
     return CircleAvatar(
@@ -311,7 +312,7 @@ class _ReplyItemWidget extends StatelessWidget {
       return CircleAvatar(
         radius: 14,
         backgroundColor: AppColor.veryLightGrey,
-        backgroundImage: NetworkImage(url),
+        backgroundImage: CachedNetworkImageProvider(url),
       );
     }
     return CircleAvatar(

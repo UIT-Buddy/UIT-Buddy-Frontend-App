@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:shimmer/shimmer.dart';
@@ -399,18 +400,15 @@ class _ReadOnlyMediaTile extends StatelessWidget {
       return PostNetworkVideoTile(url: media.url);
     }
 
-    return Image.network(
-      media.url,
+    return CachedNetworkImage(
+      imageUrl: media.url,
       fit: BoxFit.cover,
-      loadingBuilder: (context, child, loadingProgress) {
-        if (loadingProgress == null) return child;
-        return Shimmer.fromColors(
-          baseColor: AppColor.dividerGrey,
-          highlightColor: AppColor.veryLightGrey,
-          child: Container(color: Colors.white),
-        );
-      },
-      errorBuilder: (context, error, stackTrace) => Container(
+      placeholder: (context, url) => Shimmer.fromColors(
+        baseColor: AppColor.dividerGrey,
+        highlightColor: AppColor.veryLightGrey,
+        child: Container(color: Colors.white),
+      ),
+      errorWidget: (context, url, error) => Container(
         color: AppColor.veryLightGrey,
         child: const Center(
           child: Icon(

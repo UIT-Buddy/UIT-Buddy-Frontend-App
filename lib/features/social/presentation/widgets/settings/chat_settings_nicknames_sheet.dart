@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
@@ -183,7 +184,7 @@ class _NicknameRow extends StatelessWidget {
             CircleAvatar(
               radius: 20,
               backgroundColor: AppColor.veryLightGrey,
-              backgroundImage: NetworkImage(member.avatarUrl),
+              backgroundImage: CachedNetworkImageProvider(member.avatarUrl),
             ),
             const SizedBox(width: 12),
             Expanded(

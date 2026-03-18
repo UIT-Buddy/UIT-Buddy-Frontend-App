@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
@@ -248,7 +249,7 @@ class PostAuthorRow extends StatelessWidget {
       return CircleAvatar(
         radius: 20,
         backgroundColor: AppColor.veryLightGrey,
-        backgroundImage: NetworkImage(authorAvatarUrl!),
+        backgroundImage: CachedNetworkImageProvider(authorAvatarUrl!),
       );
     }
 

@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
@@ -209,14 +210,12 @@ class _MediaGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         return GestureDetector(
           onTap: () {},
-          child: Image.network(
-            preview[index].url,
+          child: CachedNetworkImage(
+            imageUrl: preview[index].url,
             fit: BoxFit.cover,
-            loadingBuilder: (ctx, child, progress) {
-              if (progress == null) return child;
-              return Container(color: AppColor.veryLightGrey);
-            },
-            errorBuilder: (context, error, stackTrace) =>
+            placeholder: (context, url) =>
+                Container(color: AppColor.veryLightGrey),
+            errorWidget: (context, url, error) =>
                 Container(color: AppColor.veryLightGrey),
           ),
         );

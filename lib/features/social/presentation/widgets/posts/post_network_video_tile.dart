@@ -1,3 +1,4 @@
+import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:video_player/video_player.dart';
@@ -14,43 +15,46 @@ class PostNetworkVideoTile extends StatefulWidget {
 }
 
 class _PostNetworkVideoTileState extends State<PostNetworkVideoTile> {
-  late final VideoPlayerController _controller;
+  late final CachedVideoPlayerPlus _player;
+  VideoPlayerController? _controller;
   bool _initialized = false;
   bool _isPlaying = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url));
-    _controller.initialize().then((_) {
+    _player = CachedVideoPlayerPlus.networkUrl(Uri.parse(widget.url));
+    _player.initialize().then((_) {
       if (!mounted) return;
+      _controller = _player.controller;
+      _controller!.addListener(_onControllerUpdate);
       setState(() => _initialized = true);
     });
-    _controller.addListener(_onControllerUpdate);
   }
 
   void _onControllerUpdate() {
     if (!mounted) return;
-    final playing = _controller.value.isPlaying;
+    final playing = _controller?.value.isPlaying ?? false;
     if (playing != _isPlaying) setState(() => _isPlaying = playing);
   }
 
   @override
   void dispose() {
-    _controller.removeListener(_onControllerUpdate);
-    _controller.dispose();
+    _controller?.removeListener(_onControllerUpdate);
+    _player.dispose();
     super.dispose();
   }
 
   void _togglePlayPause() {
-    if (_controller.value.isPlaying) {
-      _controller.pause();
+    final ctrl = _controller;
+    if (ctrl == null) return;
+    if (ctrl.value.isPlaying) {
+      ctrl.pause();
     } else {
-      // Restart from beginning if the video finished
-      if (_controller.value.position >= _controller.value.duration) {
-        _controller.seekTo(Duration.zero);
+      if (ctrl.value.position >= ctrl.value.duration) {
+        ctrl.seekTo(Duration.zero);
       }
-      _controller.play();
+      ctrl.play();
     }
   }
 
@@ -59,9 +63,7 @@ class _PostNetworkVideoTileState extends State<PostNetworkVideoTile> {
     return VisibilityDetector(
       key: Key('video_${widget.url}'),
       onVisibilityChanged: (info) {
-        if (info.visibleFraction == 0 && _controller.value.isPlaying) {
-          _controller.pause();
-        }
+        if (info.visibleFraction == 0) _controller?.pause();
       },
       child: GestureDetector(
         onTap: _initialized ? _togglePlayPause : null,
@@ -77,7 +79,8 @@ class _PostNetworkVideoTileState extends State<PostNetworkVideoTile> {
   }
 
   Widget _buildVideoOrPlaceholder() {
-    if (!_initialized) {
+    final ctrl = _controller;
+    if (!_initialized || ctrl == null) {
       return Shimmer.fromColors(
         baseColor: AppColor.dividerGrey,
         highlightColor: AppColor.veryLightGrey,
@@ -89,9 +92,9 @@ class _PostNetworkVideoTileState extends State<PostNetworkVideoTile> {
       fit: BoxFit.cover,
       clipBehavior: Clip.hardEdge,
       child: SizedBox(
-        width: _controller.value.size.width,
-        height: _controller.value.size.height,
-        child: VideoPlayer(_controller),
+        width: ctrl.value.size.width,
+        height: ctrl.value.size.height,
+        child: VideoPlayer(ctrl),
       ),
     );
   }

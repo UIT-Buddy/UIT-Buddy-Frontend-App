@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
@@ -184,7 +185,7 @@ class _Chip extends StatelessWidget {
               CircleAvatar(
                 radius: 24,
                 backgroundColor: AppColor.veryLightGrey,
-                backgroundImage: NetworkImage(contact.avatarUrl),
+                backgroundImage: CachedNetworkImageProvider(contact.avatarUrl),
               ),
               Positioned(
                 top: -4,
@@ -255,7 +256,7 @@ class _ContactRow extends StatelessWidget {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: AppColor.veryLightGrey,
-                  backgroundImage: NetworkImage(contact.avatarUrl),
+                  backgroundImage: CachedNetworkImageProvider(contact.avatarUrl),
                 ),
                 if (contact.isOnline)
                   Positioned(
