@@ -59,7 +59,41 @@ import 'package:uit_buddy_mobile/features/profile/data/repositories/profile_repo
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
+import 'package:uit_buddy_mobile/features/session/data/datasources/impl/session_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/session/data/datasources/session_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/session/data/repositories/session_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/session/domain/repositories/session_repository.dart';
+import 'package:uit_buddy_mobile/features/session/domain/usecases/get_current_user_usecase.dart';
+import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/comment_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/comment_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/post_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/reaction_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/post_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/reaction_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/comment_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/post_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/reaction_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/post_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/reaction_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/create_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/create_post_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_post_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_comment_replies_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_comments_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_comment_like_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_like_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/update_post_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/edit_post/edit_post_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
@@ -77,6 +111,7 @@ final serviceLocator = GetIt.instance;
 Future<void> initDependencies() async {
   await Firebase.initializeApp();
   await _initAuthDependencies();
+  _initSessionDependencies();
   await _initCalendarDependencies();
   await _initProfileDependencies();
   await _initNotificationDependencies();
@@ -237,6 +272,30 @@ Future<void> _initAuthDependencies() async {
   );
 }
 
+void _initSessionDependencies() {
+  // Datasource — uses authenticatedDio since /api/user/me requires a token
+  serviceLocator.registerLazySingleton<SessionDatasourceInterface>(
+    () => SessionDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<SessionRepository>(
+    () => SessionRepositoryImpl(datasource: serviceLocator()),
+  );
+
+  // Usecase
+  serviceLocator.registerLazySingleton(
+    () => GetCurrentUserUsecase(repository: serviceLocator()),
+  );
+
+  // Bloc — singleton so the same instance is shared across the whole app
+  serviceLocator.registerLazySingleton(
+    () => SessionBloc(getCurrentUserUsecase: serviceLocator()),
+  );
+}
+
 Future<void> _initCalendarDependencies() async {
   // Datasources
   serviceLocator.registerLazySingleton<CalendarDatasourceInterface>(
@@ -287,8 +346,102 @@ Future<void> _initCalendarDependencies() async {
 }
 
 void _initSocialDependencies() {
+  // Datasources
+  serviceLocator.registerLazySingleton<PostDatasourceInterface>(
+    () => PostDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+  serviceLocator.registerLazySingleton<CommentDatasourceInterface>(
+    () => CommentDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+  serviceLocator.registerLazySingleton<ReactionDatasourceInterface>(
+    () => ReactionDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+
+  // Repositories
+  serviceLocator.registerLazySingleton<PostRepository>(
+    () => PostRepositoryImpl(datasource: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<CommentRepository>(
+    () => CommentRepositoryImpl(datasource: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<ReactionRepository>(
+    () => ReactionRepositoryImpl(datasource: serviceLocator()),
+  );
+
+  // Usecases — Post
+  serviceLocator.registerLazySingleton(
+    () => GetNewfeedUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => CreatePostUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DeletePostUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetPostDetailUsecase(repository: serviceLocator()),
+  );
+
+  // Usecases — Reaction
+  serviceLocator.registerLazySingleton(
+    () => ToggleLikeUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ToggleCommentLikeUsecase(repository: serviceLocator()),
+  );
+
+  // Usecases — Comment
+  serviceLocator.registerLazySingleton(
+    () => GetPostCommentsUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => CreateCommentUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ReplyToCommentUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DeleteCommentUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetCommentRepliesUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => UpdatePostUsecase(repository: serviceLocator()),
+  );
+
   // Blocs
-  serviceLocator.registerFactory(() => NewFeedBloc());
+  serviceLocator.registerFactory(
+    () => EditPostBloc(updatePostUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => NewFeedBloc(
+      getNewfeedUsecase: serviceLocator(),
+      createPostUsecase: serviceLocator(),
+      deletePostUsecase: serviceLocator(),
+      toggleLikeUsecase: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerFactory(
+    () => PostDetailBloc(
+      getPostDetailUsecase: serviceLocator(),
+      getPostCommentsUsecase: serviceLocator(),
+      createCommentUsecase: serviceLocator(),
+      replyToCommentUsecase: serviceLocator(),
+      deleteCommentUsecase: serviceLocator(),
+      toggleCommentLikeUsecase: serviceLocator(),
+      getCommentRepliesUsecase: serviceLocator(),
+      toggleLikeUsecase: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerFactory(() => ChatSettingsBloc());
+  serviceLocator.registerFactory(() => ContactPickerBloc());
 }
 
 Future<void> _initProfileDependencies() async {
