@@ -6,9 +6,12 @@ import 'package:visibility_detector/visibility_detector.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 
 class PostNetworkVideoTile extends StatefulWidget {
-  const PostNetworkVideoTile({super.key, required this.url});
+  const PostNetworkVideoTile({super.key, required this.url, this.onTap});
 
   final String url;
+
+  /// When provided, overrides the default play/pause tap behaviour.
+  final VoidCallback? onTap;
 
   @override
   State<PostNetworkVideoTile> createState() => _PostNetworkVideoTileState();
@@ -66,7 +69,7 @@ class _PostNetworkVideoTileState extends State<PostNetworkVideoTile> {
         if (info.visibleFraction == 0) _controller?.pause();
       },
       child: GestureDetector(
-        onTap: _initialized ? _togglePlayPause : null,
+        onTap: widget.onTap ?? (_initialized ? _togglePlayPause : null),
         child: Stack(
           fit: StackFit.expand,
           children: [
