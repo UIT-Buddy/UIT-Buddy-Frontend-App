@@ -37,7 +37,9 @@ jobs:
         run: dart run build_runner build --delete-conflicting-outputs
 
       - name: Create Runtime .env file
-        run: echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+        run: |
+          echo "${{ secrets.ENV_FILE_CONTENT }}" > .env
+          echo "BASE_URL=${{ secrets.API_BASE_URL }}" >> .env
 
       - name: Decode Keystore and Setup key.properties
         run: |
