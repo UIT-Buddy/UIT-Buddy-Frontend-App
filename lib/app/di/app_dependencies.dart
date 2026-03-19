@@ -153,6 +153,13 @@ import 'package:uit_buddy_mobile/features/storage/domain/repositories/subject_cl
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/document_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/subject_class_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc.dart';
+import 'package:uit_buddy_mobile/core/config/parameter.dart';
+import 'package:uit_buddy_mobile/features/home/data/datasources/impl/weather_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/home/data/datasources/weather_datasource.dart';
+import 'package:uit_buddy_mobile/features/home/data/repositories/weather_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/home/domain/repositories/weather_repository.dart';
+import 'package:uit_buddy_mobile/features/home/domain/usecases/get_weather_usecase.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/weather_bloc.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -168,6 +175,7 @@ Future<void> initDependencies() async {
   await _initGroupsDependencies();
   await _initSettingsDependencies();
   // await _initYourPostsDependencies();
+  _initWeatherDependencies();
 }
 
 Future<void> _initAuthDependencies() async {
@@ -713,6 +721,31 @@ Future<void> _initSettingsDependencies() async {
       tokenStore: serviceLocator(),
     ),
   );
+}
+
+void _initWeatherDependencies() {
+  // Dedicated plain Dio for OpenWeatherMap (no auth interceptor needed)
+  serviceLocator.registerLazySingleton<Dio>(
+    () => Dio(
+      BaseOptions(
+        baseUrl: WeatherParams.baseUrl,
+        connectTimeout: const Duration(seconds: 10),
+        receiveTimeout: const Duration(seconds: 10),
+      ),
+    ),
+    instanceName: 'weatherDio',
+  );
+
+  // Datasource
+  serviceLocator.registerLazySingleton<WeatherDatasource>(
+    () =>
+        WeatherDatasourceImpl(dio: serviceLocator(instanceName: 'weatherDio')),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<WeatherRepository>(
+    () => WeatherRepositoryImpl(weatherDatasource: serviceLocator()),
+  );
 
   // Usecase
   serviceLocator.registerLazySingleton(
@@ -722,6 +755,14 @@ Future<void> _initSettingsDependencies() async {
   // Blocs
   serviceLocator.registerFactory(
     () => SettingsBloc(deleteAccountUsecase: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetWeatherUsecase(repository: serviceLocator()),
+  );
+
+  // Bloc
+  serviceLocator.registerFactory(
+    () => WeatherBloc(getWeatherUsecase: serviceLocator()),
   );
 }
 
@@ -748,3 +789,4 @@ Future<void> _initSettingsDependencies() async {
 //     () => YourPostsBloc(getPostsUsecase: serviceLocator()),
 //   );
 // }
+   
