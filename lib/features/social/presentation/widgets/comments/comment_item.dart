@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/core/utils/datetime.dart';
@@ -149,7 +150,7 @@ class CommentItemWidget extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: 8),
       child: Column(
-        children: loadedReplies!.asMap().entries.map((entry) {
+        children: loadedReplies!.sortWithDate((e) => e.createdAt).asMap().entries.map((entry) {
           final isLast = entry.key == loadedReplies!.length - 1;
           final reply = entry.value;
           final isReplyAuthor =

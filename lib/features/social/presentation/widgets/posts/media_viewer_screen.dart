@@ -3,29 +3,44 @@ import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_media_entity.dart';
 
 class MediaViewerScreen extends StatefulWidget {
   final List<PostMediaEntity> medias;
   final int initialIndex;
+  final PostEntity post;
+  final VoidCallback onLikeTap;
+  final VoidCallback? onCommentTap;
 
   const MediaViewerScreen({
     super.key,
     required this.medias,
     required this.initialIndex,
+    required this.post,
+    required this.onLikeTap,
+    this.onCommentTap,
   });
 
   static Route<void> route({
     required List<PostMediaEntity> medias,
     required int initialIndex,
+    required PostEntity post,
+    required VoidCallback onLikeTap,
+    VoidCallback? onCommentTap,
   }) {
     return PageRouteBuilder<void>(
       opaque: false,
       barrierColor: Colors.black,
       transitionDuration: const Duration(milliseconds: 220),
       reverseTransitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (_, __, ___) =>
-          MediaViewerScreen(medias: medias, initialIndex: initialIndex),
+      pageBuilder: (_, __, ___) => MediaViewerScreen(
+        medias: medias,
+        initialIndex: initialIndex,
+        post: post,
+        onLikeTap: onLikeTap,
+        onCommentTap: onCommentTap,
+      ),
       transitionsBuilder: (_, animation, __, child) =>
           FadeTransition(opacity: animation, child: child),
     );
@@ -38,11 +53,15 @@ class MediaViewerScreen extends StatefulWidget {
 class _MediaViewerScreenState extends State<MediaViewerScreen> {
   late final PageController _pageController;
   late int _currentIndex;
+  late bool _isLiked;
+  late int _likeCount;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
+    _isLiked = widget.post.isLiked;
+    _likeCount = widget.post.likeCount;
     _pageController = PageController(initialPage: widget.initialIndex);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
   }
@@ -52,6 +71,19 @@ class _MediaViewerScreenState extends State<MediaViewerScreen> {
     _pageController.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     super.dispose();
+  }
+
+  void _handleLikeTap() {
+    setState(() {
+      if (_isLiked) {
+        _isLiked = false;
+        _likeCount = (_likeCount - 1).clamp(0, double.maxFinite.toInt());
+      } else {
+        _isLiked = true;
+        _likeCount += 1;
+      }
+    });
+    widget.onLikeTap();
   }
 
   @override
@@ -78,6 +110,19 @@ class _MediaViewerScreenState extends State<MediaViewerScreen> {
           _TopOverlay(
             currentIndex: _currentIndex,
             total: widget.medias.length,
+          ),
+          _BottomActionBar(
+            isLiked: _isLiked,
+            likeCount: _likeCount,
+            commentCount: widget.post.commentCount,
+            shareCount: widget.post.shareCount,
+            onLikeTap: _handleLikeTap,
+            onCommentTap: widget.onCommentTap != null
+                ? () {
+                    Navigator.of(context).pop();
+                    widget.onCommentTap!();
+                  }
+                : null,
           ),
         ],
       ),
@@ -145,6 +190,121 @@ class _TopOverlay extends StatelessWidget {
               ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─── Bottom action bar: like · comment · share ────────────────────────────────
+
+class _BottomActionBar extends StatelessWidget {
+  final bool isLiked;
+  final int likeCount;
+  final int commentCount;
+  final int shareCount;
+  final VoidCallback onLikeTap;
+  final VoidCallback? onCommentTap;
+
+  const _BottomActionBar({
+    required this.isLiked,
+    required this.likeCount,
+    required this.commentCount,
+    required this.shareCount,
+    required this.onLikeTap,
+    this.onCommentTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final bottomPadding = MediaQuery.of(context).padding.bottom;
+
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: [Color(0xBB000000), Colors.transparent],
+          ),
+        ),
+        padding: EdgeInsets.fromLTRB(24, 28, 24, bottomPadding + 16),
+        child: Row(
+          children: [
+            _ActionButton(
+              icon: isLiked
+                  ? Icons.favorite_rounded
+                  : Icons.favorite_border_rounded,
+              label: likeCount > 0 ? '$likeCount' : 'Like',
+              color: isLiked ? const Color(0xFFFF3B30) : Colors.white,
+              onTap: onLikeTap,
+            ),
+            const SizedBox(width: 28),
+            _ActionButton(
+              icon: Icons.chat_bubble_outline_rounded,
+              label: commentCount > 0 ? '$commentCount' : 'Comment',
+              color: Colors.white,
+              onTap: onCommentTap,
+            ),
+            const SizedBox(width: 28),
+            _ActionButton(
+              icon: Icons.reply_rounded,
+              label: shareCount > 0 ? '$shareCount' : 'Share',
+              color: Colors.white,
+              onTap: null,
+              iconMirror: true,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback? onTap;
+  final bool iconMirror;
+
+  const _ActionButton({
+    required this.icon,
+    required this.label,
+    required this.color,
+    this.onTap,
+    this.iconMirror = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    Widget iconWidget = Icon(icon, color: color, size: 24);
+    if (iconMirror) {
+      iconWidget = Transform(
+        alignment: Alignment.center,
+        transform: Matrix4.rotationY(3.14159),
+        child: iconWidget,
+      );
+    }
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          iconWidget,
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: color,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
       ),
     );
   }
