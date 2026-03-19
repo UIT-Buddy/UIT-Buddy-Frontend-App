@@ -18,6 +18,7 @@ import 'package:uit_buddy_mobile/features/profile/domain/entities/your_info_enti
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/add_edit_task_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/edit_your_info_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/groups_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/settings_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/task_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/tasks_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_info_screen.dart';
@@ -212,6 +213,16 @@ final goRouter = GoRouter(
           context: context,
           state: state,
           child: const SemesterDetailScreen(),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.settings,
+      pageBuilder: (context, state) {
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: const SettingsScreen(),
         );
       },
     ),

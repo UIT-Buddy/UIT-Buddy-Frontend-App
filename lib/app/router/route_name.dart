@@ -29,4 +29,5 @@ class RouteName {
   static const String yourPosts = '/your-posts';
   static const String academicDetail = '/academic-detail';
   static const String semesterDetail = '/semester-detail';
+  static const String settings = '/settings';
 }

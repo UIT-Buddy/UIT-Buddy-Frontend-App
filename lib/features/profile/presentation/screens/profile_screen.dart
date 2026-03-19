@@ -73,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
                       onNotificationTap: () =>
                           context.push(RouteName.notification),
                       onSettingsTap: () {
-                        // Navigate to settings
+                        context.push(RouteName.settings);
                       },
                     ),
 

@@ -5,7 +5,7 @@ import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
-import 'package:uit_buddy_mobile/features/profile/presentation/bloc/academic_detail_bloc/academic_detail_bloc.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/academic_detail_screen/academic_detail_bloc.dart';
 
 class AcademicDetailScreen extends StatelessWidget {
   const AcademicDetailScreen({super.key});

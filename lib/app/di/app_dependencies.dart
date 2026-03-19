@@ -54,6 +54,8 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/group_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/delete_account_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/delete_account_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/group_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/post_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/profile_datasource_impl.dart';
@@ -68,12 +70,14 @@ import 'package:uit_buddy_mobile/features/profile/data/datasources/your_info_dat
 import 'package:uit_buddy_mobile/features/profile/data/repositories/group_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/post_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/profile_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/profile/data/repositories/settings_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/sign_out_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/task_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/your_info_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/group_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/post_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/repositories/settings_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/sign_out_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/task_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/your_info_repository.dart';
@@ -83,9 +87,10 @@ import 'package:uit_buddy_mobile/features/profile/data/repositories/academic_det
 import 'package:uit_buddy_mobile/features/profile/data/repositories/semester_detail_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_academic_detail_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_semester_detail_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/presentation/bloc/academic_detail_bloc/academic_detail_bloc.dart';
-import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_bloc/semester_detail_bloc.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/academic_detail_screen/academic_detail_bloc.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_screen/semester_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/create_task_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_account_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_groups_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_posts_usecase.dart';
@@ -98,6 +103,7 @@ import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_task_us
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_your_info_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/group_screen/group_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/profile_screen/profile_bloc.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/settings_screen/settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/tasks_screen/tasks_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/your_info_screen/your_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/your_posts_screen/your_posts_bloc.dart';
@@ -125,6 +131,7 @@ Future<void> initDependencies() async {
   await _initStorageDependencies();
   _initSocialDependencies();
   await _initGroupsDependencies();
+  await _initSettingsDependencies();
   // await _initYourPostsDependencies();
 }
 
@@ -338,19 +345,25 @@ void _initSocialDependencies() {
 Future<void> _initProfileDependencies() async {
   // Datasources
   serviceLocator.registerLazySingleton<ProfileDatasourceInterface>(
-    () => ProfileInfoDatasourceImpl(dio: serviceLocator(instanceName: 'authenticatedDio')),
+    () => ProfileInfoDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
   );
   serviceLocator.registerLazySingleton<TaskDatasourceInterface>(
     () => TaskDatasourceImpl(),
   );
   serviceLocator.registerLazySingleton<YourInfoDatasourceInterface>(
-    () => YourInfoDatasourceImpl(dio: serviceLocator(instanceName: 'authenticatedDio')),
+    () => YourInfoDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
   );
   serviceLocator.registerLazySingleton<PostDatasourceInterface>(
     () => PostDatasourceImpl(),
   );
   serviceLocator.registerLazySingleton<SignOutDatasource>(
-    () => SignOutDatasourceImpl(dio: serviceLocator(instanceName: 'authenticatedDio')),
+    () => SignOutDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
   );
 
   // Repositories
@@ -518,9 +531,7 @@ Future<void> _initGroupsDependencies() async {
 
   // Repository
   serviceLocator.registerLazySingleton<GroupRepository>(
-    () => GroupRepositoryImpl(
-      groupDatasourceInterface: serviceLocator(),
-    ),
+    () => GroupRepositoryImpl(groupDatasourceInterface: serviceLocator()),
   );
 
   // Usecases
@@ -531,6 +542,33 @@ Future<void> _initGroupsDependencies() async {
   // Blocs
   serviceLocator.registerFactory(
     () => GroupBloc(getGroupsUsecase: serviceLocator()),
+  );
+}
+
+Future<void> _initSettingsDependencies() async {
+  // Datasource
+  serviceLocator.registerLazySingleton<DeleteAccountDatasource>(
+    () => DeleteAccountDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+
+  // Repository
+  serviceLocator.registerLazySingleton<SettingsRepository>(
+    () => SettingsRepositoryImpl(
+      deleteAccountDatasource: serviceLocator(),
+      tokenStore: serviceLocator(),
+    ),
+  );
+
+  // Usecase
+  serviceLocator.registerLazySingleton(
+    () => DeleteAccountUsecase(settingsRepository: serviceLocator()),
+  );
+
+  // Blocs
+  serviceLocator.registerFactory(
+    () => SettingsBloc(deleteAccountUsecase: serviceLocator()),
   );
 }
 

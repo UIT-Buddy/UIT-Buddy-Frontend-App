@@ -5,7 +5,7 @@ import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/entities/semester_detail_entity.dart';
-import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_bloc/semester_detail_bloc.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_screen/semester_detail_bloc.dart';
 import 'package:intl/intl.dart';
 
 class SemesterDetailScreen extends StatelessWidget {
