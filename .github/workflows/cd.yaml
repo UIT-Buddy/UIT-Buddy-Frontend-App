@@ -51,6 +51,7 @@ jobs:
 
       - name: Build App Bundle (AAB)
         run: |
+          echo "Building App Bundle with build number ${{ github.run_number }}"
           flutter build appbundle --release \
             --build-name=v1.0.${{ github.run_number }} \
             --build-number=${{ github.run_number }} \
@@ -62,5 +63,5 @@ jobs:
           serviceAccountJsonPlainText: ${{ secrets.PLAY_STORE_CONFIG_JSON }}
           packageName: com.uit.buddy.app
           releaseFiles: build/app/outputs/bundle/release/app-release.aab
-        #   track: production
-        #   status: draft   # Uploads as a draft so you can review before rollout
+          track: internal
+          status: completed  
