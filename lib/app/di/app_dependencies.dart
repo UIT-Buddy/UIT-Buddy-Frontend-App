@@ -510,8 +510,8 @@ Future<void> _initProfileDependencies() async {
       dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
-  serviceLocator.registerLazySingleton<PostDatasourceInterface>(
-    () => PostDatasourceImpl(),
+  serviceLocator.registerLazySingleton<ProfilePostDatasourceInterface>(
+    () => ProfilePostDatasourceImpl(),
   );
   serviceLocator.registerLazySingleton<SignOutDatasource>(
     () => SignOutDatasourceImpl(
@@ -529,8 +529,8 @@ Future<void> _initProfileDependencies() async {
   serviceLocator.registerLazySingleton<YourInfoRepository>(
     () => YourInfoRepositoryImpl(yourInfoDatasourceInterface: serviceLocator()),
   );
-  serviceLocator.registerLazySingleton<PostRepository>(
-    () => PostRepositoryImpl(postDatasourceInterface: serviceLocator()),
+  serviceLocator.registerLazySingleton<ProfilePostRepository>(
+    () => ProfilePostRepositoryImpl(postDatasourceInterface: serviceLocator()),
   );
   serviceLocator.registerLazySingleton<SignOutRepository>(
     () => SignOutRepositoryImpl(

@@ -2,7 +2,7 @@ import 'package:uit_buddy_mobile/core/network/api/api_response.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/post_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/models/post_model.dart';
 
-class PostDatasourceImpl implements PostDatasourceInterface {
+class ProfilePostDatasourceImpl implements ProfilePostDatasourceInterface {
   @override
   Future<ApiResponse<List<PostModel>>> getPosts() async {
     try {

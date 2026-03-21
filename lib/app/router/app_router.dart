@@ -228,6 +228,7 @@ final goRouter = GoRouter(
           child: const SettingsScreen(),
         );
       },
+    ),
     GoRoute(
       path: RouteName.note,
       pageBuilder: (context, state) => buildFlexibleSlideTransition(
