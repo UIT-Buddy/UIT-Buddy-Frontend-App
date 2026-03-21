@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/data/mock/mock_messages.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_settings_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final ConversationEntity conversation;
@@ -38,6 +40,31 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _openSettings() {
+    Navigator.of(context).push(
+      PageRouteBuilder<void>(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            ChatSettingsScreen(conversation: widget.conversation),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(1, 0),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 300),
+        reverseTransitionDuration: const Duration(milliseconds: 260),
+      ),
+    );
   }
 
   void _scrollToBottom() {
@@ -99,62 +126,70 @@ class _ChatScreenState extends State<ChatScreen> {
         icon: const Icon(
           Icons.arrow_back_ios,
           size: 20,
+
           color: AppColor.primaryText,
         ),
         onPressed: () => Navigator.of(context).pop(),
         padding: const EdgeInsets.only(left: 12),
       ),
-      title: Row(
-        children: [
-          Stack(
-            children: [
-              CircleAvatar(
-                radius: 18,
-                backgroundColor: AppColor.veryLightGrey,
-                backgroundImage: NetworkImage(widget.conversation.avatarUrl),
-              ),
-              if (widget.conversation.isOnline)
-                Positioned(
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      color: AppColor.successGreen,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColor.pureWhite, width: 1.5),
+      title: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: _openSettings,
+        child: Row(
+          children: [
+            Stack(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundColor: AppColor.veryLightGrey,
+                  backgroundImage: CachedNetworkImageProvider(widget.conversation.avatarUrl),
+                ),
+                if (widget.conversation.isOnline)
+                  Positioned(
+                    right: 0,
+                    bottom: 0,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: AppColor.successGreen,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColor.pureWhite,
+                          width: 1.5,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-            ],
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  widget.conversation.name,
-                  style: AppTextStyle.bodySmall.copyWith(
-                    fontWeight: AppTextStyle.bold,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(
-                  widget.conversation.isOnline ? 'Đang hoạt động' : 'Offline',
-                  style: AppTextStyle.captionSmall.copyWith(
-                    color: widget.conversation.isOnline
-                        ? AppColor.successGreen
-                        : AppColor.secondaryText,
-                  ),
-                ),
               ],
             ),
-          ),
-        ],
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    widget.conversation.name,
+                    style: AppTextStyle.h4.copyWith(
+                      fontWeight: AppTextStyle.bold,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    widget.conversation.isOnline ? 'Online' : 'Offline',
+                    style: AppTextStyle.bodySmall.copyWith(
+                      color: widget.conversation.isOnline
+                          ? AppColor.successGreen
+                          : AppColor.secondaryText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
       actions: [
         IconButton(

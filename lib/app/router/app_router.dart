@@ -25,6 +25,9 @@ import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_info
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_posts_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/academic_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/semester_detail_screen.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/screens/note_screen.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/screens/website_screen.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/screens/weather_screen.dart';
 import 'package:uit_buddy_mobile/features/root/screens/wrapper_screen.dart';
 
 final goRouter = GoRouter(
@@ -225,6 +228,29 @@ final goRouter = GoRouter(
           child: const SettingsScreen(),
         );
       },
+    GoRoute(
+      path: RouteName.note,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const NoteScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.website,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const WebsiteScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.weather,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const WeatherScreen(),
+      ),
     ),
   ],
 );

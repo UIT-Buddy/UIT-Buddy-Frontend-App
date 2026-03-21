@@ -30,4 +30,7 @@ class RouteName {
   static const String academicDetail = '/academic-detail';
   static const String semesterDetail = '/semester-detail';
   static const String settings = '/settings';
+  static const String note = '/note';
+  static const String website = '/website';
+  static const String weather = '/weather';
 }

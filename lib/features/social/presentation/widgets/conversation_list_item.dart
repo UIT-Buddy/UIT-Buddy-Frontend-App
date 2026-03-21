@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
@@ -96,7 +97,7 @@ class ConversationListItem extends StatelessWidget {
         CircleAvatar(
           radius: 26,
           backgroundColor: AppColor.veryLightGrey,
-          backgroundImage: NetworkImage(conversation.avatarUrl),
+          backgroundImage: CachedNetworkImageProvider(conversation.avatarUrl),
         ),
         if (conversation.isGroup)
           Positioned(
