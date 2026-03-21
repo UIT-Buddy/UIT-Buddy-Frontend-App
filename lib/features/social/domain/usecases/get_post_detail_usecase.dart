@@ -7,7 +7,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/post_reposi
 
 class GetPostDetailUsecase implements UseCase<PostEntity, GetPostDetailParams> {
   GetPostDetailUsecase({required PostRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final PostRepository _repository;
 

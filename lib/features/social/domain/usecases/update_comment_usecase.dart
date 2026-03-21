@@ -6,26 +6,20 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_rep
 
 class UpdateCommentUsecase implements UseCase<Unit, UpdateCommentParams> {
   UpdateCommentUsecase({required CommentRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final CommentRepository _repository;
 
   @override
-  Future<Either<Failure, Unit>> call(UpdateCommentParams params) =>
-      _repository.updateComment(
-        commentId: params.commentId,
-        content: params.content,
-      );
+  Future<Either<Failure, Unit>> call(UpdateCommentParams params) => _repository
+      .updateComment(commentId: params.commentId, content: params.content);
 }
 
 class UpdateCommentParams extends Equatable {
   final String commentId;
   final String content;
 
-  const UpdateCommentParams({
-    required this.commentId,
-    required this.content,
-  });
+  const UpdateCommentParams({required this.commentId, required this.content});
 
   @override
   List<Object?> get props => [commentId, content];

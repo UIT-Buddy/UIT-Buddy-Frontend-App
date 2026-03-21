@@ -46,10 +46,7 @@ ApiResponse<T?> apiResponseNullableObjectFromJson<T>(
 ApiResponse<List<T>> apiResponseListFromJson<T>(
   Map<String, dynamic> json,
   T Function(Map<String, dynamic> json) fromJsonT,
-) =>
-    ApiResponse<List<T>>.fromJson(
-      json,
-      (v) => (v! as List)
-          .map((e) => fromJsonT(e as Map<String, dynamic>))
-          .toList(),
-    );
+) => ApiResponse<List<T>>.fromJson(
+  json,
+  (v) => (v! as List).map((e) => fromJsonT(e as Map<String, dynamic>)).toList(),
+);

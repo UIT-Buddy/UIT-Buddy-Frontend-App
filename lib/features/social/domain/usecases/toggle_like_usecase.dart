@@ -6,7 +6,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/reaction_re
 
 class ToggleLikeUsecase implements UseCase<Unit, ToggleLikeParams> {
   ToggleLikeUsecase({required ReactionRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ReactionRepository _repository;
 

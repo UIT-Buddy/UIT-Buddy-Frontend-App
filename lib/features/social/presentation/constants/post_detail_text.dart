@@ -3,7 +3,8 @@ class PostDetailText {
   static const String screenTitle = 'Post Details';
   static const String retry = 'Retry';
   static const String errorLoadingPost = 'Unable to load the post.';
-  static const String genericError = 'Something went wrong. Please try again later.';
+  static const String genericError =
+      'Something went wrong. Please try again later.';
 
   // Comments section
   static String commentsHeader(int count) => 'Comments ($count)';

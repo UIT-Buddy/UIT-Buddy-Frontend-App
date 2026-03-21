@@ -83,6 +83,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
 
     await _onRefreshComments(post!.id, emit);
   }
+
   Future<void> _onRefreshComments(
     String postId,
     Emitter<PostDetailState> emit,
@@ -92,7 +93,13 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     );
     commentsResult.fold(
       (_) => emit(state.copyWith(status: PostDetailStatus.error)),
-      (paged) => emit(state.copyWith(comments: paged.items, commentsCursor: paged.nextCursor, hasMoreComments: paged.hasMore)),
+      (paged) => emit(
+        state.copyWith(
+          comments: paged.items,
+          commentsCursor: paged.nextCursor,
+          hasMoreComments: paged.hasMore,
+        ),
+      ),
     );
   }
 
@@ -147,7 +154,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
       ),
       (_) {
         success = true;
-         _onRefreshComments(postId, emit);
+        _onRefreshComments(postId, emit);
       },
     );
     if (!success) return;
@@ -239,7 +246,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     final previousComments = state.comments;
     final previousReplies = state.replies;
 
-    CommentEntity _toggle(CommentEntity c) {
+    CommentEntity toggle(CommentEntity c) {
       if (c.id != event.commentId) return c;
       return c.copyWith(
         isLiked: !c.isLiked,
@@ -249,12 +256,12 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
 
     final updatedReplies = <String, List<CommentEntity>>{};
     for (final entry in state.replies.entries) {
-      updatedReplies[entry.key] = entry.value.map(_toggle).toList();
+      updatedReplies[entry.key] = entry.value.map(toggle).toList();
     }
 
     emit(
       state.copyWith(
-        comments: previousComments.map(_toggle).toList(),
+        comments: previousComments.map(toggle).toList(),
         replies: updatedReplies,
       ),
     );

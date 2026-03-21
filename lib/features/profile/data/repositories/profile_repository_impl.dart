@@ -13,13 +13,9 @@ class ProfileRepositoryImpl implements ProfileRepository {
   final ProfileDatasourceInterface _profileDatasourceInterface;
 
   @override
-  Future<Either<Failure, ProfileEntity>> getProfile({
-    required String email,
-  }) async {
+  Future<Either<Failure, ProfileEntity>> getProfile() async {
     try {
-      final apiResponse = await _profileDatasourceInterface.getProfile(
-        email: email,
-      );
+      final apiResponse = await _profileDatasourceInterface.getProfile();
 
       if (apiResponse.data == null) {
         return Left(Failure(apiResponse.message));

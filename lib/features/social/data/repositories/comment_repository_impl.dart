@@ -8,7 +8,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_rep
 
 class CommentRepositoryImpl implements CommentRepository {
   CommentRepositoryImpl({required CommentDatasourceInterface datasource})
-      : _datasource = datasource;
+    : _datasource = datasource;
 
   final CommentDatasourceInterface _datasource;
 
@@ -55,10 +55,7 @@ class CommentRepositoryImpl implements CommentRepository {
     required String content,
   }) async {
     try {
-      await _datasource.replyToComment(
-        commentId: commentId,
-        content: content,
-      );
+      await _datasource.replyToComment(commentId: commentId, content: content);
       return const Right(unit);
     } on Exception catch (e) {
       return Left(Failure.fromException(e));
@@ -71,10 +68,7 @@ class CommentRepositoryImpl implements CommentRepository {
     required String content,
   }) async {
     try {
-      await _datasource.updateComment(
-        commentId: commentId,
-        content: content,
-      );
+      await _datasource.updateComment(commentId: commentId, content: content);
       return const Right(unit);
     } on Exception catch (e) {
       return Left(Failure.fromException(e));

@@ -66,6 +66,4 @@ class PostEntity {
       isShared: isShared ?? this.isShared,
     );
   }
-
- 
 }

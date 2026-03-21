@@ -7,6 +7,7 @@ class ProfileEntity extends Equatable {
   final String fullName;
   final String email;
   final String avatarUrl;
+  final String bio;
   final String coverUrl;
   final ProfileStatsEntity stats;
 
@@ -15,6 +16,7 @@ class ProfileEntity extends Equatable {
     required this.fullName,
     required this.email,
     required this.avatarUrl,
+    required this.bio,
     required this.coverUrl,
     required this.stats,
   });
@@ -25,6 +27,7 @@ class ProfileEntity extends Equatable {
     fullName,
     email,
     avatarUrl,
+    bio,
     coverUrl,
     stats,
   ];

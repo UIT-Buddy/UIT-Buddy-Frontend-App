@@ -13,6 +13,18 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_in
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_up_info_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/sign_up_token_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/screen/welcome_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/entities/task_entity.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/entities/your_info_entity.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/add_edit_task_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/edit_your_info_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/groups_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/settings_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/task_detail_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/tasks_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_info_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_posts_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/academic_detail_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/semester_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/note_screen.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/website_screen.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/weather_screen.dart';
@@ -114,6 +126,108 @@ final goRouter = GoRouter(
         state: state,
         child: const NotificationScreen(),
       ),
+    ),
+    GoRoute(
+      path: RouteName.tasks,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const TasksScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.taskDetail,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final task = extra?['task'] as TaskEntity?;
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: TaskDetailScreen(task: task!),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.addEditTask,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final task = extra?['task'] as TaskEntity?;
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: AddEditTaskScreen(existingTask: task),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.yourInfo,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const YourInfoScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.editYourInfo,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final info = extra?['info'] as YourInfoEntity?;
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: EditYourInfoScreen(info: info!),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.groupsJoined,
+      pageBuilder: (context, state) {
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: GroupsScreen(),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.yourPosts,
+      pageBuilder: (context, state) {
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: YourPostsScreen(),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.academicDetail,
+      pageBuilder: (context, state) {
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: const AcademicDetailScreen(),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.semesterDetail,
+      pageBuilder: (context, state) {
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: const SemesterDetailScreen(),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.settings,
+      pageBuilder: (context, state) {
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: const SettingsScreen(),
+        );
+      },
     ),
     GoRoute(
       path: RouteName.note,

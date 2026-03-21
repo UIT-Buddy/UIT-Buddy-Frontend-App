@@ -40,44 +40,44 @@ class PostCard extends StatelessWidget {
       onTap: onTap,
       behavior: HitTestBehavior.deferToChild,
       child: Container(
-      decoration: const BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: AppColor.dividerGrey, width: 6),
+        decoration: const BoxDecoration(
+          border: Border(
+            bottom: BorderSide(color: AppColor.dividerGrey, width: 6),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PostAuthorRow(
+              authorName: post.authorName,
+              authorClass: post.authorClass,
+              authorAvatarUrl: post.authorAvatarUrl,
+              timeAgo: DateTimeUtils.getTimeAgo(post.createdAt),
+              isAuthor: isAuthor,
+              postContent: post.contentSnippet,
+              onDeleteConfirmed: onDeleteTap,
+              onEditTap: onEditTap,
+            ),
+            if (post.title.isNotEmpty) _buildTitle(),
+            _buildContent(),
+            if (post.medias.isNotEmpty) _buildMediaGrid(),
+            PostStatsRow(
+              likeCount: post.likeCount,
+              commentCount: post.commentCount,
+              shareCount: post.shareCount,
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: PostActionBar(
+                isLiked: post.isLiked,
+                onLikeTap: onLikeTap,
+                onCommentTap: onCommentTap,
+              ),
+            ),
+            const SizedBox(height: 4),
+          ],
         ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          PostAuthorRow(
-            authorName: post.authorName,
-            authorClass: post.authorClass,
-            authorAvatarUrl: post.authorAvatarUrl,
-            timeAgo: DateTimeUtils.getTimeAgo(post.createdAt),
-            isAuthor: isAuthor,
-            postContent: post.contentSnippet,
-            onDeleteConfirmed: onDeleteTap,
-            onEditTap: onEditTap,
-          ),
-          if (post.title.isNotEmpty) _buildTitle(),
-          _buildContent(),
-          if (post.medias.isNotEmpty) _buildMediaGrid(),
-          PostStatsRow(
-            likeCount: post.likeCount,
-            commentCount: post.commentCount,
-            shareCount: post.shareCount,
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: PostActionBar(
-              isLiked: post.isLiked,
-              onLikeTap: onLikeTap,
-              onCommentTap: onCommentTap,
-            ),
-          ),
-          const SizedBox(height: 4),
-        ],
-      ),
-    ),
     );
   }
 
@@ -141,10 +141,7 @@ class PostCard extends StatelessWidget {
           height: 240,
           child: Row(
             children: [
-              Expanded(
-                flex: 2,
-                child: _MediaTile(media: medias[0]),
-              ),
+              Expanded(flex: 2, child: _MediaTile(media: medias[0])),
               const SizedBox(width: 2),
               Expanded(
                 child: Column(

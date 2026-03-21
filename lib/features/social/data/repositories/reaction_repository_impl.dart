@@ -5,7 +5,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/reaction_re
 
 class ReactionRepositoryImpl implements ReactionRepository {
   ReactionRepositoryImpl({required ReactionDatasourceInterface datasource})
-      : _datasource = datasource;
+    : _datasource = datasource;
 
   final ReactionDatasourceInterface _datasource;
 

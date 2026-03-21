@@ -103,10 +103,7 @@ class _CommentInputBarState extends State<CommentInputBar> {
           SafeArea(
             top: false,
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
@@ -179,9 +176,9 @@ class _ReplyBanner extends StatelessWidget {
           const Icon(Icons.reply, size: 14, color: AppColor.primaryBlue),
           const SizedBox(width: 6),
           Expanded(
-          child: Text(
-            PostDetailText.replyingTo(authorName),
-            style: AppTextStyle.captionMedium.copyWith(
+            child: Text(
+              PostDetailText.replyingTo(authorName),
+              style: AppTextStyle.captionMedium.copyWith(
                 color: AppColor.primaryBlue,
               ),
               overflow: TextOverflow.ellipsis,

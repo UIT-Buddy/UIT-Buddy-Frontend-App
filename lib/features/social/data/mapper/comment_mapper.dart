@@ -17,9 +17,6 @@ extension CommentModelMapper on CommentModel {
 }
 
 extension CommentAuthorModelMapper on CommentAuthorModel {
-  CommentAuthorEntity toEntity() => CommentAuthorEntity(
-    mssv: mssv,
-    fullName: fullName,
-    avatarUrl: avatarUrl,
-  );
+  CommentAuthorEntity toEntity() =>
+      CommentAuthorEntity(mssv: mssv, fullName: fullName, avatarUrl: avatarUrl);
 }

@@ -23,8 +23,9 @@ class PostDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => serviceLocator<PostDetailBloc>()
-        ..add(PostDetailStarted(postId: postId, initialPost: initialPost)),
+      create: (_) =>
+          serviceLocator<PostDetailBloc>()
+            ..add(PostDetailStarted(postId: postId, initialPost: initialPost)),
       child: const _PostDetailView(),
     );
   }
@@ -136,9 +137,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
           ),
           body: Column(
             children: [
-              Expanded(
-                child: _buildScrollView(context, state, currentMssv),
-              ),
+              Expanded(child: _buildScrollView(context, state, currentMssv)),
               BlocBuilder<PostDetailBloc, PostDetailState>(
                 buildWhen: (prev, curr) =>
                     prev.isSubmittingComment != curr.isSubmittingComment ||
@@ -151,9 +150,9 @@ class _PostDetailViewState extends State<_PostDetailView> {
                   avatarUrl: currentUser?.avatarUrl,
                   avatarLetter: currentUser?.userLetterAvatar ?? 'U',
                   focusNode: _commentFocusNode,
-                  onCancelReply: () => context
-                      .read<PostDetailBloc>()
-                      .add(const PostDetailReplyCancelled()),
+                  onCancelReply: () => context.read<PostDetailBloc>().add(
+                    const PostDetailReplyCancelled(),
+                  ),
                   onSubmit: (content) {
                     final bloc = context.read<PostDetailBloc>();
                     final replyId = bloc.state.replyingToCommentId;
@@ -204,9 +203,9 @@ class _PostDetailViewState extends State<_PostDetailView> {
             child: PostCard(
               post: state.post!,
               currentUserMssv: currentMssv,
-              onLikeTap: () => context
-                  .read<PostDetailBloc>()
-                  .add(const PostDetailPostLikeToggled()),
+              onLikeTap: () => context.read<PostDetailBloc>().add(
+                const PostDetailPostLikeToggled(),
+              ),
               onCommentTap: () => _commentFocusNode.requestFocus(),
               onDeleteTap: null,
               onEditTap: () => _navigateToEdit(context, state.post!),
@@ -214,58 +213,48 @@ class _PostDetailViewState extends State<_PostDetailView> {
           ),
 
         // ── Comments header ────────────────────────────────────────────────
-        SliverToBoxAdapter(
-          child: _buildCommentsHeader(state),
-        ),
+        SliverToBoxAdapter(child: _buildCommentsHeader(state)),
 
         // ── Comments list ─────────────────────────────────────────────────
         if (state.comments.isEmpty && state.status == PostDetailStatus.loaded)
           SliverToBoxAdapter(child: _buildEmptyComments())
         else
           SliverList(
-            delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                final comment = state.comments[index];
-                return CommentItemWidget(
-                  key: ValueKey(comment.id),
-                  comment: comment,
-                  currentUserMssv: currentMssv,
-                  loadedReplies: state.replies[comment.id],
-                  isLoadingReplies:
-                      state.loadingReplies[comment.id] ?? false,
-                  onLikeTap: () => context.read<PostDetailBloc>().add(
-                    PostDetailCommentLikeToggled(commentId: comment.id),
+            delegate: SliverChildBuilderDelegate((context, index) {
+              final comment = state.comments[index];
+              return CommentItemWidget(
+                key: ValueKey(comment.id),
+                comment: comment,
+                currentUserMssv: currentMssv,
+                loadedReplies: state.replies[comment.id],
+                isLoadingReplies: state.loadingReplies[comment.id] ?? false,
+                onLikeTap: () => context.read<PostDetailBloc>().add(
+                  PostDetailCommentLikeToggled(commentId: comment.id),
+                ),
+                onReplyTap: () => context.read<PostDetailBloc>().add(
+                  PostDetailReplyingSet(
+                    commentId: comment.id,
+                    authorName: comment.author?.fullName ?? 'Ẩn danh',
                   ),
-                  onReplyTap: () => context.read<PostDetailBloc>().add(
-                    PostDetailReplyingSet(
-                      commentId: comment.id,
-                      authorName: comment.author?.fullName ?? 'Ẩn danh',
-                    ),
-                  ),
-                  onDeleteTap: () => context.read<PostDetailBloc>().add(
-                    PostDetailCommentDeleted(commentId: comment.id),
-                  ),
-                  onViewRepliesTap: () => context.read<PostDetailBloc>().add(
-                    PostDetailRepliesLoaded(commentId: comment.id),
-                  ),
-                  onReplyLikeTap: (replyId) =>
-                      context.read<PostDetailBloc>().add(
-                        PostDetailCommentLikeToggled(commentId: replyId),
-                      ),
-                  onReplyDeleteTap: (replyId) =>
-                      context.read<PostDetailBloc>().add(
-                        PostDetailCommentDeleted(commentId: replyId),
-                      ),
-                );
-              },
-              childCount: state.comments.length,
-            ),
+                ),
+                onDeleteTap: () => context.read<PostDetailBloc>().add(
+                  PostDetailCommentDeleted(commentId: comment.id),
+                ),
+                onViewRepliesTap: () => context.read<PostDetailBloc>().add(
+                  PostDetailRepliesLoaded(commentId: comment.id),
+                ),
+                onReplyLikeTap: (replyId) => context.read<PostDetailBloc>().add(
+                  PostDetailCommentLikeToggled(commentId: replyId),
+                ),
+                onReplyDeleteTap: (replyId) => context
+                    .read<PostDetailBloc>()
+                    .add(PostDetailCommentDeleted(commentId: replyId)),
+              );
+            }, childCount: state.comments.length),
           ),
 
         // ── Load more ─────────────────────────────────────────────────────
-        SliverToBoxAdapter(
-          child: _buildLoadMoreIndicator(state),
-        ),
+        SliverToBoxAdapter(child: _buildLoadMoreIndicator(state)),
 
         const SliverToBoxAdapter(child: SizedBox(height: 20)),
       ],
@@ -410,9 +399,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
         padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
         child: Row(
           children: [
-            const Expanded(
-              child: Divider(color: AppColor.dividerGrey),
-            ),
+            const Expanded(child: Divider(color: AppColor.dividerGrey)),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Text(
@@ -420,9 +407,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
                 style: AppTextStyle.captionMedium,
               ),
             ),
-            const Expanded(
-              child: Divider(color: AppColor.dividerGrey),
-            ),
+            const Expanded(child: Divider(color: AppColor.dividerGrey)),
           ],
         ),
       );
