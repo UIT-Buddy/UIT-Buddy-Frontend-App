@@ -95,9 +95,9 @@ class SettingsScreen extends StatelessWidget {
           body: SafeArea(
             child: BlocBuilder<SettingsBloc, SettingsState>(
               builder: (context, state) {
-                final isLoading =
-                    state.status == SettingsStatus.loading ||
-                    state.status == SettingsStatus.initial;
+                // final isLoading =
+                //     state.status == SettingsStatus.loading ||
+                //     state.status == SettingsStatus.initial;
                 final isDeleting = state.status == SettingsStatus.deleting;
                 return Column(
                   children: [
