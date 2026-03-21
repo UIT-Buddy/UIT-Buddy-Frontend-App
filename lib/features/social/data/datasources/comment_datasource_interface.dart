@@ -8,10 +8,7 @@ abstract interface class CommentDatasourceInterface {
     int limit = 10,
   });
 
-  Future<void> createComment({
-    required String postId,
-    required String content,
-  });
+  Future<void> createComment({required String postId, required String content});
 
   Future<void> replyToComment({
     required String commentId,

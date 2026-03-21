@@ -43,8 +43,8 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     _urlCtrl = TextEditingController(text: t?.taskDetail.url ?? '');
     _priority = t?.taskDetail.priority ?? TaskPriority.medium;
     _openDate = t?.taskDetail.openDate ?? DateTime.now();
-    _dueDate = t?.taskDetail.dueDate ??
-        DateTime.now().add(const Duration(days: 7));
+    _dueDate =
+        t?.taskDetail.dueDate ?? DateTime.now().add(const Duration(days: 7));
     final reminder = t?.taskDetail.reminderTime;
     _reminderTime = reminder != null
         ? TimeOfDay(hour: reminder.hour, minute: reminder.minute)
@@ -86,7 +86,8 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
     );
 
     final task = TaskEntity(
-      id: widget.existingTask?.id ??
+      id:
+          widget.existingTask?.id ??
           DateTime.now().millisecondsSinceEpoch.toString(),
       classCode: _classCdCtrl.text.trim(),
       taskDetail: detail,
@@ -113,7 +114,13 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
       );
       if (time != null && context.mounted) {
         onPicked(
-          DateTime(picked.year, picked.month, picked.day, time.hour, time.minute),
+          DateTime(
+            picked.year,
+            picked.month,
+            picked.day,
+            time.hour,
+            time.minute,
+          ),
         );
       }
     }
@@ -374,10 +381,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
           ),
           items: const [
             DropdownMenuItem(value: TaskPriority.low, child: Text('Low')),
-            DropdownMenuItem(
-              value: TaskPriority.medium,
-              child: Text('Medium'),
-            ),
+            DropdownMenuItem(value: TaskPriority.medium, child: Text('Medium')),
             DropdownMenuItem(value: TaskPriority.high, child: Text('High')),
           ],
           onChanged: (v) {

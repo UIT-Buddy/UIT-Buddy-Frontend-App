@@ -62,12 +62,12 @@ class TaskDetailScreen extends StatelessWidget {
           TextButton(
             onPressed: () {
               Navigator.of(dialogCtx).pop();
-              context.pop({'action': _TaskDetailAction.deleted, 'taskId': task.id});
+              context.pop({
+                'action': _TaskDetailAction.deleted,
+                'taskId': task.id,
+              });
             },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: AppColor.alertRed),
-            ),
+            child: Text('Delete', style: TextStyle(color: AppColor.alertRed)),
           ),
         ],
       ),
@@ -88,8 +88,7 @@ class TaskDetailScreen extends StatelessWidget {
     }
   }
 
-  String _formatDate(DateTime dt) =>
-      DateFormat('H:mm EEEE d, yyyy').format(dt);
+  String _formatDate(DateTime dt) => DateFormat('H:mm EEEE d, yyyy').format(dt);
 
   String _formatReminderTime(DateTime dt) =>
       '${DateFormat('HH:mm').format(dt)} every day';

@@ -9,7 +9,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/post_reposi
 class GetNewfeedUsecase
     implements UseCase<PagedResult<PostEntity>, GetNewfeedParams> {
   GetNewfeedUsecase({required PostRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final PostRepository _repository;
 

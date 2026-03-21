@@ -6,8 +6,9 @@ import 'package:uit_buddy_mobile/features/profile/domain/entities/post_entity.da
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/post_repository.dart';
 
 class ProfilePostRepositoryImpl implements ProfilePostRepository {
-  ProfilePostRepositoryImpl({required ProfilePostDatasourceInterface postDatasourceInterface})
-      : _postDatasource = postDatasourceInterface;
+  ProfilePostRepositoryImpl({
+    required ProfilePostDatasourceInterface postDatasourceInterface,
+  }) : _postDatasource = postDatasourceInterface;
 
   final ProfilePostDatasourceInterface _postDatasource;
 

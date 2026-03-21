@@ -85,19 +85,20 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     );
 
     // Rollback on failure
-    result.fold(
-      (_) => emit(state.copyWith(posts: previousPosts)),
-      (_) {
-        // update list with the new like count
-        emit(state.copyWith(posts: previousPosts.map((post) {
-          if (post.id != event.postId) return post;
-          return post.copyWith(
-            isLiked: !post.isLiked,
-            likeCount: post.isLiked ? post.likeCount - 1 : post.likeCount + 1,
-          );
-        }).toList()));
-      },
-    );
+    result.fold((_) => emit(state.copyWith(posts: previousPosts)), (_) {
+      // update list with the new like count
+      emit(
+        state.copyWith(
+          posts: previousPosts.map((post) {
+            if (post.id != event.postId) return post;
+            return post.copyWith(
+              isLiked: !post.isLiked,
+              likeCount: post.isLiked ? post.likeCount - 1 : post.likeCount + 1,
+            );
+          }).toList(),
+        ),
+      );
+    });
   }
 
   Future<void> _onRefreshed(
@@ -189,9 +190,7 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     final previousPosts = state.posts;
     emit(
       state.copyWith(
-        posts: previousPosts
-            .where((p) => p.id != event.postId)
-            .toList(),
+        posts: previousPosts.where((p) => p.id != event.postId).toList(),
       ),
     );
 
@@ -206,10 +205,7 @@ class NewFeedBloc extends Bloc<NewFeedEvent, NewFeedState> {
     );
   }
 
-  void _onPostUpdated(
-    NewFeedPostUpdated event,
-    Emitter<NewFeedState> emit,
-  ) {
+  void _onPostUpdated(NewFeedPostUpdated event, Emitter<NewFeedState> emit) {
     emit(
       state.copyWith(
         posts: state.posts

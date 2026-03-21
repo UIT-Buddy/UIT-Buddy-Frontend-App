@@ -31,5 +31,10 @@ class GroupState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, groupList, filteredGroupList, errorMessage];
+  List<Object?> get props => [
+    status,
+    groupList,
+    filteredGroupList,
+    errorMessage,
+  ];
 }

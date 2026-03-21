@@ -83,6 +83,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
 
     await _onRefreshComments(post!.id, emit);
   }
+
   Future<void> _onRefreshComments(
     String postId,
     Emitter<PostDetailState> emit,
@@ -92,7 +93,13 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     );
     commentsResult.fold(
       (_) => emit(state.copyWith(status: PostDetailStatus.error)),
-      (paged) => emit(state.copyWith(comments: paged.items, commentsCursor: paged.nextCursor, hasMoreComments: paged.hasMore)),
+      (paged) => emit(
+        state.copyWith(
+          comments: paged.items,
+          commentsCursor: paged.nextCursor,
+          hasMoreComments: paged.hasMore,
+        ),
+      ),
     );
   }
 
@@ -147,7 +154,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
       ),
       (_) {
         success = true;
-         _onRefreshComments(postId, emit);
+        _onRefreshComments(postId, emit);
       },
     );
     if (!success) return;

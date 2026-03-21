@@ -9,7 +9,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_rep
 class GetPostCommentsUsecase
     implements UseCase<PagedResult<CommentEntity>, GetPostCommentsParams> {
   GetPostCommentsUsecase({required CommentRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final CommentRepository _repository;
 
@@ -17,10 +17,10 @@ class GetPostCommentsUsecase
   Future<Either<Failure, PagedResult<CommentEntity>>> call(
     GetPostCommentsParams params,
   ) => _repository.getPostComments(
-        postId: params.postId,
-        cursor: params.cursor,
-        limit: params.limit,
-      );
+    postId: params.postId,
+    cursor: params.cursor,
+    limit: params.limit,
+  );
 }
 
 class GetPostCommentsParams extends Equatable {

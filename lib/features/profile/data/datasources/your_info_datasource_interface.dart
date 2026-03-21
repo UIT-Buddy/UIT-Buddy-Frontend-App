@@ -3,5 +3,7 @@ import 'package:uit_buddy_mobile/features/profile/data/models/your_info_model.da
 
 abstract interface class YourInfoDatasourceInterface {
   Future<ApiResponse<YourInfoModel>> getYourInfo();
-  Future<ApiResponse<YourInfoModel>> updateYourInfo({required YourInfoModel info});
+  Future<ApiResponse<YourInfoModel>> updateYourInfo({
+    required YourInfoModel info,
+  });
 }

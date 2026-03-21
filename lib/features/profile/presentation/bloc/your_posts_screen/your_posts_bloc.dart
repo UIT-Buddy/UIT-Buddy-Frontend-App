@@ -6,8 +6,8 @@ import 'package:uit_buddy_mobile/features/profile/presentation/bloc/your_posts_s
 
 class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
   YourPostsBloc({required GetPostsUsecase getPostsUsecase})
-      : _getPostsUsecase = getPostsUsecase,
-        super(const YourPostsState()) {
+    : _getPostsUsecase = getPostsUsecase,
+      super(const YourPostsState()) {
     on<YourPostsLoaded>(_onLoaded);
     on<YourPostsSearchChanged>(_onSearchChanged);
     on<YourPostsPostDeleted>(_onPostDeleted);
@@ -47,8 +47,8 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
     final filtered = query.isEmpty
         ? state.posts
         : state.posts
-            .where((p) => p.content.toLowerCase().contains(query))
-            .toList();
+              .where((p) => p.content.toLowerCase().contains(query))
+              .toList();
     emit(state.copyWith(searchQuery: event.query, filtered: filtered));
   }
 
@@ -56,9 +56,12 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
     YourPostsPostDeleted event,
     Emitter<YourPostsState> emit,
   ) {
-    final updatedPosts = state.posts.where((p) => p.id != event.postId).toList();
-    final updatedFiltered =
-        state.filtered.where((p) => p.id != event.postId).toList();
+    final updatedPosts = state.posts
+        .where((p) => p.id != event.postId)
+        .toList();
+    final updatedFiltered = state.filtered
+        .where((p) => p.id != event.postId)
+        .toList();
     emit(state.copyWith(posts: updatedPosts, filtered: updatedFiltered));
   }
 }

@@ -80,8 +80,7 @@ class _EditPostViewState extends State<_EditPostView> {
     super.dispose();
   }
 
-  bool get _canSave =>
-      _titleController.text.trim().isNotEmpty && _hasChanges;
+  bool get _canSave => _titleController.text.trim().isNotEmpty && _hasChanges;
 
   void _onSavePressed() {
     if (!_canSave) return;
@@ -100,15 +99,12 @@ class _EditPostViewState extends State<_EditPostView> {
   Widget build(BuildContext context) {
     return BlocListener<EditPostBloc, EditPostState>(
       listenWhen: (prev, curr) =>
-          prev.status != curr.status &&
-          curr.status != EditPostStatus.loading,
+          prev.status != curr.status && curr.status != EditPostStatus.loading,
       listener: (context, state) {
         if (state.status == EditPostStatus.error) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(
-                state.errorMessage ?? SocialText.genericError,
-              ),
+              content: Text(state.errorMessage ?? SocialText.genericError),
               backgroundColor: AppColor.alertRed,
             ),
           );
@@ -308,10 +304,7 @@ class _ReadOnlyMediaGrid extends StatelessWidget {
         height: 240,
         child: Row(
           children: [
-            Expanded(
-              flex: 2,
-              child: _ReadOnlyMediaTile(media: medias[0]),
-            ),
+            Expanded(flex: 2, child: _ReadOnlyMediaTile(media: medias[0])),
             const SizedBox(width: 2),
             Expanded(
               child: Column(

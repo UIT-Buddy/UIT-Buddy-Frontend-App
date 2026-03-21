@@ -6,9 +6,9 @@ import 'package:uit_buddy_mobile/features/profile/domain/entities/your_info_enti
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/your_info_repository.dart';
 
 class YourInfoRepositoryImpl implements YourInfoRepository {
-  YourInfoRepositoryImpl(
-      {required YourInfoDatasourceInterface yourInfoDatasourceInterface})
-      : _yourInfoDatasourceInterface = yourInfoDatasourceInterface;
+  YourInfoRepositoryImpl({
+    required YourInfoDatasourceInterface yourInfoDatasourceInterface,
+  }) : _yourInfoDatasourceInterface = yourInfoDatasourceInterface;
   final YourInfoDatasourceInterface _yourInfoDatasourceInterface;
 
   @override
@@ -26,7 +26,8 @@ class YourInfoRepositoryImpl implements YourInfoRepository {
 
   @override
   Future<Either<Failure, YourInfoEntity>> updateYourInfo(
-      YourInfoEntity yourInfo) async {
+    YourInfoEntity yourInfo,
+  ) async {
     try {
       final apiResponse = await _yourInfoDatasourceInterface.updateYourInfo(
         info: yourInfo.toModel(),

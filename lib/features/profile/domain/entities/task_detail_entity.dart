@@ -54,5 +54,15 @@ class TaskDetailEntity extends Equatable {
   }
 
   @override
-  List<Object?> get props => [name, title, dueDate, description, url, priority, openDate, reminderTime, status];
+  List<Object?> get props => [
+    name,
+    title,
+    dueDate,
+    description,
+    url,
+    priority,
+    openDate,
+    reminderTime,
+    status,
+  ];
 }

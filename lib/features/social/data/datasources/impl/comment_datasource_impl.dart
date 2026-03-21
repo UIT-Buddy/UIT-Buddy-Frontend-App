@@ -4,7 +4,9 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/comment_dataso
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/social_paging_mixin.dart';
 import 'package:uit_buddy_mobile/features/social/data/models/comment_model.dart';
 
-class CommentDatasourceImpl with SocialPagingMixin implements CommentDatasourceInterface {
+class CommentDatasourceImpl
+    with SocialPagingMixin
+    implements CommentDatasourceInterface {
   CommentDatasourceImpl({required Dio dio}) : _dio = dio;
 
   final Dio _dio;
@@ -40,10 +42,7 @@ class CommentDatasourceImpl with SocialPagingMixin implements CommentDatasourceI
     required String postId,
     required String content,
   }) async {
-    await _dio.post<void>(
-      '/api/comments/$postId',
-      data: {'content': content},
-    );
+    await _dio.post<void>('/api/comments/$postId', data: {'content': content});
   }
 
   @override

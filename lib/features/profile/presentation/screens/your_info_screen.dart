@@ -59,114 +59,117 @@ class _YourInfoBody extends StatelessWidget {
             builder: (context, state) {
               return Column(
                 children: [
-                // Header
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 4,
-                    vertical: 8,
-                  ),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          color: AppColor.primaryText,
-                        ),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                      Expanded(
-                        child: Text(
-                          'Your Info',
-                          textAlign: TextAlign.center,
-                          style: AppTextStyle.h3.copyWith(
-                            fontWeight: AppTextStyle.bold,
-                          ),
-                        ),
-                      ),
-                      // Edit icon button — enabled only when data loaded
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: IconButton(
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 4,
+                      vertical: 8,
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
                           icon: const Icon(
-                            Icons.edit_outlined,
+                            Icons.arrow_back,
                             color: AppColor.primaryText,
                           ),
-                          onPressed: state.yourInfo != null
-                              ? () => _openEdit(context, state.yourInfo!)
-                              : null,
+                          onPressed: () => Navigator.of(context).pop(),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                const Divider(height: 1, color: AppColor.dividerGrey),
-
-                if (state.isLoading)
-                  const Expanded(
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (state.errorMessage != null)
-                  Expanded(
-                    child: Center(
-                      child: Text(
-                        state.errorMessage!,
-                        style: AppTextStyle.bodyMedium,
-                      ),
-                    ),
-                  )
-                else if (state.yourInfo != null)
-                  Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.all(16),
-                      children: [
-                        _InfoSection(
-                          title: 'Personal',
-                          fields: [
-                            _InfoField(label: 'MSSV', value: state.yourInfo!.mssv),
-                            _InfoField(
-                              label: 'FULL NAME',
-                              value: state.yourInfo!.fullName,
+                        Expanded(
+                          child: Text(
+                            'Your Info',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyle.h3.copyWith(
+                              fontWeight: AppTextStyle.bold,
                             ),
-                            _InfoField(
-                              label: 'GENDER',
-                              value: state.yourInfo!.gender,
-                            ),
-                            _InfoField(
-                              label: 'EMAIL',
-                              value: state.yourInfo!.email,
-                            ),
-                            _InfoField(
-                              label: 'BIO',
-                              value: state.yourInfo!.bio,
-                            ),
-                            _AvatarInfoField(
-                              label: 'AVATAR URL',
-                              avatarUrl: state.yourInfo!.avatarUrl,
-                            ),
-                          ],
+                          ),
                         ),
-                        const SizedBox(height: 20),
-                        _InfoSection(
-                          title: 'Academic',
-                          fields: [
-                            _InfoField(
-                              label: 'HOME CLASS',
-                              value: state.yourInfo!.homeClass,
+                        // Edit icon button — enabled only when data loaded
+                        Padding(
+                          padding: const EdgeInsets.only(right: 8),
+                          child: IconButton(
+                            icon: const Icon(
+                              Icons.edit_outlined,
+                              color: AppColor.primaryText,
                             ),
-                            _InfoField(
-                              label: 'FACULTY',
-                              value: state.yourInfo!.faculty,
-                            ),
-                            _InfoField(
-                              label: 'MAJOR',
-                              value: state.yourInfo!.major,
-                            ),
-                          ],
+                            onPressed: state.yourInfo != null
+                                ? () => _openEdit(context, state.yourInfo!)
+                                : null,
+                          ),
                         ),
                       ],
                     ),
                   ),
+
+                  const Divider(height: 1, color: AppColor.dividerGrey),
+
+                  if (state.isLoading)
+                    const Expanded(
+                      child: Center(child: CircularProgressIndicator()),
+                    )
+                  else if (state.errorMessage != null)
+                    Expanded(
+                      child: Center(
+                        child: Text(
+                          state.errorMessage!,
+                          style: AppTextStyle.bodyMedium,
+                        ),
+                      ),
+                    )
+                  else if (state.yourInfo != null)
+                    Expanded(
+                      child: ListView(
+                        padding: const EdgeInsets.all(16),
+                        children: [
+                          _InfoSection(
+                            title: 'Personal',
+                            fields: [
+                              _InfoField(
+                                label: 'MSSV',
+                                value: state.yourInfo!.mssv,
+                              ),
+                              _InfoField(
+                                label: 'FULL NAME',
+                                value: state.yourInfo!.fullName,
+                              ),
+                              _InfoField(
+                                label: 'GENDER',
+                                value: state.yourInfo!.gender,
+                              ),
+                              _InfoField(
+                                label: 'EMAIL',
+                                value: state.yourInfo!.email,
+                              ),
+                              _InfoField(
+                                label: 'BIO',
+                                value: state.yourInfo!.bio,
+                              ),
+                              _AvatarInfoField(
+                                label: 'AVATAR URL',
+                                avatarUrl: state.yourInfo!.avatarUrl,
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          _InfoSection(
+                            title: 'Academic',
+                            fields: [
+                              _InfoField(
+                                label: 'HOME CLASS',
+                                value: state.yourInfo!.homeClass,
+                              ),
+                              _InfoField(
+                                label: 'FACULTY',
+                                value: state.yourInfo!.faculty,
+                              ),
+                              _InfoField(
+                                label: 'MAJOR',
+                                value: state.yourInfo!.major,
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                 ],
               );
             },

@@ -59,10 +59,7 @@ class YourInfoDatasourceImpl implements YourInfoDatasourceInterface {
 
     final mapped = apiResponseObjectFromJson(
       response.data!,
-      (json) => YourInfoModel.fromUserJson(
-        json,
-        fallback: normalizedInfo,
-      ),
+      (json) => YourInfoModel.fromUserJson(json, fallback: normalizedInfo),
     );
 
     return mapped;

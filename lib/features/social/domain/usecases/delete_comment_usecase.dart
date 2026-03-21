@@ -6,7 +6,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_rep
 
 class DeleteCommentUsecase implements UseCase<Unit, DeleteCommentParams> {
   DeleteCommentUsecase({required CommentRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final CommentRepository _repository;
 

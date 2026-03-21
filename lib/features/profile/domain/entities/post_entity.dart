@@ -16,7 +16,7 @@ class PostEntity extends Equatable {
     required this.mediaUrls,
     required this.likeCount,
     required this.commentCount,
-    required this.shareCount
+    required this.shareCount,
   });
 
   @override
@@ -27,7 +27,7 @@ class PostEntity extends Equatable {
     mediaUrls,
     likeCount,
     commentCount,
-    shareCount
+    shareCount,
   ];
 }
 
@@ -39,13 +39,9 @@ class UserEntity extends Equatable {
   const UserEntity({
     required this.name,
     required this.homeClass,
-    required this.avatarUrl
+    required this.avatarUrl,
   });
 
   @override
-  List<Object?> get props => [
-    name,
-    homeClass,
-    avatarUrl,
-  ];
+  List<Object?> get props => [name, homeClass, avatarUrl];
 }

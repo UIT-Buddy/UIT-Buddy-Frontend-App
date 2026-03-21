@@ -8,9 +8,9 @@ class YourInfoBloc extends Bloc<YourInfoEvent, YourInfoState> {
   YourInfoBloc({
     required GetYourInfoUsecase getYourInfoUsecase,
     required UpdateYourInfoUsecase updateYourInfoUsecase,
-  })  : _getYourInfoUsecase = getYourInfoUsecase,
-        _updateYourInfoUsecase = updateYourInfoUsecase,
-        super(const YourInfoState()) {
+  }) : _getYourInfoUsecase = getYourInfoUsecase,
+       _updateYourInfoUsecase = updateYourInfoUsecase,
+       super(const YourInfoState()) {
     on<YourInfoLoaded>(_onLoaded);
     on<YourInfoUpdated>(_onUpdated);
   }
@@ -25,9 +25,8 @@ class YourInfoBloc extends Bloc<YourInfoEvent, YourInfoState> {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     final result = await _getYourInfoUsecase(null);
     result.fold(
-      (failure) => emit(
-        state.copyWith(isLoading: false, errorMessage: failure.message),
-      ),
+      (failure) =>
+          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
       (info) => emit(state.copyWith(isLoading: false, yourInfo: info)),
     );
   }
@@ -39,9 +38,8 @@ class YourInfoBloc extends Bloc<YourInfoEvent, YourInfoState> {
     emit(state.copyWith(isLoading: true, errorMessage: null));
     final result = await _updateYourInfoUsecase(event.info);
     result.fold(
-      (failure) => emit(
-        state.copyWith(isLoading: false, errorMessage: failure.message),
-      ),
+      (failure) =>
+          emit(state.copyWith(isLoading: false, errorMessage: failure.message)),
       (info) => emit(state.copyWith(isLoading: false, yourInfo: info)),
     );
   }

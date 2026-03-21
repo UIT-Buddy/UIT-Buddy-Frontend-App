@@ -4,11 +4,7 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 
 class PostFileChips extends StatelessWidget {
-  const PostFileChips({
-    super.key,
-    required this.files,
-    required this.onRemove,
-  });
+  const PostFileChips({super.key, required this.files, required this.onRemove});
 
   final List<PlatformFile> files;
   final void Function(int index) onRemove;

@@ -6,9 +6,10 @@ import 'package:uit_buddy_mobile/features/profile/domain/repositories/your_info_
 
 class GetYourInfoUsecase implements UseCase<YourInfoEntity, void> {
   GetYourInfoUsecase({required YourInfoRepository repository})
-  : _yourInfoRepository = repository;
+    : _yourInfoRepository = repository;
   final YourInfoRepository _yourInfoRepository;
 
-@override
-  Future<Either<Failure, YourInfoEntity>> call(void params) async => _yourInfoRepository.getYourInfo();
+  @override
+  Future<Either<Failure, YourInfoEntity>> call(void params) async =>
+      _yourInfoRepository.getYourInfo();
 }

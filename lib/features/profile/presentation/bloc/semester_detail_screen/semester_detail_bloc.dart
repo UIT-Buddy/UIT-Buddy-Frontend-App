@@ -43,21 +43,33 @@ class SemesterDetailState extends Equatable {
   List<Object?> get props => [status, details, errorMessage];
 }
 
-class SemesterDetailBloc extends Bloc<SemesterDetailEvent, SemesterDetailState> {
-  SemesterDetailBloc({required GetSemesterDetailsUsecase getSemesterDetailsUsecase})
-      : _getSemesterDetailsUsecase = getSemesterDetailsUsecase,
-        super(const SemesterDetailState()) {
+class SemesterDetailBloc
+    extends Bloc<SemesterDetailEvent, SemesterDetailState> {
+  SemesterDetailBloc({
+    required GetSemesterDetailsUsecase getSemesterDetailsUsecase,
+  }) : _getSemesterDetailsUsecase = getSemesterDetailsUsecase,
+       super(const SemesterDetailState()) {
     on<SemesterDetailLoaded>(_onLoaded);
   }
 
   final GetSemesterDetailsUsecase _getSemesterDetailsUsecase;
 
-  Future<void> _onLoaded(SemesterDetailLoaded event, Emitter<SemesterDetailState> emit) async {
+  Future<void> _onLoaded(
+    SemesterDetailLoaded event,
+    Emitter<SemesterDetailState> emit,
+  ) async {
     emit(state.copyWith(status: SemesterDetailStatus.loading));
     final result = await _getSemesterDetailsUsecase(const NoParams());
     result.fold(
-      (failure) => emit(state.copyWith(status: SemesterDetailStatus.error, errorMessage: failure.message)),
-      (details) => emit(state.copyWith(status: SemesterDetailStatus.loaded, details: details)),
+      (failure) => emit(
+        state.copyWith(
+          status: SemesterDetailStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
+      (details) => emit(
+        state.copyWith(status: SemesterDetailStatus.loaded, details: details),
+      ),
     );
   }
 }

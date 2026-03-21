@@ -32,8 +32,9 @@ class TaskCardWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final dueFormatted =
-        DateFormat('EEE HH:mm').format(task.taskDetail.dueDate);
+    final dueFormatted = DateFormat(
+      'EEE HH:mm',
+    ).format(task.taskDetail.dueDate);
 
     return GestureDetector(
       onTap: onTap,
@@ -51,71 +52,68 @@ class TaskCardWidget extends StatelessWidget {
         ),
         child: IntrinsicHeight(
           child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Coloured left accent bar
-            Container(
-              width: 4,
-              decoration: BoxDecoration(
-                color: _accentColor,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(12),
-                  bottomLeft: Radius.circular(12),
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Coloured left accent bar
+              Container(
+                width: 4,
+                decoration: BoxDecoration(
+                  color: _accentColor,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(12),
+                    bottomLeft: Radius.circular(12),
+                  ),
                 ),
               ),
-            ),
-            // Content
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            task.taskDetail.name,
-                            style: AppTextStyle.bodySmall.copyWith(
-                              fontWeight: AppTextStyle.medium,
+              // Content
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 12,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              task.taskDetail.name,
+                              style: AppTextStyle.bodySmall.copyWith(
+                                fontWeight: AppTextStyle.medium,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            '$dueFormatted  •  ${task.classCode}',
-                            style: AppTextStyle.captionMedium,
-                          ),
-                        ],
+                            const SizedBox(height: 4),
+                            Text(
+                              '$dueFormatted  •  ${task.classCode}',
+                              style: AppTextStyle.captionMedium,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                    // Three-dot menu
-                    _TaskMenu(
-                      showMarkCompleted:
-                          task.taskDetail.status == TaskStatus.pending,
-                      onSelected: onMenuSelected,
-                    ),
-                  ],
+                      // Three-dot menu
+                      _TaskMenu(
+                        showMarkCompleted:
+                            task.taskDetail.status == TaskStatus.pending,
+                        onSelected: onMenuSelected,
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
   }
 }
 
 class _TaskMenu extends StatelessWidget {
-  const _TaskMenu({
-    required this.showMarkCompleted,
-    required this.onSelected,
-  });
+  const _TaskMenu({required this.showMarkCompleted, required this.onSelected});
 
   final bool showMarkCompleted;
   final void Function(TaskCardMenuAction action) onSelected;
@@ -173,10 +171,7 @@ class _TaskMenu extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(width: 10),
-          Text(
-            label,
-            style: AppTextStyle.bodySmall.copyWith(color: color),
-          ),
+          Text(label, style: AppTextStyle.bodySmall.copyWith(color: color)),
         ],
       ),
     );

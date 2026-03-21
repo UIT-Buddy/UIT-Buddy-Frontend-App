@@ -5,10 +5,11 @@ import 'package:uit_buddy_mobile/features/profile/domain/repositories/semester_d
 
 class SemesterDetailRepositoryImpl implements SemesterDetailRepository {
   @override
-  Future<Either<Failure, List<SemesterDetailEntity>>> getSemesterDetail() async {
+  Future<Either<Failure, List<SemesterDetailEntity>>>
+  getSemesterDetail() async {
     // Return mock data after a short delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     return Right([
       SemesterDetailEntity(
         id: '1',

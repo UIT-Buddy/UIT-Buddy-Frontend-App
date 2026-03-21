@@ -202,13 +202,14 @@ class _AvatarThreadColumn extends StatelessWidget {
         backgroundColor: AppColor.primaryBlue20,
         child: Text(
           letter,
-          style: (radius >= 16
-                  ? AppTextStyle.captionSmall
-                  : AppTextStyle.captionExtraSmall)
-              .copyWith(
-            color: AppColor.primaryBlue,
-            fontWeight: AppTextStyle.bold,
-          ),
+          style:
+              (radius >= 16
+                      ? AppTextStyle.captionSmall
+                      : AppTextStyle.captionExtraSmall)
+                  .copyWith(
+                    color: AppColor.primaryBlue,
+                    fontWeight: AppTextStyle.bold,
+                  ),
         ),
       );
     }
@@ -319,11 +320,7 @@ class _ActionsRow extends StatelessWidget {
             style: AppTextStyle.captionMedium,
           ),
           const SizedBox(width: 14),
-          _LikeButton(
-            isLiked: isLiked,
-            likeCount: likeCount,
-            onTap: onLikeTap,
-          ),
+          _LikeButton(isLiked: isLiked, likeCount: likeCount, onTap: onLikeTap),
           if (onReplyTap != null) ...[
             const SizedBox(width: 14),
             GestureDetector(
@@ -337,10 +334,7 @@ class _ActionsRow extends StatelessWidget {
                     color: AppColor.secondaryText,
                   ),
                   const SizedBox(width: 3),
-                  Text(
-                    PostDetailText.reply,
-                    style: AppTextStyle.captionMedium,
-                  ),
+                  Text(PostDetailText.reply, style: AppTextStyle.captionMedium),
                 ],
               ),
             ),
@@ -445,8 +439,7 @@ class _LikeButton extends StatelessWidget {
               '$likeCount',
               style: AppTextStyle.captionMedium.copyWith(
                 color: isLiked ? AppColor.alertRed : AppColor.secondaryText,
-                fontWeight:
-                    isLiked ? AppTextStyle.bold : AppTextStyle.regular,
+                fontWeight: isLiked ? AppTextStyle.bold : AppTextStyle.regular,
               ),
             )
           else
@@ -530,10 +523,7 @@ class _CommentMenuButton extends StatelessWidget {
         children: [
           Icon(icon, size: 16, color: color),
           const SizedBox(width: 10),
-          Text(
-            label,
-            style: AppTextStyle.captionLarge.copyWith(color: color),
-          ),
+          Text(label, style: AppTextStyle.captionLarge.copyWith(color: color)),
         ],
       ),
     );

@@ -28,12 +28,12 @@ class ProfileModel extends Equatable {
       mssv: (data['mssv'] as String?) ?? '',
       fullName: (data['fullName'] as String?) ?? '',
       email: (data['email'] as String?) ?? '',
-      avatarUrl: (data['avatarUrl'] as String?) ??
+      avatarUrl:
+          (data['avatarUrl'] as String?) ??
           'assets/images/placeholder/user-icon.png',
       bio: (data['bio'] as String?) ?? '-',
       // Backend /me currently does not return cover and stats.
-      coverUrl:
-          'assets/images/placeholder/bg-placeholder-transparent.png',
+      coverUrl: 'assets/images/placeholder/bg-placeholder-transparent.png',
       stats: const ProfileStatsModel(
         currentGpa: 0,
         gpaOn4Scale: 0,

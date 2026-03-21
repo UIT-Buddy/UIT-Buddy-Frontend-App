@@ -145,10 +145,7 @@ class PostAuthorRow extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(width: 12),
-          Text(
-            label,
-            style: AppTextStyle.bodySmall.copyWith(color: color),
-          ),
+          Text(label, style: AppTextStyle.bodySmall.copyWith(color: color)),
         ],
       ),
     );

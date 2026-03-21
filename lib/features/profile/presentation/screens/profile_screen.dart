@@ -102,7 +102,8 @@ class ProfileScreen extends StatelessWidget {
                     // Academic summary
                     ProfileAcademicSummaryWidget(
                       profileInfo: profile,
-                      onSeeDetailsTap: () => context.push(RouteName.academicDetail),
+                      onSeeDetailsTap: () =>
+                          context.push(RouteName.academicDetail),
                     ),
 
                     const SizedBox(height: 12),
@@ -123,9 +124,9 @@ class ProfileScreen extends StatelessWidget {
                         child: OutlinedButton.icon(
                           onPressed: isSigningOut
                               ? null
-                              : () => context
-                                  .read<ProfileBloc>()
-                                  .add(const SignOutRequested()),
+                              : () => context.read<ProfileBloc>().add(
+                                  const SignOutRequested(),
+                                ),
                           icon: isSigningOut
                               ? const SizedBox(
                                   width: 20,
@@ -149,8 +150,7 @@ class ProfileScreen extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding:
-                                const EdgeInsets.symmetric(vertical: 14),
+                            padding: const EdgeInsets.symmetric(vertical: 14),
                             textStyle: AppTextStyle.bodyLarge.copyWith(
                               fontWeight: AppTextStyle.medium,
                             ),

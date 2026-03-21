@@ -5,10 +5,8 @@ part 'post_media_model.g.dart';
 
 @freezed
 abstract class PostMediaModel with _$PostMediaModel {
-  const factory PostMediaModel({
-    required String type,
-    required String url,
-  }) = _PostMediaModel;
+  const factory PostMediaModel({required String type, required String url}) =
+      _PostMediaModel;
 
   factory PostMediaModel.fromJson(Map<String, dynamic> json) =>
       _$PostMediaModelFromJson(json);

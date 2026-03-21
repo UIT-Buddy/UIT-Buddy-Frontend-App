@@ -5,9 +5,9 @@ import 'package:uit_buddy_mobile/features/profile/domain/entities/group_entity.d
 
 extension GroupModelMapper on model.GroupModel {
   entity.GroupEntity toEntity() => entity.GroupEntity(
-        id: id,
-        name: name,
-        description: description,
-        avatarUrl: avatarUrl,
-      );
+    id: id,
+    name: name,
+    description: description,
+    avatarUrl: avatarUrl,
+  );
 }

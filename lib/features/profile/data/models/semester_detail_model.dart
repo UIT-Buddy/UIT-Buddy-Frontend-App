@@ -1,4 +1,3 @@
-
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -15,7 +14,6 @@ class SemesterDetailModel extends Equatable {
   final String rank;
   final int semesterNumber;
 
-
   const SemesterDetailModel({
     required this.id,
     required this.yearStart,
@@ -27,7 +25,6 @@ class SemesterDetailModel extends Equatable {
     required this.isCurrent,
     required this.rank,
     required this.semesterNumber,
-
   });
 
   @override
@@ -42,6 +39,5 @@ class SemesterDetailModel extends Equatable {
     isCurrent,
     rank,
     semesterNumber,
-
   ];
 }

@@ -9,7 +9,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/post_reposi
 
 class PostRepositoryImpl implements PostRepository {
   PostRepositoryImpl({required PostDatasourceInterface datasource})
-      : _datasource = datasource;
+    : _datasource = datasource;
 
   final PostDatasourceInterface _datasource;
 

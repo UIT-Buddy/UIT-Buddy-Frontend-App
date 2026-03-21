@@ -10,14 +10,9 @@ class GroupModel extends Equatable {
     required this.id,
     required this.name,
     required this.description,
-    required this.avatarUrl
+    required this.avatarUrl,
   });
 
   @override
-  List<Object?> get props => [
-    id,
-    name,
-    description,
-    avatarUrl,
-  ];
+  List<Object?> get props => [id, name, description, avatarUrl];
 }

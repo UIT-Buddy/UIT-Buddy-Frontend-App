@@ -142,7 +142,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 CircleAvatar(
                   radius: 18,
                   backgroundColor: AppColor.veryLightGrey,
-                  backgroundImage: CachedNetworkImageProvider(widget.conversation.avatarUrl),
+                  backgroundImage: CachedNetworkImageProvider(
+                    widget.conversation.avatarUrl,
+                  ),
                 ),
                 if (widget.conversation.isOnline)
                   Positioned(

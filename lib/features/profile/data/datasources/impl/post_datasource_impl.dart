@@ -17,8 +17,12 @@ class ProfilePostDatasourceImpl implements ProfilePostDatasourceInterface {
               homeClass: 'KTPM2023.1',
               avatarUrl: 'assets/images/sample/f1.jpg',
             ),
-            content: 'Just finished my Machine Learning project! The neural network finally achieved 95% accuracy. Anyone else working on AI projects this semester?',
-            mediaUrls: ['https://picsum.photos/seed/ml_project/600/400', 'https://picsum.photos/seed/github_repo/600/300'],
+            content:
+                'Just finished my Machine Learning project! The neural network finally achieved 95% accuracy. Anyone else working on AI projects this semester?',
+            mediaUrls: [
+              'https://picsum.photos/seed/ml_project/600/400',
+              'https://picsum.photos/seed/github_repo/600/300',
+            ],
             likeCount: 10,
             commentCount: 5,
             shareCount: 2,
@@ -31,7 +35,8 @@ class ProfilePostDatasourceImpl implements ProfilePostDatasourceInterface {
               homeClass: 'KTPM2023.1',
               avatarUrl: 'assets/images/sample/f1.jpg',
             ),
-            content: 'Just finished my Machine Learning project! The neural network finally achieved 95% accuracy. Anyone else working on AI projects this semester?',
+            content:
+                'Just finished my Machine Learning project! The neural network finally achieved 95% accuracy. Anyone else working on AI projects this semester?',
             mediaUrls: ['https://picsum.photos/seed/github_repo/600/300'],
             likeCount: 10,
             commentCount: 5,
@@ -45,7 +50,8 @@ class ProfilePostDatasourceImpl implements ProfilePostDatasourceInterface {
               homeClass: 'KTPM2023.1',
               avatarUrl: 'assets/images/sample/f1.jpg',
             ),
-            content: 'Just finished my Machine Learning project! The neural network finally achieved 95% accuracy. Anyone else working on AI projects this semester?',
+            content:
+                'Just finished my Machine Learning project! The neural network finally achieved 95% accuracy. Anyone else working on AI projects this semester?',
             mediaUrls: [],
             likeCount: 10,
             commentCount: 5,
@@ -58,11 +64,13 @@ class ProfilePostDatasourceImpl implements ProfilePostDatasourceInterface {
       );
       return apiResponse;
     } catch (e) {
-      return Future.value(ApiResponse<List<PostModel>>(
-        data: null,
-        message: 'Failed to fetch posts.',
-        statusCode: 500,
-      ));
+      return Future.value(
+        ApiResponse<List<PostModel>>(
+          data: null,
+          message: 'Failed to fetch posts.',
+          statusCode: 500,
+        ),
+      );
     }
   }
 }

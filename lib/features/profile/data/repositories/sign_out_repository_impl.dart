@@ -8,8 +8,8 @@ class SignOutRepositoryImpl implements SignOutRepository {
   SignOutRepositoryImpl({
     required SignOutDatasource signOutDatasource,
     required TokenStore tokenStore,
-  })  : _signOutDatasource = signOutDatasource,
-        _tokenStore = tokenStore;
+  }) : _signOutDatasource = signOutDatasource,
+       _tokenStore = tokenStore;
 
   final SignOutDatasource _signOutDatasource;
   final TokenStore _tokenStore;

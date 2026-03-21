@@ -86,7 +86,7 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
                     backgroundImage: avatarImage,
                     onBackgroundImageError: (_, _) {},
                     child: avatarImage != null
-                      ? null
+                        ? null
                         : Image.asset(
                             'assets/images/placeholder/user-icon.png',
                           ),

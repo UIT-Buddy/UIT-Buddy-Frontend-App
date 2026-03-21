@@ -8,17 +8,19 @@ class AcademicDetailRepositoryImpl implements AcademicDetailRepository {
   Future<Either<Failure, AcademicDetailEntity>> getAcademicDetail() async {
     // Return mock data after a short delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
-    return const Right(AcademicDetailEntity(
-      attemptedCredits: 91,
-      accumulatedCredits: 103,
-      generalCredits: 43,
-      foundationCredits: 45,
-      majorCredits: 0,
-      graduationCredits: 0,
-      majorProgress: 79.0,
-      currentGpa: 3.2,
-      targetGpa: 4.0,
-    ));
+
+    return const Right(
+      AcademicDetailEntity(
+        attemptedCredits: 91,
+        accumulatedCredits: 103,
+        generalCredits: 43,
+        foundationCredits: 45,
+        majorCredits: 0,
+        graduationCredits: 0,
+        majorProgress: 79.0,
+        currentGpa: 3.2,
+        targetGpa: 4.0,
+      ),
+    );
   }
 }

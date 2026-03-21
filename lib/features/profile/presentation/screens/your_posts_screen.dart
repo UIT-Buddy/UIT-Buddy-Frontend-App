@@ -38,8 +38,8 @@ class _YourPostsBodyState extends State<_YourPostsBody> {
     super.initState();
     _searchController.addListener(() {
       context.read<YourPostsBloc>().add(
-            YourPostsSearchChanged(query: _searchController.text),
-          );
+        YourPostsSearchChanged(query: _searchController.text),
+      );
     });
   }
 
@@ -73,9 +73,9 @@ class _YourPostsBodyState extends State<_YourPostsBody> {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              context
-                  .read<YourPostsBloc>()
-                  .add(YourPostsPostDeleted(postId: post.id));
+              context.read<YourPostsBloc>().add(
+                YourPostsPostDeleted(postId: post.id),
+              );
             },
             style: TextButton.styleFrom(foregroundColor: AppColor.alertRed),
             child: const Text('Delete'),
@@ -292,7 +292,8 @@ class _YourPostCard extends StatelessWidget {
             ),
           ),
           // Media (gallery if any)
-          if (post.mediaUrls.isNotEmpty) _PostMediaGallery(urls: post.mediaUrls),
+          if (post.mediaUrls.isNotEmpty)
+            _PostMediaGallery(urls: post.mediaUrls),
           // Stats
           _buildStatsRow(),
           // Action bar
@@ -433,7 +434,10 @@ class _YourPostCard extends StatelessWidget {
         children: [
           _actionButton(Icons.favorite_border, 'Like', AppColor.secondaryText),
           _actionButton(
-              Icons.chat_bubble_outline, 'Comment', AppColor.secondaryText),
+            Icons.chat_bubble_outline,
+            'Comment',
+            AppColor.secondaryText,
+          ),
           _actionButton(Icons.share_outlined, 'Share', AppColor.secondaryText),
         ],
       ),

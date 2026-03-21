@@ -9,9 +9,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   ProfileBloc({
     required GetProfileUsecase getProfileUsecase,
     required SignOutUsecase signOutUsecase,
-  })  : _getProfileUsecase = getProfileUsecase,
-        _signOutUsecase = signOutUsecase,
-        super(const ProfileState()) {
+  }) : _getProfileUsecase = getProfileUsecase,
+       _signOutUsecase = signOutUsecase,
+       super(const ProfileState()) {
     on<ProfileStarted>(_onProfileStarted);
     on<SignOutRequested>(_onSignOutRequested);
   }

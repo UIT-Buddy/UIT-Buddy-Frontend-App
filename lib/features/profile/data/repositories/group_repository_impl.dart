@@ -6,7 +6,9 @@ import 'package:uit_buddy_mobile/features/profile/domain/entities/group_entity.d
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/group_repository.dart';
 
 class GroupRepositoryImpl implements GroupRepository {
-  GroupRepositoryImpl({required GroupDatasourceInterface groupDatasourceInterface}) : _groupDatasourceInterface = groupDatasourceInterface;
+  GroupRepositoryImpl({
+    required GroupDatasourceInterface groupDatasourceInterface,
+  }) : _groupDatasourceInterface = groupDatasourceInterface;
 
   final GroupDatasourceInterface _groupDatasourceInterface;
 

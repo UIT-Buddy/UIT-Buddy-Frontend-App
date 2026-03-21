@@ -1,7 +1,8 @@
-
 class DateTimeUtils {
   static String getTimeAgo(DateTime dateTime) {
-    final nowInUtc = DateTime.now().subtract(Duration(hours: 7)); // because the dateTime in backend is in UTC+0
+    final nowInUtc = DateTime.now().subtract(
+      Duration(hours: 7),
+    ); // because the dateTime in backend is in UTC+0
     final diff = nowInUtc.difference(dateTime);
     if (diff.inSeconds < 60) {
       return '${diff.inSeconds}s ago';

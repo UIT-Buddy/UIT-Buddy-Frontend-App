@@ -111,7 +111,7 @@ class _EditYourInfoScreenState extends State<EditYourInfoScreen> {
       fullName: _fullNameCtrl.text.trim(),
       gender: _genderCtrl.text.trim(),
       email: _emailCtrl.text.trim(),
-        avatarUrl: _pickedAvatarBytes != null
+      avatarUrl: _pickedAvatarBytes != null
           ? 'data:image/jpeg;base64,${base64Encode(_pickedAvatarBytes!)}'
           : widget.info.avatarUrl,
       bio: _bioCtrl.text.trim(),
@@ -181,10 +181,7 @@ class _EditYourInfoScreenState extends State<EditYourInfoScreen> {
                             (v == null || v.trim().isEmpty) ? 'Required' : null,
                       ),
                       const SizedBox(height: 16),
-                      _buildTextField(
-                        controller: _genderCtrl,
-                        label: 'Gender',
-                      ),
+                      _buildTextField(controller: _genderCtrl, label: 'Gender'),
                       const SizedBox(height: 16),
                       _buildTextField(
                         controller: _emailCtrl,
@@ -192,10 +189,7 @@ class _EditYourInfoScreenState extends State<EditYourInfoScreen> {
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 16),
-                      _buildTextField(
-                        controller: _bioCtrl,
-                        label: 'Bio',
-                      ),
+                      _buildTextField(controller: _bioCtrl, label: 'Bio'),
                       const SizedBox(height: 16),
                       _buildAvatarPickerField(),
                       const SizedBox(height: 24),
@@ -218,10 +212,7 @@ class _EditYourInfoScreenState extends State<EditYourInfoScreen> {
                         label: 'Faculty',
                       ),
                       const SizedBox(height: 16),
-                      _buildTextField(
-                        controller: _majorCtrl,
-                        label: 'Major',
-                      ),
+                      _buildTextField(controller: _majorCtrl, label: 'Major'),
                       const SizedBox(height: 32),
                       SizedBox(
                         width: double.infinity,

@@ -14,7 +14,9 @@ class SemesterDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => serviceLocator<SemesterDetailBloc>()..add(const SemesterDetailLoaded()),
+      create: (_) =>
+          serviceLocator<SemesterDetailBloc>()
+            ..add(const SemesterDetailLoaded()),
       child: Scaffold(
         backgroundColor: AppColor.pureWhite,
         appBar: AppBar(
@@ -32,14 +34,26 @@ class SemesterDetailScreen extends StatelessWidget {
         ),
         body: BlocBuilder<SemesterDetailBloc, SemesterDetailState>(
           builder: (context, state) {
-            if (state.status == SemesterDetailStatus.loading || state.status == SemesterDetailStatus.initial) {
-              return const Center(child: CircularProgressIndicator(color: AppColor.primaryBlue));
+            if (state.status == SemesterDetailStatus.loading ||
+                state.status == SemesterDetailStatus.initial) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColor.primaryBlue),
+              );
             } else if (state.status == SemesterDetailStatus.error) {
-              return Center(child: Text(state.errorMessage ?? 'Error', style: AppTextStyle.bodyMedium));
+              return Center(
+                child: Text(
+                  state.errorMessage ?? 'Error',
+                  style: AppTextStyle.bodyMedium,
+                ),
+              );
             }
 
-            final currentSemesters = state.details.where((s) => s.isCurrent).toList();
-            final previousSemesters = state.details.where((s) => !s.isCurrent).toList();
+            final currentSemesters = state.details
+                .where((s) => s.isCurrent)
+                .toList();
+            final previousSemesters = state.details
+                .where((s) => !s.isCurrent)
+                .toList();
 
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -54,7 +68,7 @@ class SemesterDetailScreen extends StatelessWidget {
                     _buildHeaderRow('Previous', showAdd: false),
                     const SizedBox(height: 12),
                     ...previousSemesters.map((s) => _SemesterCard(semester: s)),
-                  ]
+                  ],
                 ],
               ),
             );
@@ -95,9 +109,11 @@ class _SemesterCard extends StatelessWidget {
     final dateFormat = DateFormat('dd/MM/yyyy');
     final startStr = dateFormat.format(semester.startDate);
     final endStr = dateFormat.format(semester.endDate);
-    
+
     // According to mock design: blue border line for current, grey for previous
-    final lineColor = semester.isCurrent ? AppColor.primaryBlue : AppColor.dividerGrey;
+    final lineColor = semester.isCurrent
+        ? AppColor.primaryBlue
+        : AppColor.dividerGrey;
     final gpaLabel = semester.isCurrent ? 'GPA' : 'Overall GPA';
 
     return Container(
@@ -111,7 +127,13 @@ class _SemesterCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(width: 4, decoration: BoxDecoration(color: lineColor, borderRadius: BorderRadius.circular(2))),
+            Container(
+              width: 4,
+              decoration: BoxDecoration(
+                color: lineColor,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -120,9 +142,17 @@ class _SemesterCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('HK${semester.semesterNumber}', style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold)),
+                      Text(
+                        'HK${semester.semesterNumber}',
+                        style: AppTextStyle.h3.copyWith(
+                          fontWeight: AppTextStyle.bold,
+                        ),
+                      ),
                       PopupMenuButton<String>(
-                        icon: const Icon(Icons.more_horiz, color: AppColor.secondaryText),
+                        icon: const Icon(
+                          Icons.more_horiz,
+                          color: AppColor.secondaryText,
+                        ),
                         onSelected: (value) {
                           // Handle edit/delete
                         },
@@ -133,19 +163,49 @@ class _SemesterCard extends StatelessWidget {
                           ),
                           const PopupMenuItem(
                             value: 'delete',
-                            child: Text('Delete', style: TextStyle(color: AppColor.alertRed)),
+                            child: Text(
+                              'Delete',
+                              style: TextStyle(color: AppColor.alertRed),
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                  Text('${semester.yearStart} - ${semester.yearEnd}', style: AppTextStyle.bodySmall.copyWith(color: AppColor.secondaryText)),
+                  Text(
+                    '${semester.yearStart} - ${semester.yearEnd}',
+                    style: AppTextStyle.bodySmall.copyWith(
+                      color: AppColor.secondaryText,
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  Text('START DATE', style: AppTextStyle.captionSmall.copyWith(fontWeight: AppTextStyle.bold, color: AppColor.secondaryText)),
-                  Text(startStr, style: AppTextStyle.bodySmall.copyWith(color: AppColor.secondaryText)),
+                  Text(
+                    'START DATE',
+                    style: AppTextStyle.captionSmall.copyWith(
+                      fontWeight: AppTextStyle.bold,
+                      color: AppColor.secondaryText,
+                    ),
+                  ),
+                  Text(
+                    startStr,
+                    style: AppTextStyle.bodySmall.copyWith(
+                      color: AppColor.secondaryText,
+                    ),
+                  ),
                   const SizedBox(height: 12),
-                  Text('END DATE', style: AppTextStyle.captionSmall.copyWith(fontWeight: AppTextStyle.bold, color: AppColor.secondaryText)),
-                  Text(endStr, style: AppTextStyle.bodySmall.copyWith(color: AppColor.secondaryText)),
+                  Text(
+                    'END DATE',
+                    style: AppTextStyle.captionSmall.copyWith(
+                      fontWeight: AppTextStyle.bold,
+                      color: AppColor.secondaryText,
+                    ),
+                  ),
+                  Text(
+                    endStr,
+                    style: AppTextStyle.bodySmall.copyWith(
+                      color: AppColor.secondaryText,
+                    ),
+                  ),
                   const SizedBox(height: 16),
                   IntrinsicHeight(
                     child: Row(
@@ -154,14 +214,34 @@ class _SemesterCard extends StatelessWidget {
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: AppColor.primaryBlue, borderRadius: BorderRadius.circular(12)),
+                            decoration: BoxDecoration(
+                              color: AppColor.primaryBlue,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(semester.gpa.toStringAsFixed(1), style: AppTextStyle.h2.copyWith(color: Colors.white, fontWeight: AppTextStyle.bold)),
-                                Text('(8.0)', style: const TextStyle(color: Colors.white, fontSize: 10)),
+                                Text(
+                                  semester.gpa.toStringAsFixed(1),
+                                  style: AppTextStyle.h2.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: AppTextStyle.bold,
+                                  ),
+                                ),
+                                Text(
+                                  '(8.0)',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 10,
+                                  ),
+                                ),
                                 const Spacer(),
-                                Text(gpaLabel, style: AppTextStyle.captionMedium.copyWith(color: Colors.white)),
+                                Text(
+                                  gpaLabel,
+                                  style: AppTextStyle.captionMedium.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -170,20 +250,34 @@ class _SemesterCard extends StatelessWidget {
                         Expanded(
                           child: Container(
                             padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(color: AppColor.primaryBlue, borderRadius: BorderRadius.circular(12)),
+                            decoration: BoxDecoration(
+                              color: AppColor.primaryBlue,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('${semester.credits}', style: AppTextStyle.h2.copyWith(color: Colors.white, fontWeight: AppTextStyle.bold)),
+                                Text(
+                                  '${semester.credits}',
+                                  style: AppTextStyle.h2.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: AppTextStyle.bold,
+                                  ),
+                                ),
                                 const Spacer(),
-                                Text('Credits (this term)', style: AppTextStyle.captionMedium.copyWith(color: Colors.white)),
+                                Text(
+                                  'Credits (this term)',
+                                  style: AppTextStyle.captionMedium.copyWith(
+                                    color: Colors.white,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                         ),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

@@ -5,8 +5,8 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/edit_post/edi
 
 class EditPostBloc extends Bloc<EditPostEvent, EditPostState> {
   EditPostBloc({required UpdatePostUsecase updatePostUsecase})
-      : _updatePostUsecase = updatePostUsecase,
-        super(const EditPostState()) {
+    : _updatePostUsecase = updatePostUsecase,
+      super(const EditPostState()) {
     on<EditPostSubmitted>(_onSubmitted);
   }
 

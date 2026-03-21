@@ -33,7 +33,8 @@ class YourInfoModel extends Equatable {
       mssv: (json['mssv'] as String?) ?? fallback?.mssv ?? '',
       fullName: (json['fullName'] as String?) ?? fallback?.fullName ?? '',
       email: (json['email'] as String?) ?? fallback?.email ?? '',
-      avatarUrl: (json['avatarUrl'] as String?) ??
+      avatarUrl:
+          (json['avatarUrl'] as String?) ??
           fallback?.avatarUrl ??
           'assets/images/placeholder/user-icon.png',
       bio: (json['bio'] as String?) ?? fallback?.bio ?? '-',

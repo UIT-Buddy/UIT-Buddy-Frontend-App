@@ -47,26 +47,28 @@ class _TasksBody extends StatelessWidget {
   }
 
   void _handleViewTask(BuildContext context, TaskEntity task) {
-    context.push(
-      RouteName.taskDetail,
-      extra: {'task': task, 'direction': 'forward'},
-    ).then((result) {
-      if (result == null || !context.mounted) return;
-      final map = result as Map<String, dynamic>;
-      final action = map['action'] as _TaskDetailAction?;
-      final taskId = map['taskId'] as String?;
-      if (action == null || taskId == null) return;
-      if (action == _TaskDetailAction.completed) {
-        context.read<TasksBloc>().add(TaskCompleted(taskId: taskId));
-      } else if (action == _TaskDetailAction.deleted) {
-        context.read<TasksBloc>().add(TaskDeleted(taskId: taskId));
-      } else if (action == _TaskDetailAction.edited) {
-        final updated = map['task'] as TaskEntity?;
-        if (updated != null) {
-          context.read<TasksBloc>().add(TaskUpdated(task: updated));
-        }
-      }
-    });
+    context
+        .push(
+          RouteName.taskDetail,
+          extra: {'task': task, 'direction': 'forward'},
+        )
+        .then((result) {
+          if (result == null || !context.mounted) return;
+          final map = result as Map<String, dynamic>;
+          final action = map['action'] as _TaskDetailAction?;
+          final taskId = map['taskId'] as String?;
+          if (action == null || taskId == null) return;
+          if (action == _TaskDetailAction.completed) {
+            context.read<TasksBloc>().add(TaskCompleted(taskId: taskId));
+          } else if (action == _TaskDetailAction.deleted) {
+            context.read<TasksBloc>().add(TaskDeleted(taskId: taskId));
+          } else if (action == _TaskDetailAction.edited) {
+            final updated = map['task'] as TaskEntity?;
+            if (updated != null) {
+              context.read<TasksBloc>().add(TaskUpdated(task: updated));
+            }
+          }
+        });
   }
 
   void _handleMenuAction(
@@ -103,10 +105,7 @@ class _TasksBody extends StatelessWidget {
               Navigator.of(dialogCtx).pop();
               context.read<TasksBloc>().add(TaskDeleted(taskId: taskId));
             },
-            child: Text(
-              'Delete',
-              style: TextStyle(color: AppColor.alertRed),
-            ),
+            child: Text('Delete', style: TextStyle(color: AppColor.alertRed)),
           ),
         ],
       ),
@@ -235,7 +234,8 @@ class _TaskSection extends StatelessWidget {
 
   final String title;
   final List<TaskEntity> tasks;
-  final void Function(TaskCardMenuAction action, TaskEntity task) onMenuSelected;
+  final void Function(TaskCardMenuAction action, TaskEntity task)
+  onMenuSelected;
   final void Function(TaskEntity task) onCardTap;
 
   @override

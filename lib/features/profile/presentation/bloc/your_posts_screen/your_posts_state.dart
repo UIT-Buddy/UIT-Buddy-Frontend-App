@@ -35,5 +35,11 @@ class YourPostsState extends Equatable {
   }
 
   @override
-  List<Object?> get props => [status, posts, filtered, searchQuery, errorMessage];
+  List<Object?> get props => [
+    status,
+    posts,
+    filtered,
+    searchQuery,
+    errorMessage,
+  ];
 }

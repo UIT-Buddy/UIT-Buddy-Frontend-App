@@ -6,7 +6,7 @@ import 'package:uit_buddy_mobile/features/profile/domain/repositories/your_info_
 
 class UpdateYourInfoUsecase implements UseCase<YourInfoEntity, YourInfoEntity> {
   UpdateYourInfoUsecase({required YourInfoRepository repository})
-      : _repository = repository;
+    : _repository = repository;
   final YourInfoRepository _repository;
 
   @override

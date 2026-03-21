@@ -15,12 +15,12 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     required DeleteTaskUsecase deleteTaskUsecase,
     required CreateTaskUsecase createTaskUsecase,
     required UpdateTaskUsecase updateTaskUsecase,
-  })  : _getTasksUsecase = getTasksUsecase,
-        _markTaskCompletedUsecase = markTaskCompletedUsecase,
-        _deleteTaskUsecase = deleteTaskUsecase,
-        _createTaskUsecase = createTaskUsecase,
-        _updateTaskUsecase = updateTaskUsecase,
-        super(const TasksState()) {
+  }) : _getTasksUsecase = getTasksUsecase,
+       _markTaskCompletedUsecase = markTaskCompletedUsecase,
+       _deleteTaskUsecase = deleteTaskUsecase,
+       _createTaskUsecase = createTaskUsecase,
+       _updateTaskUsecase = updateTaskUsecase,
+       super(const TasksState()) {
     on<TasksLoaded>(_onTasksLoaded);
     on<TaskCompleted>(_onTaskCompleted);
     on<TaskDeleted>(_onTaskDeleted);
@@ -84,8 +84,9 @@ class TasksBloc extends Bloc<TasksEvent, TasksState> {
     result.fold(
       (failure) => emit(state.copyWith(errorMessage: failure.message)),
       (_) {
-        final updatedTasks =
-            state.tasks.where((t) => t.id != event.taskId).toList();
+        final updatedTasks = state.tasks
+            .where((t) => t.id != event.taskId)
+            .toList();
         emit(state.copyWith(tasks: updatedTasks));
       },
     );

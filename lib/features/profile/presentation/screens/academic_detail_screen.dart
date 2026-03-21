@@ -13,7 +13,9 @@ class AcademicDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => serviceLocator<AcademicDetailBloc>()..add(const AcademicDetailLoaded()),
+      create: (_) =>
+          serviceLocator<AcademicDetailBloc>()
+            ..add(const AcademicDetailLoaded()),
       child: Scaffold(
         backgroundColor: AppColor.pureWhite,
         appBar: AppBar(
@@ -30,17 +32,28 @@ class AcademicDetailScreen extends StatelessWidget {
           centerTitle: true,
           actions: [
             IconButton(
-              icon: const Icon(Icons.edit_outlined, color: AppColor.primaryText),
+              icon: const Icon(
+                Icons.edit_outlined,
+                color: AppColor.primaryText,
+              ),
               onPressed: () {},
             ),
           ],
         ),
         body: BlocBuilder<AcademicDetailBloc, AcademicDetailState>(
           builder: (context, state) {
-            if (state.status == AcademicDetailStatus.loading || state.status == AcademicDetailStatus.initial) {
-              return const Center(child: CircularProgressIndicator(color: AppColor.primaryBlue));
+            if (state.status == AcademicDetailStatus.loading ||
+                state.status == AcademicDetailStatus.initial) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColor.primaryBlue),
+              );
             } else if (state.status == AcademicDetailStatus.error) {
-              return Center(child: Text(state.errorMessage ?? 'Error', style: AppTextStyle.bodyMedium));
+              return Center(
+                child: Text(
+                  state.errorMessage ?? 'Error',
+                  style: AppTextStyle.bodyMedium,
+                ),
+              );
             }
 
             final detail = state.detail;
@@ -53,21 +66,45 @@ class AcademicDetailScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildSection('PROGRESS', '${detail.majorProgress.toStringAsFixed(0)}%'),
+                  _buildSection(
+                    'PROGRESS',
+                    '${detail.majorProgress.toStringAsFixed(0)}%',
+                  ),
                   const SizedBox(height: 24),
-                  _buildSection('ACCUMULATED CREDITS', '${detail.accumulatedCredits}'),
+                  _buildSection(
+                    'ACCUMULATED CREDITS',
+                    '${detail.accumulatedCredits}',
+                  ),
                   const SizedBox(height: 24),
-                  _buildSection('ATTEMPTED CREDITS', '${detail.attemptedCredits}'),
+                  _buildSection(
+                    'ATTEMPTED CREDITS',
+                    '${detail.attemptedCredits}',
+                  ),
                   const SizedBox(height: 24),
-                  _buildSection('CURRENT GPA', '${detail.currentGpa.toStringAsFixed(1)} (8.0)'),
+                  _buildSection(
+                    'CURRENT GPA',
+                    '${detail.currentGpa.toStringAsFixed(1)} (8.0)',
+                  ),
                   const SizedBox(height: 24),
-                  _buildSection('TARGET GPA', '${detail.targetGpa.toStringAsFixed(1)} (10.0)'),
+                  _buildSection(
+                    'TARGET GPA',
+                    '${detail.targetGpa.toStringAsFixed(1)} (10.0)',
+                  ),
                   const SizedBox(height: 24),
-                  _buildSection('GENERAL CREDITS', '${detail.generalCredits}/43'),
+                  _buildSection(
+                    'GENERAL CREDITS',
+                    '${detail.generalCredits}/43',
+                  ),
                   const SizedBox(height: 24),
-                  _buildSection('FOUNDATION CREDITS', '${detail.foundationCredits}/49'),
+                  _buildSection(
+                    'FOUNDATION CREDITS',
+                    '${detail.foundationCredits}/49',
+                  ),
                   const SizedBox(height: 24),
-                  _buildSection('GRADUATION CREDITS', '${detail.graduationCredits}/10'),
+                  _buildSection(
+                    'GRADUATION CREDITS',
+                    '${detail.graduationCredits}/10',
+                  ),
                   const SizedBox(height: 40),
                   SizedBox(
                     width: double.infinity,
@@ -85,10 +122,17 @@ class AcademicDetailScreen extends StatelessWidget {
                         children: [
                           Text(
                             'See semester details',
-                            style: AppTextStyle.bodyLarge.copyWith(color: Colors.white, fontWeight: AppTextStyle.bold),
+                            style: AppTextStyle.bodyLarge.copyWith(
+                              color: Colors.white,
+                              fontWeight: AppTextStyle.bold,
+                            ),
                           ),
                           const SizedBox(width: 8),
-                          const Icon(Icons.arrow_forward, color: Colors.white, size: 20),
+                          const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ],
                       ),
                     ),

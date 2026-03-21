@@ -5,7 +5,7 @@ import 'package:uit_buddy_mobile/features/profile/domain/repositories/sign_out_r
 
 class SignOutUsecase implements UseCase<void, NoParams> {
   SignOutUsecase({required SignOutRepository signOutRepository})
-      : _signOutRepository = signOutRepository;
+    : _signOutRepository = signOutRepository;
 
   final SignOutRepository _signOutRepository;
 

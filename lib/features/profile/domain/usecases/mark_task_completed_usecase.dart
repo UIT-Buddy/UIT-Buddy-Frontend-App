@@ -5,7 +5,8 @@ import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/task_repository.dart';
 
-class MarkTaskCompletedUsecase implements UseCase<void, MarkTaskCompletedParams> {
+class MarkTaskCompletedUsecase
+    implements UseCase<void, MarkTaskCompletedParams> {
   MarkTaskCompletedUsecase({required TaskRepository taskRepository})
     : _taskRepository = taskRepository;
   final TaskRepository _taskRepository;

@@ -41,7 +41,8 @@ class TaskDatasourceImpl implements TaskDatasourceInterface {
       taskDetail: TaskDetailModel(
         name: 'Báo cáo đồ án sprint 2',
         title: 'SE405.P11 - Kỹ nghệ phần mềm',
-        description: 'Nộp báo cáo sprint 2 bao gồm tài liệu thiết kế và demo video',
+        description:
+            'Nộp báo cáo sprint 2 bao gồm tài liệu thiết kế và demo video',
         url: 'https://courses.uit.edu.vn/mod/assign/view.php?id=330145',
         priority: 'high',
         openDate: DateTime(2026, 3, 10, 7, 30),
