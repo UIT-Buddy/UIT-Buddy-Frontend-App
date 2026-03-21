@@ -105,7 +105,7 @@ class _PostNetworkVideoTileState extends State<PostNetworkVideoTile> {
         width: 52,
         height: 52,
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.55),
+          color: Colors.black.withValues(alpha: 0.55),
           shape: BoxShape.circle,
         ),
         child: const Icon(

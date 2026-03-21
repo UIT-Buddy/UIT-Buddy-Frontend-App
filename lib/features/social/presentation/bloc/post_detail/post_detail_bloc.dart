@@ -246,7 +246,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     final previousComments = state.comments;
     final previousReplies = state.replies;
 
-    CommentEntity _toggle(CommentEntity c) {
+    CommentEntity toggle(CommentEntity c) {
       if (c.id != event.commentId) return c;
       return c.copyWith(
         isLiked: !c.isLiked,
@@ -256,12 +256,12 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
 
     final updatedReplies = <String, List<CommentEntity>>{};
     for (final entry in state.replies.entries) {
-      updatedReplies[entry.key] = entry.value.map(_toggle).toList();
+      updatedReplies[entry.key] = entry.value.map(toggle).toList();
     }
 
     emit(
       state.copyWith(
-        comments: previousComments.map(_toggle).toList(),
+        comments: previousComments.map(toggle).toList(),
         replies: updatedReplies,
       ),
     );

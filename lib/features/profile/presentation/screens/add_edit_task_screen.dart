@@ -107,6 +107,7 @@ class _AddEditTaskScreenState extends State<AddEditTaskScreen> {
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
     );
+    if (!context.mounted) return;
     if (picked != null) {
       final time = await showTimePicker(
         context: context,
