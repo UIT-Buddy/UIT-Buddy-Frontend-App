@@ -789,4 +789,3 @@ void _initWeatherDependencies() {
 //     () => YourPostsBloc(getPostsUsecase: serviceLocator()),
 //   );
 // }
-   
