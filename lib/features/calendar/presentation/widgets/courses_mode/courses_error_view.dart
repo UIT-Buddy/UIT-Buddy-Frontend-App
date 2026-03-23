@@ -16,13 +16,25 @@ class CoursesErrorView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.error_outline, color: AppColor.alertRed, size: 32),
-          const SizedBox(height: 8),
+          Container(
+            width: 72,
+            height: 72,
+            decoration: BoxDecoration(
+              color: AppColor.alertRed.withValues(alpha: 0.10),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.error_outline_rounded,
+              color: AppColor.alertRed,
+              size: 36,
+            ),
+          ),
+          const SizedBox(height: 12),
           Text(
             CalendarText.coursesErrorPrefix,
-            style: AppTextStyle.bodySmall.copyWith(
+            style: AppTextStyle.bodyMedium.copyWith(
               color: AppColor.alertRed,
-              fontWeight: AppTextStyle.medium,
+              fontWeight: AppTextStyle.bold,
             ),
           ),
           if (message != null)
@@ -30,7 +42,9 @@ class CoursesErrorView extends StatelessWidget {
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 message!,
-                style: AppTextStyle.captionMedium,
+                style: AppTextStyle.captionMedium.copyWith(
+                  color: AppColor.secondaryText,
+                ),
                 textAlign: TextAlign.center,
               ),
             ),

@@ -23,8 +23,7 @@ class NewFeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) =>
-          serviceLocator<NewFeedBloc>()..add(const NewFeedStarted()),
+      create: (_) => serviceLocator<NewFeedBloc>()..add(const NewFeedStarted()),
       child: const _NewFeedView(),
     );
   }
@@ -165,8 +164,7 @@ class _NewFeedViewState extends State<_NewFeedView> {
           }
 
           final post = state.posts[postIndex];
-          final currentMssv =
-              context.read<SessionBloc>().state.user?.mssv;
+          final currentMssv = context.read<SessionBloc>().state.user?.mssv;
           return PostCard(
             key: ValueKey(post.id),
             post: post,
@@ -184,18 +182,14 @@ class _NewFeedViewState extends State<_NewFeedView> {
             onEditTap: () => _navigateToEdit(context, post),
             onTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => PostDetailScreen(
-                  postId: post.id,
-                  initialPost: post,
-                ),
+                builder: (_) =>
+                    PostDetailScreen(postId: post.id, initialPost: post),
               ),
             ),
             onCommentTap: () => Navigator.of(context).push(
               MaterialPageRoute(
-                builder: (_) => PostDetailScreen(
-                  postId: post.id,
-                  initialPost: post,
-                ),
+                builder: (_) =>
+                    PostDetailScreen(postId: post.id, initialPost: post),
               ),
             ),
           );

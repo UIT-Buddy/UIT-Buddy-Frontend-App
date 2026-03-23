@@ -32,6 +32,9 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
+      - name: Create google-services.json
+        run: echo '${{ secrets.GG_SERVICES }}' > android/app/google-services.json
+
       - name: Run Build Runner
         run: dart run build_runner build --delete-conflicting-outputs -v
 
@@ -67,6 +70,16 @@ jobs:
       - name: Get Dependencies
         run: flutter pub get
 
+      - name: Create google-services.json
+        run: echo '${{ secrets.GG_SERVICES }}' > android/app/google-services.json
+      - name: Create key.properties
+        run: |
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
+          echo "storeFile=upload-keystore.jks" >> android/key.properties
+          echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+          echo "storePassword=${{ secrets.KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+
       - name: Run Build Runner
         run: dart run build_runner build --delete-conflicting-outputs
 
@@ -85,6 +98,6 @@ jobs:
         with:
           appId: ${{ secrets.FIREBASE_APP_ID }}
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_CREDENTIALS }}
-          groups: testers
+          groups: tester
           file: build/app/outputs/flutter-apk/app-release.apk
           releaseNotes: "Auto-build v1.0.${{ github.run_number }}-${{ env.CURRENT_DATE }}"

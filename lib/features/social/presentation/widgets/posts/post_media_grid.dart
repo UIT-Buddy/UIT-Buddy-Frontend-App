@@ -10,11 +10,7 @@ bool isVideoFile(XFile file) =>
     _videoExtensions.contains(file.name.split('.').last.toLowerCase());
 
 class PostMediaGrid extends StatelessWidget {
-  const PostMediaGrid({
-    super.key,
-    required this.files,
-    required this.onRemove,
-  });
+  const PostMediaGrid({super.key, required this.files, required this.onRemove});
 
   final List<XFile> files;
   final void Function(int index) onRemove;
@@ -62,10 +58,8 @@ class PostMediaGrid extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         itemCount: count,
         separatorBuilder: (context, index) => const SizedBox(width: 6),
-        itemBuilder: (_, i) => SizedBox(
-          width: 140,
-          child: _tile(files[i], i, height: 140),
-        ),
+        itemBuilder: (_, i) =>
+            SizedBox(width: 140, child: _tile(files[i], i, height: 140)),
       ),
     );
   }

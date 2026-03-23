@@ -7,6 +7,7 @@ class ProfileModel extends Equatable {
   final String fullName;
   final String email;
   final String avatarUrl;
+  final String bio;
   final String coverUrl;
   final ProfileStatsModel stats;
 
@@ -15,9 +16,34 @@ class ProfileModel extends Equatable {
     required this.fullName,
     required this.email,
     required this.avatarUrl,
+    required this.bio,
     required this.coverUrl,
     required this.stats,
   });
+
+  factory ProfileModel.fromMeJson(Map<String, dynamic> json) {
+    final data = (json['data'] as Map<String, dynamic>? ?? json);
+
+    return ProfileModel(
+      mssv: (data['mssv'] as String?) ?? '',
+      fullName: (data['fullName'] as String?) ?? '',
+      email: (data['email'] as String?) ?? '',
+      avatarUrl:
+          (data['avatarUrl'] as String?) ??
+          'assets/images/placeholder/user-icon.png',
+      bio: (data['bio'] as String?) ?? '-',
+      // Backend /me currently does not return cover and stats.
+      coverUrl: 'assets/images/placeholder/bg-placeholder-transparent.png',
+      stats: const ProfileStatsModel(
+        currentGpa: 0,
+        gpaOn4Scale: 0,
+        accumulatedCredits: 0,
+        totalCredits: 0,
+        posts: 0,
+        comments: 0,
+      ),
+    );
+  }
 
   @override
   List<Object?> get props => [
@@ -25,6 +51,7 @@ class ProfileModel extends Equatable {
     fullName,
     email,
     avatarUrl,
+    bio,
     coverUrl,
     stats,
   ];

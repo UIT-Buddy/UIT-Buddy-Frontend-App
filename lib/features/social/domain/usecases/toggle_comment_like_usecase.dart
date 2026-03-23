@@ -7,7 +7,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/reaction_re
 class ToggleCommentLikeUsecase
     implements UseCase<Unit, ToggleCommentLikeParams> {
   ToggleCommentLikeUsecase({required ReactionRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ReactionRepository _repository;
 

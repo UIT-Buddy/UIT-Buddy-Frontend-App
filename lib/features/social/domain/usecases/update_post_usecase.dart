@@ -6,7 +6,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/post_reposi
 
 class UpdatePostUsecase implements UseCase<Unit, UpdatePostParams> {
   UpdatePostUsecase({required PostRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final PostRepository _repository;
 

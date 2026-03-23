@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
@@ -11,9 +9,9 @@ class AcademicDetailEntity extends Equatable {
   final int foundationCredits;
   final int majorCredits;
   final int graduationCredits;
-  final Float majorProgress;
-  final Float currentGpa;
-  final Float targetGpa;
+  final double majorProgress;
+  final double currentGpa;
+  final double targetGpa;
 
   const AcademicDetailEntity({
     required this.attemptedCredits,

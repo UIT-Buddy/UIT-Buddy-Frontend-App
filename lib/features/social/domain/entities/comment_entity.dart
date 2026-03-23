@@ -1,4 +1,3 @@
-
 class CommentAuthorEntity {
   final String mssv;
   final String fullName;
@@ -38,7 +37,6 @@ class CommentEntity {
   });
 
   bool get isReply => parentId != null;
-
 
   CommentEntity copyWith({
     String? id,

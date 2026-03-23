@@ -256,7 +256,9 @@ class _ContactRow extends StatelessWidget {
                 CircleAvatar(
                   radius: 22,
                   backgroundColor: AppColor.veryLightGrey,
-                  backgroundImage: CachedNetworkImageProvider(contact.avatarUrl),
+                  backgroundImage: CachedNetworkImageProvider(
+                    contact.avatarUrl,
+                  ),
                 ),
                 if (contact.isOnline)
                   Positioned(

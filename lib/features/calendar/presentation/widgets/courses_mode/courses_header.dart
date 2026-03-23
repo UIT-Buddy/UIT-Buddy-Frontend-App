@@ -17,9 +17,23 @@ class CoursesHeader extends StatelessWidget {
 
     return Row(
       children: [
-        Text(
-          CalendarText.semesterLabel(state.semester, state.year),
-          style: AppTextStyle.bodyLarge.copyWith(fontWeight: AppTextStyle.bold),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              CalendarText.semesterLabel(state.semester, state.year),
+              style: AppTextStyle.bodyLarge.copyWith(
+                fontWeight: AppTextStyle.bold,
+                color: AppColor.pureWhite,
+              ),
+            ),
+            Text(
+              'Timetable',
+              style: AppTextStyle.captionSmall.copyWith(
+                color: AppColor.pureWhite.withValues(alpha: 0.75),
+              ),
+            ),
+          ],
         ),
         const Spacer(),
         _CoursesNavButton(
@@ -44,17 +58,16 @@ class _CoursesNavButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColor.veryLightGrey,
-        shape: BoxShape.circle,
-      ),
-      child: IconButton(
-        onPressed: onTap,
-        icon: Icon(icon),
-        padding: const EdgeInsets.all(6),
-        constraints: const BoxConstraints(),
-        iconSize: 20,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.20),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, color: AppColor.pureWhite, size: 20),
       ),
     );
   }

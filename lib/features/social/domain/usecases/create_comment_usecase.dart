@@ -6,16 +6,13 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_rep
 
 class CreateCommentUsecase implements UseCase<Unit, CreateCommentParams> {
   CreateCommentUsecase({required CommentRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final CommentRepository _repository;
 
   @override
   Future<Either<Failure, Unit>> call(CreateCommentParams params) =>
-      _repository.createComment(
-        postId: params.postId,
-        content: params.content,
-      );
+      _repository.createComment(postId: params.postId, content: params.content);
 }
 
 class CreateCommentParams extends Equatable {

@@ -1,23 +1,12 @@
-import 'dart:ffi';
 import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 @immutable
 class SemesterDetailEntity extends Equatable {
-  final List<SemesterDetailItemEntity> items;
-
-  const SemesterDetailEntity({required this.items});
-
-  @override
-  List<Object?> get props => [items];
-}
-
-@immutable
-class SemesterDetailItemEntity extends Equatable {
   final String id;
   final int yearStart;
   final int yearEnd;
-  final Float gpa;
+  final double gpa;
   final int credits;
   final DateTime startDate;
   final DateTime endDate;
@@ -25,7 +14,7 @@ class SemesterDetailItemEntity extends Equatable {
   final String rank;
   final int semesterNumber;
 
-  const SemesterDetailItemEntity({
+  const SemesterDetailEntity({
     required this.id,
     required this.yearStart,
     required this.yearEnd,

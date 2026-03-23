@@ -55,8 +55,11 @@ class DeadlineCalendarGrid extends StatelessWidget {
     final firstDayOfWeek = _getFirstDayOfWeek(month, year);
     final totalCells = ((daysInMonth + firstDayOfWeek) / 7).ceil() * 7;
     final screenWidth = MediaQuery.of(context).size.width;
-    final gridSpacing = screenWidth * 0.02;
+    final gridSpacing = screenWidth * 0.015;
     final dotSize = screenWidth * 0.016;
+
+    final now = DateTime.now();
+    final isCurrentMonth = month == now.month && year == now.year;
 
     return GridView.builder(
       shrinkWrap: true,
@@ -70,39 +73,59 @@ class DeadlineCalendarGrid extends StatelessWidget {
       itemBuilder: (context, index) {
         final dayNumber = index - firstDayOfWeek + 1;
 
-        // Empty cells before the first day
         if (index < firstDayOfWeek || dayNumber > daysInMonth) {
           return const SizedBox.shrink();
         }
 
         final item = _getItemForDay(dayNumber);
         final isSelected = item?.isSelected ?? false;
+        final isToday = isCurrentMonth && dayNumber == now.day;
+        final isSunday = index % 7 == 0;
         final hasDeadline =
             item != null &&
             item.status != CalendarDeadlineItemEntityStatus.empty;
 
+        Color bgColor = Colors.transparent;
+        Color textColor;
+        BoxBorder? border;
+        FontWeight textWeight = FontWeight.w500;
+
+        if (isSelected) {
+          bgColor = AppColor.primaryBlue;
+          textColor = AppColor.pureWhite;
+          textWeight = FontWeight.w700;
+        } else if (isToday) {
+          bgColor = AppColor.primaryBlue10;
+          textColor = AppColor.primaryBlue;
+          border = Border.all(color: AppColor.primaryBlue, width: 1.5);
+          textWeight = FontWeight.w700;
+        } else if (isSunday) {
+          textColor = AppColor.alertRed.withValues(alpha: 0.65);
+        } else {
+          textColor = AppColor.primaryText;
+        }
+
         return GestureDetector(
-          onTap: () {
-            context.read<DeadlineBloc>().add(DeadlineEntitySelected(dayNumber));
-          },
+          onTap: () => context.read<DeadlineBloc>().add(
+            DeadlineEntitySelected(dayNumber),
+          ),
           child: Container(
             decoration: BoxDecoration(
-              color: isSelected ? AppColor.primaryBlue : Colors.transparent,
+              color: bgColor,
               borderRadius: BorderRadius.circular(8),
+              border: border,
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   '$dayNumber',
-                  style: AppTextStyle.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: isSelected
-                        ? AppColor.pureWhite
-                        : AppColor.primaryText,
+                  style: AppTextStyle.bodySmall.copyWith(
+                    fontWeight: textWeight,
+                    color: textColor,
                   ),
                 ),
-                SizedBox(height: dotSize * 0.6),
+                SizedBox(height: dotSize * 0.4),
                 if (hasDeadline)
                   Container(
                     width: dotSize,

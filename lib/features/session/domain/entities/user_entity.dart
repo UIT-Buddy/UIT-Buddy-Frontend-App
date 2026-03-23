@@ -31,5 +31,4 @@ class UserEntity extends Equatable {
   ];
 
   String get userLetterAvatar => fullName.split(' ').last[0].toUpperCase();
-  
 }

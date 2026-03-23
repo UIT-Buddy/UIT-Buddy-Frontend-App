@@ -1,7 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 
-
 abstract class PostDetailEvent extends Equatable {
   const PostDetailEvent();
 

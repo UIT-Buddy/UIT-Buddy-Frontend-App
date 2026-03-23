@@ -16,38 +16,57 @@ class CoursesCalendarWidget extends StatelessWidget {
     return BlocBuilder<CoursesModeBloc, CoursesModeState>(
       builder: (context, state) {
         final screenWidth = MediaQuery.of(context).size.width;
-        final spacing = screenWidth * 0.05;
+        final hPad = screenWidth * 0.045;
+        final radius = screenWidth * 0.065;
 
         return SingleChildScrollView(
           child: Container(
-            margin: EdgeInsets.all(spacing),
-            padding: EdgeInsets.all(spacing),
+            margin: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
               color: AppColor.pureWhite,
-              border: Border.all(color: AppColor.dividerGrey, width: 1),
-              borderRadius: BorderRadius.circular(screenWidth * 0.065),
+              borderRadius: BorderRadius.circular(radius),
               boxShadow: [
                 BoxShadow(
+                  color: AppColor.primaryBlue.withValues(alpha: 0.10),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
                   color: AppColor.shadowColor,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
                 ),
               ],
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CoursesHeader(),
-                SizedBox(height: screenWidth * 0.04),
-                if (state.status == CoursesModeStatus.loading)
-                  const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 40),
-                    child: Center(child: CircularProgressIndicator()),
-                  )
-                else if (state.status == CoursesModeStatus.error)
-                  CoursesErrorView(message: state.errorMessage)
-                else
-                  CoursesTimetableGrid(courses: state.courses),
+                // Gradient header strip
+                Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: hPad,
+                    vertical: hPad * 0.75,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: AppColor.primaryGradient,
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(radius),
+                    ),
+                  ),
+                  child: const CoursesHeader(),
+                ),
+                // Grid / loading / error
+                Padding(
+                  padding: EdgeInsets.all(hPad),
+                  child: state.status == CoursesModeStatus.loading
+                      ? const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 40),
+                          child: Center(child: CircularProgressIndicator()),
+                        )
+                      : state.status == CoursesModeStatus.error
+                      ? CoursesErrorView(message: state.errorMessage)
+                      : CoursesTimetableGrid(courses: state.courses),
+                ),
               ],
             ),
           ),

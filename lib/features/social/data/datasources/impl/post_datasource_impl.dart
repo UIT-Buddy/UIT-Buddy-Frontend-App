@@ -5,7 +5,9 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/impl/social_pa
 import 'package:uit_buddy_mobile/features/social/data/datasources/post_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/models/post_model.dart';
 
-class PostDatasourceImpl with SocialPagingMixin implements PostDatasourceInterface {
+class PostDatasourceImpl
+    with SocialPagingMixin
+    implements PostDatasourceInterface {
   PostDatasourceImpl({required Dio dio}) : _dio = dio;
 
   final Dio _dio;
@@ -63,12 +65,15 @@ class PostDatasourceImpl with SocialPagingMixin implements PostDatasourceInterfa
         ),
       );
     }
-    await _dio.post<Map<String, dynamic>>('/api/posts', data: formData,options: Options(
-      connectTimeout: const Duration(minutes: 10),
-      receiveTimeout: const Duration(minutes: 10),
-      sendTimeout: const Duration(minutes: 10),
-      
-    ));
+    await _dio.post<Map<String, dynamic>>(
+      '/api/posts',
+      data: formData,
+      options: Options(
+        connectTimeout: const Duration(minutes: 10),
+        receiveTimeout: const Duration(minutes: 10),
+        sendTimeout: const Duration(minutes: 10),
+      ),
+    );
   }
 
   @override
@@ -79,9 +84,7 @@ class PostDatasourceImpl with SocialPagingMixin implements PostDatasourceInterfa
   @override
   Future<PostModel> getPostDetail(String postId) async {
     final response = await _dio.get<Map<String, dynamic>>('/api/posts/$postId');
-    return PostModel.fromJson(
-      response.data!['data'] as Map<String, dynamic>,
-    );
+    return PostModel.fromJson(response.data!['data'] as Map<String, dynamic>);
   }
 
   @override

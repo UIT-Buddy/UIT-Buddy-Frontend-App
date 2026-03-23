@@ -16,54 +16,80 @@ class DeadlineCalendarWidget extends StatelessWidget {
       BlocBuilder<DeadlineBloc, DeadlineState>(
         builder: (context, state) {
           final screenWidth = MediaQuery.of(context).size.width;
-          final spacing = screenWidth * 0.05;
+          final hPad = screenWidth * 0.045;
+          final radius = screenWidth * 0.065;
           return Container(
-            margin: EdgeInsets.all(spacing),
-            padding: EdgeInsets.all(spacing),
+            margin: const EdgeInsets.symmetric(vertical: 6),
             decoration: BoxDecoration(
               color: AppColor.pureWhite,
-              border: Border.all(color: AppColor.dividerGrey, width: 1),
-              borderRadius: BorderRadius.circular(screenWidth * 0.065),
+              borderRadius: BorderRadius.circular(radius),
               boxShadow: [
                 BoxShadow(
+                  color: AppColor.primaryBlue.withValues(alpha: 0.10),
+                  blurRadius: 20,
+                  offset: const Offset(0, 6),
+                ),
+                BoxShadow(
                   color: AppColor.shadowColor,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  blurRadius: 4,
+                  offset: const Offset(0, 1),
                 ),
               ],
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 if (state.calendarDeadlineEntity != null) ...[
-                  DeadlineHeader(
-                    month: state.calendarDeadlineEntity!.month,
-                    year: state.calendarDeadlineEntity!.year,
-                    onPreviousMonth: () {
-                      context.read<DeadlineBloc>().add(
+                  // Gradient header strip
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: hPad,
+                      vertical: hPad * 0.75,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: AppColor.primaryGradient,
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(radius),
+                      ),
+                    ),
+                    child: DeadlineHeader(
+                      month: state.calendarDeadlineEntity!.month,
+                      year: state.calendarDeadlineEntity!.year,
+                      onPreviousMonth: () => context.read<DeadlineBloc>().add(
                         const DeadlinePreviousMonthSelected(),
-                      );
-                    },
-                    onNextMonth: () {
-                      context.read<DeadlineBloc>().add(
+                      ),
+                      onNextMonth: () => context.read<DeadlineBloc>().add(
                         const DeadlineNextMonthSelected(),
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                  SizedBox(height: screenWidth * 0.04),
-                  const DeadlineDayNameWidget(),
-                  SizedBox(height: screenWidth * 0.03),
-                  DeadlineCalendarGrid(
-                    month: state.calendarDeadlineEntity!.month,
-                    year: state.calendarDeadlineEntity!.year,
-                    items: state.calendarDeadlineEntity!.items,
+                  // Day names + grid
+                  Padding(
+                    padding: EdgeInsets.fromLTRB(hPad, hPad * 0.7, hPad, hPad),
+                    child: Column(
+                      children: [
+                        const DeadlineDayNameWidget(),
+                        SizedBox(height: screenWidth * 0.025),
+                        DeadlineCalendarGrid(
+                          month: state.calendarDeadlineEntity!.month,
+                          year: state.calendarDeadlineEntity!.year,
+                          items: state.calendarDeadlineEntity!.items,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
                 if (state.status == DeadlineModeStatus.loading)
-                  const Center(child: CircularProgressIndicator()),
+                  const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
                 if (state.status == DeadlineModeStatus.error &&
                     state.errorMessage != null)
-                  Center(child: Text(state.errorMessage!)),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Center(child: Text(state.errorMessage!)),
+                  ),
               ],
             ),
           );

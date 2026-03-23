@@ -48,13 +48,40 @@ class CoursesTimetableGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (courses.isEmpty) {
-      return const Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
-        child: Center(
-          child: Text(
-            CalendarText.coursesEmptyState,
-            style: TextStyle(color: AppColor.secondaryText),
-          ),
+      return Padding(
+        padding: const EdgeInsets.symmetric(vertical: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppColor.primaryBlue.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.calendar_today_outlined,
+                color: AppColor.primaryBlue,
+                size: 36,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              CalendarText.coursesEmptyState,
+              style: AppTextStyle.bodyMedium.copyWith(
+                fontWeight: AppTextStyle.bold,
+                color: AppColor.primaryText,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'No courses scheduled this semester.',
+              style: AppTextStyle.captionMedium.copyWith(
+                color: AppColor.secondaryText,
+              ),
+            ),
+          ],
         ),
       );
     }

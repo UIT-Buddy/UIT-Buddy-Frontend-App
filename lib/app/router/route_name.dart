@@ -20,4 +20,17 @@ class RouteName {
   static const String storage = '/storage';
   static const String profile = '/profile';
   static const String notification = '/notification';
+  static const String tasks = '/tasks';
+  static const String taskDetail = '/task-detail';
+  static const String addEditTask = '/add-edit-task';
+  static const String yourInfo = '/your-info';
+  static const String editYourInfo = '/edit-your-info';
+  static const String groupsJoined = '/groups-joined';
+  static const String yourPosts = '/your-posts';
+  static const String academicDetail = '/academic-detail';
+  static const String semesterDetail = '/semester-detail';
+  static const String settings = '/settings';
+  static const String note = '/note';
+  static const String website = '/website';
+  static const String weather = '/weather';
 }

@@ -107,10 +107,7 @@ class _MediaViewerScreenState extends State<MediaViewerScreen> {
               return _FullscreenImagePage(url: media.url);
             },
           ),
-          _TopOverlay(
-            currentIndex: _currentIndex,
-            total: widget.medias.length,
-          ),
+          _TopOverlay(currentIndex: _currentIndex, total: widget.medias.length),
           _BottomActionBar(
             isLiked: _isLiked,
             likeCount: _likeCount,
@@ -173,8 +170,10 @@ class _TopOverlay extends StatelessWidget {
             const Spacer(),
             if (total > 1)
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.black45,
                   borderRadius: BorderRadius.circular(20),
