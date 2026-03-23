@@ -34,14 +34,14 @@ class MediaViewerScreen extends StatefulWidget {
       barrierColor: Colors.black,
       transitionDuration: const Duration(milliseconds: 220),
       reverseTransitionDuration: const Duration(milliseconds: 200),
-      pageBuilder: (_, __, ___) => MediaViewerScreen(
+      pageBuilder: (_, _, _) => MediaViewerScreen(
         medias: medias,
         initialIndex: initialIndex,
         post: post,
         onLikeTap: onLikeTap,
         onCommentTap: onCommentTap,
       ),
-      transitionsBuilder: (_, animation, __, child) =>
+      transitionsBuilder: (_, animation, _, child) =>
           FadeTransition(opacity: animation, child: child),
     );
   }
@@ -325,13 +325,13 @@ class _FullscreenImagePage extends StatelessWidget {
         child: CachedNetworkImage(
           imageUrl: url,
           fit: BoxFit.contain,
-          placeholder: (_, __) => const Center(
+          placeholder: (_, _) => const Center(
             child: CircularProgressIndicator(
               color: Colors.white60,
               strokeWidth: 2,
             ),
           ),
-          errorWidget: (_, __, ___) => const Center(
+          errorWidget: (_, _, _) => const Center(
             child: Icon(
               Icons.broken_image_outlined,
               color: Colors.white38,
