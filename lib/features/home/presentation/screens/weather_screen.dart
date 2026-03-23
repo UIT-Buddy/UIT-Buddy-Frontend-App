@@ -1,47 +1,61 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/extensions/router_extension.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/home/domain/entities/weather_entity.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/weather_bloc.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/weather_event.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/weather_state.dart';
 
-// ─── Mock data ────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-class _HourlyEntry {
-  const _HourlyEntry(this.time, this.icon, this.temp, this.isRain);
-  final String time;
-  final IconData icon;
-  final int temp;
-  final bool isRain;
+/// Returns a Material icon that matches the OpenWeatherMap icon code.
+/// Day: 01d→sun, 02d→partly cloudy, 03/04d→cloudy, 09/10d→rain, 11d→storm, 13d→snow, 50d→fog
+/// Night variants follow the same pattern.
+IconData _owmIcon(String code) {
+  switch (code.substring(0, 2)) {
+    case '01':
+      return Icons.wb_sunny_rounded;
+    case '02':
+      return Icons.wb_cloudy;
+    case '03':
+    case '04':
+      return Icons.cloud;
+    case '09':
+    case '10':
+      return Icons.grain;
+    case '11':
+      return Icons.thunderstorm;
+    case '13':
+      return Icons.ac_unit;
+    case '50':
+      return Icons.foggy;
+    default:
+      return Icons.wb_sunny_rounded;
+  }
 }
 
-class _DailyEntry {
-  const _DailyEntry(this.day, this.icon, this.condition, this.high, this.low);
-  final String day;
-  final IconData icon;
-  final String condition;
-  final int high;
-  final int low;
+bool _isRainCode(String code) {
+  final prefix = code.substring(0, 2);
+  return prefix == '09' || prefix == '10' || prefix == '11';
 }
 
-const _hourly = [
-  _HourlyEntry('Now', Icons.wb_sunny_rounded, 35, false),
-  _HourlyEntry('11:00', Icons.wb_sunny_rounded, 36, false),
-  _HourlyEntry('12:00', Icons.wb_sunny_rounded, 37, false),
-  _HourlyEntry('13:00', Icons.wb_cloudy, 37, false),
-  _HourlyEntry('14:00', Icons.cloud, 36, false),
-  _HourlyEntry('15:00', Icons.grain, 34, true),
-  _HourlyEntry('16:00', Icons.grain, 32, true),
-  _HourlyEntry('17:00', Icons.wb_cloudy, 31, false),
-];
+String _formatHour(int dt) {
+  final d = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
+  return DateFormat('HH:mm').format(d);
+}
 
-const _daily = [
-  _DailyEntry('Today', Icons.wb_sunny_rounded, 'Sunny', 35, 27),
-  _DailyEntry('Thu', Icons.wb_cloudy, 'Partly Cloudy', 33, 26),
-  _DailyEntry('Fri', Icons.grain, 'Rainy', 31, 25),
-  _DailyEntry('Sat', Icons.wb_cloudy, 'Partly Cloudy', 32, 25),
-  _DailyEntry('Sun', Icons.wb_sunny_rounded, 'Sunny', 34, 26),
-  _DailyEntry('Mon', Icons.wb_sunny_rounded, 'Sunny', 35, 27),
-  _DailyEntry('Tue', Icons.wb_sunny_rounded, 'Sunny', 36, 28),
-];
+String _formatDay(int dt) {
+  final d = DateTime.fromMillisecondsSinceEpoch(dt * 1000);
+  final now = DateTime.now();
+  if (d.year == now.year && d.month == now.month && d.day == now.day) {
+    return 'Today';
+  }
+  return DateFormat('EEE').format(d);
+}
 
 // ─── Colors ───────────────────────────────────────────────────────────────────
 
@@ -60,8 +74,9 @@ class WeatherScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
+    return BlocProvider(
+      create: (_) => serviceLocator<WeatherBloc>()..add(const WeatherFetched()),
+      child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
             colors: [_gradientTop, _gradientMid, _gradientBot],
@@ -69,24 +84,178 @@ class WeatherScreen extends StatelessWidget {
             end: Alignment.bottomCenter,
           ),
         ),
-        child: SafeArea(
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(),
-            slivers: [
-              SliverToBoxAdapter(child: _buildHeader(context)),
-              SliverToBoxAdapter(child: _buildHero()),
-              SliverToBoxAdapter(child: _buildStatsRow()),
-              SliverToBoxAdapter(child: _buildHourlySection()),
-              SliverToBoxAdapter(child: _buildDailySection()),
-              const SliverToBoxAdapter(child: SizedBox(height: 32)),
-            ],
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: SafeArea(
+            child: BlocBuilder<WeatherBloc, WeatherState>(
+              builder: (context, state) {
+                if (state.status == WeatherStatus.loading ||
+                    state.status == WeatherStatus.initial) {
+                  return _buildLoading(context);
+                }
+                if (state.status == WeatherStatus.failure) {
+                  return _buildError(context, state.errorMessage);
+                }
+                return _WeatherContent(weather: state.weather!);
+              },
+            ),
           ),
         ),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildLoading(BuildContext context) {
+    return Column(
+      children: [
+        _buildTopBar(context, onRefresh: null),
+        const Expanded(
+          child: Center(child: CircularProgressIndicator(color: Colors.white)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildError(BuildContext context, String? message) {
+    return Column(
+      children: [
+        _buildTopBar(
+          context,
+          onRefresh: () =>
+              context.read<WeatherBloc>().add(const WeatherFetched()),
+        ),
+        Expanded(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(
+                    Icons.wifi_off_rounded,
+                    color: Colors.white54,
+                    size: 56,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    message ?? 'Failed to load weather',
+                    style: AppTextStyle.bodyMedium.copyWith(
+                      color: Colors.white70,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  FilledButton.icon(
+                    onPressed: () =>
+                        context.read<WeatherBloc>().add(const WeatherFetched()),
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('Retry'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTopBar(
+    BuildContext context, {
+    required VoidCallback? onRefresh,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+      child: Row(
+        children: [
+          _GlassButton(
+            onTap: () => context.goBack(RouteName.home),
+            child: const Icon(
+              Icons.arrow_back_ios_new_rounded,
+              color: Colors.white,
+              size: 18,
+            ),
+          ),
+          const Spacer(),
+          if (onRefresh != null)
+            _GlassButton(
+              onTap: onRefresh,
+              child: const Icon(
+                Icons.refresh_rounded,
+                color: Colors.white,
+                size: 18,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Content (loaded state) ───────────────────────────────────────────────────
+
+class _WeatherContent extends StatefulWidget {
+  const _WeatherContent({required this.weather});
+  final WeatherEntity weather;
+
+  @override
+  State<_WeatherContent> createState() => _WeatherContentState();
+}
+
+class _WeatherContentState extends State<_WeatherContent> {
+  int? _selectedHourlyIndex;
+
+  @override
+  Widget build(BuildContext context) {
+    final current = widget.weather.current;
+    final hourly = widget.weather.hourly.take(24).toList();
+    final daily = widget.weather.daily.take(7).toList();
+
+    // Derive hero data from selected hourly or current
+    final double heroTemp;
+    final double heroFeelsLike;
+    final List<WeatherConditionEntity> heroWeather;
+    if (_selectedHourlyIndex != null) {
+      final h = hourly[_selectedHourlyIndex!];
+      heroTemp = h.temp;
+      heroFeelsLike = h.feelsLike;
+      heroWeather = h.weather;
+    } else {
+      heroTemp = current.temp;
+      heroFeelsLike = current.feelsLike;
+      heroWeather = current.weather;
+    }
+
+    final condition = heroWeather.isNotEmpty ? heroWeather.first : null;
+    final icon = condition != null
+        ? _owmIcon(condition.icon)
+        : Icons.wb_sunny_rounded;
+    final isRain = condition != null ? _isRainCode(condition.icon) : false;
+    final updatedAt = DateFormat(
+      'HH:mm',
+    ).format(DateTime.fromMillisecondsSinceEpoch(current.dt * 1000));
+
+    return CustomScrollView(
+      physics: const BouncingScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(child: _buildHeader(context, updatedAt)),
+        SliverToBoxAdapter(
+          child: _buildHero(heroTemp, heroFeelsLike, icon, isRain, condition),
+        ),
+        SliverToBoxAdapter(
+          child: _buildStatsRow(
+            current,
+            hourly.isNotEmpty ? hourly.first.pop : 0.0,
+          ),
+        ),
+        SliverToBoxAdapter(child: _buildHourlySection(hourly)),
+        SliverToBoxAdapter(child: _buildDailySection(daily)),
+        const SliverToBoxAdapter(child: SizedBox(height: 32)),
+      ],
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, String updatedAt) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
       child: Row(
@@ -112,7 +281,7 @@ class WeatherScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 4),
                   Text(
-                    'Ho Chi Minh City',
+                    "Thủ Đức", //_locationName(weather.timezone),
                     style: AppTextStyle.bodyMedium.copyWith(
                       color: Colors.white,
                       fontWeight: AppTextStyle.bold,
@@ -122,14 +291,15 @@ class WeatherScreen extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                'Updated 10:30 AM',
+                'Updated $updatedAt',
                 style: AppTextStyle.captionMedium.copyWith(color: _glassText),
               ),
             ],
           ),
           const SizedBox(width: 12),
           _GlassButton(
-            onTap: () {},
+            onTap: () =>
+                context.read<WeatherBloc>().add(const WeatherFetched()),
             child: const Icon(
               Icons.refresh_rounded,
               color: Colors.white,
@@ -141,12 +311,17 @@ class WeatherScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildHero() {
+  Widget _buildHero(
+    double temp,
+    double feelsLike,
+    IconData icon,
+    bool isRain,
+    WeatherConditionEntity? condition,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
       child: Column(
         children: [
-          // Weather icon
           Container(
             width: 120,
             height: 120,
@@ -155,16 +330,15 @@ class WeatherScreen extends StatelessWidget {
               color: _glass,
               border: Border.all(color: _glassBorder, width: 1.5),
             ),
-            child: const Icon(
-              Icons.wb_sunny_rounded,
-              color: Color(0xFFFFD600),
+            child: Icon(
+              icon,
+              color: isRain ? const Color(0xFF64B5F6) : const Color(0xFFFFD600),
               size: 64,
             ),
           ),
           const SizedBox(height: 20),
-          // Temperature
           Text(
-            '35°',
+            '${temp.round()}°',
             style: AppTextStyle.heroNumber.copyWith(
               fontSize: 90,
               fontWeight: AppTextStyle.bold,
@@ -173,16 +347,14 @@ class WeatherScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 6),
-          // Condition
           Text(
-            'Partly Cloudy',
+            condition?.description ?? '',
             style: AppTextStyle.h4.copyWith(
               color: Colors.white,
               fontWeight: AppTextStyle.medium,
             ),
           ),
           const SizedBox(height: 8),
-          // Feels like
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
             decoration: BoxDecoration(
@@ -191,7 +363,7 @@ class WeatherScreen extends StatelessWidget {
               border: Border.all(color: _glassBorder),
             ),
             child: Text(
-              'Feels like 39°  ·  Thu Duc, UIT',
+              'Feel like ${feelsLike.round()}°C  ·  UIT - VNU HCM',
               style: AppTextStyle.captionLarge.copyWith(color: _glassText),
             ),
           ),
@@ -200,7 +372,7 @@ class WeatherScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildStatsRow() {
+  Widget _buildStatsRow(CurrentWeatherEntity current, double rainPop) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
@@ -208,36 +380,36 @@ class WeatherScreen extends StatelessWidget {
           _StatCard(
             icon: Icons.water_drop_outlined,
             label: 'Humidity',
-            value: '78%',
+            value: '${current.humidity}%',
             iconColor: const Color(0xFF64B5F6),
           ),
           const SizedBox(width: 10),
           _StatCard(
             icon: Icons.air_rounded,
             label: 'Wind',
-            value: '12 km/h',
+            value: '${current.windSpeed.toStringAsFixed(1)} m/s',
             iconColor: const Color(0xFF80DEEA),
           ),
           const SizedBox(width: 10),
           _StatCard(
-            icon: Icons.wb_sunny_outlined,
-            label: 'UV Index',
-            value: '8 High',
-            iconColor: const Color(0xFFFFD600),
+            icon: Icons.cloud_outlined,
+            label: 'Cloud',
+            value: '${current.clouds}%',
+            iconColor: const Color(0xFFB0BEC5),
           ),
           const SizedBox(width: 10),
           _StatCard(
-            icon: Icons.visibility_outlined,
-            label: 'Visibility',
-            value: '10 km',
-            iconColor: const Color(0xFFA5D6A7),
+            icon: Icons.umbrella_outlined,
+            label: 'Rain',
+            value: '${(rainPop * 100).round()}%',
+            iconColor: const Color(0xFF64B5F6),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHourlySection() {
+  Widget _buildHourlySection(List<HourlyWeatherEntity> hourly) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
       child: _GlassCard(
@@ -267,9 +439,20 @@ class WeatherScreen extends StatelessWidget {
               height: 88,
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
-                itemCount: _hourly.length,
+                itemCount: hourly.length,
                 separatorBuilder: (_, _) => const SizedBox(width: 6),
-                itemBuilder: (_, i) => _HourlyItem(entry: _hourly[i]),
+                itemBuilder: (_, i) => _HourlyItem(
+                  entry: hourly[i],
+                  isFirst: i == 0,
+                  isSelected:
+                      _selectedHourlyIndex == i ||
+                      (_selectedHourlyIndex == null && i == 0),
+                  onTap: () => setState(
+                    () => _selectedHourlyIndex = _selectedHourlyIndex == i
+                        ? null
+                        : i,
+                  ),
+                ),
               ),
             ),
           ],
@@ -278,7 +461,7 @@ class WeatherScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDailySection() {
+  Widget _buildDailySection(List<DailyWeatherEntity> daily) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
       child: _GlassCard(
@@ -304,11 +487,11 @@ class WeatherScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            ...List.generate(_daily.length, (i) {
-              final isLast = i == _daily.length - 1;
+            ...List.generate(daily.length, (i) {
+              final isLast = i == daily.length - 1;
               return Column(
                 children: [
-                  _DailyRow(entry: _daily[i]),
+                  _DailyRow(entry: daily[i]),
                   if (!isLast)
                     Divider(
                       height: 1,
@@ -421,47 +604,66 @@ class _StatCard extends StatelessWidget {
 // ─── Hourly Item ──────────────────────────────────────────────────────────────
 
 class _HourlyItem extends StatelessWidget {
-  const _HourlyItem({required this.entry});
-  final _HourlyEntry entry;
+  const _HourlyItem({
+    required this.entry,
+    required this.isFirst,
+    required this.isSelected,
+    required this.onTap,
+  });
+  final HourlyWeatherEntity entry;
+  final bool isFirst;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final highlight = entry.time == 'Now';
-    return Container(
-      width: 58,
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      decoration: BoxDecoration(
-        color: highlight
-            ? Colors.white.withValues(alpha: 0.25)
-            : Colors.transparent,
-        borderRadius: BorderRadius.circular(14),
-        border: highlight
-            ? Border.all(color: Colors.white.withValues(alpha: 0.5))
-            : null,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          Text(
-            entry.time,
-            style: AppTextStyle.captionExtraSmall.copyWith(
-              color: highlight ? Colors.white : _glassText,
-              fontWeight: highlight ? AppTextStyle.bold : AppTextStyle.regular,
+    final icon = entry.weather.isNotEmpty
+        ? _owmIcon(entry.weather.first.icon)
+        : Icons.wb_sunny_rounded;
+    final isRain =
+        entry.weather.isNotEmpty && _isRainCode(entry.weather.first.icon);
+    final label = isFirst ? 'Now' : _formatHour(entry.dt);
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 58,
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.white.withValues(alpha: 0.25)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+          border: isSelected
+              ? Border.all(color: Colors.white.withValues(alpha: 0.5))
+              : null,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              label,
+              style: AppTextStyle.captionExtraSmall.copyWith(
+                color: isSelected ? Colors.white : _glassText,
+                fontWeight: isSelected
+                    ? AppTextStyle.bold
+                    : AppTextStyle.regular,
+              ),
             ),
-          ),
-          Icon(
-            entry.icon,
-            color: entry.isRain ? _rainBlue : const Color(0xFFFFD600),
-            size: 22,
-          ),
-          Text(
-            '${entry.temp}°',
-            style: AppTextStyle.captionLarge.copyWith(
-              color: Colors.white,
-              fontWeight: AppTextStyle.medium,
+            Icon(
+              icon,
+              color: isRain ? _rainBlue : const Color(0xFFFFD600),
+              size: 22,
             ),
-          ),
-        ],
+            Text(
+              '${entry.temp.round()}°',
+              style: AppTextStyle.captionLarge.copyWith(
+                color: Colors.white,
+                fontWeight: AppTextStyle.medium,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -471,10 +673,16 @@ class _HourlyItem extends StatelessWidget {
 
 class _DailyRow extends StatelessWidget {
   const _DailyRow({required this.entry});
-  final _DailyEntry entry;
+  final DailyWeatherEntity entry;
 
   @override
   Widget build(BuildContext context) {
+    final condition = entry.weather.isNotEmpty ? entry.weather.first : null;
+    final icon = condition != null
+        ? _owmIcon(condition.icon)
+        : Icons.wb_sunny_rounded;
+    final isRain = condition != null && _isRainCode(condition.icon);
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 9),
       child: Row(
@@ -482,7 +690,7 @@ class _DailyRow extends StatelessWidget {
           SizedBox(
             width: 46,
             child: Text(
-              entry.day,
+              _formatDay(entry.dt),
               style: AppTextStyle.bodySmall.copyWith(
                 color: Colors.white,
                 fontWeight: AppTextStyle.medium,
@@ -490,26 +698,23 @@ class _DailyRow extends StatelessWidget {
             ),
           ),
           Icon(
-            entry.icon,
-            color: entry.icon == Icons.grain
-                ? _rainBlue
-                : const Color(0xFFFFD600),
+            icon,
+            color: isRain ? _rainBlue : const Color(0xFFFFD600),
             size: 20,
           ),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
-              entry.condition,
+              condition?.description ?? '',
               style: AppTextStyle.captionLarge.copyWith(color: _glassText),
             ),
           ),
-          // Temp bar
-          _TempBar(high: entry.high, low: entry.low),
+          _TempBar(high: entry.temp.max, low: entry.temp.min),
           const SizedBox(width: 10),
           SizedBox(
             width: 30,
             child: Text(
-              '${entry.high}°',
+              '${entry.temp.max.round()}°',
               textAlign: TextAlign.end,
               style: AppTextStyle.bodySmall.copyWith(
                 color: Colors.white,
@@ -524,7 +729,7 @@ class _DailyRow extends StatelessWidget {
           SizedBox(
             width: 28,
             child: Text(
-              '${entry.low}°',
+              '${entry.temp.min.round()}°',
               style: AppTextStyle.captionLarge.copyWith(color: _glassText),
             ),
           ),
@@ -536,15 +741,16 @@ class _DailyRow extends StatelessWidget {
 
 class _TempBar extends StatelessWidget {
   const _TempBar({required this.high, required this.low});
-  final int high;
-  final int low;
+  final double high;
+  final double low;
 
   @override
   Widget build(BuildContext context) {
-    const globalMin = 25.0;
-    const globalMax = 37.0;
-    final start = (low - globalMin) / (globalMax - globalMin);
-    final end = (high - globalMin) / (globalMax - globalMin);
+    const globalMin = 22.0;
+    const globalMax = 40.0;
+    final start = ((low - globalMin) / (globalMax - globalMin)).clamp(0.0, 1.0);
+    final end = ((high - globalMin) / (globalMax - globalMin)).clamp(0.0, 1.0);
+    final fraction = (end - start).clamp(0.01, 1.0);
 
     return SizedBox(
       width: 56,
@@ -558,14 +764,14 @@ class _TempBar extends StatelessWidget {
             ),
           ),
           FractionallySizedBox(
-            widthFactor: end - start,
+            widthFactor: fraction,
             alignment: Alignment.centerLeft,
             child: FractionalTranslation(
-              translation: Offset(start / (end - start), 0),
+              translation: Offset(start / fraction, 0),
               child: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [const Color(0xFF64B5F6), const Color(0xFFFFD600)],
+                  gradient: const LinearGradient(
+                    colors: [Color(0xFF64B5F6), Color(0xFFFFD600)],
                   ),
                   borderRadius: BorderRadius.circular(3),
                 ),

@@ -34,6 +34,12 @@ jobs:
 
       - name: Create google-services.json
         run: echo '${{ secrets.GG_SERVICES }}' > android/app/google-services.json
+      
+      - name: Create .env from secret
+        env:
+          ENV_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
+        run: |
+          printf "%s" "$ENV_CONTENT" > .env
 
       - name: Run Build Runner
         run: dart run build_runner build --delete-conflicting-outputs -v
@@ -72,6 +78,13 @@ jobs:
 
       - name: Create google-services.json
         run: echo '${{ secrets.GG_SERVICES }}' > android/app/google-services.json
+
+      - name: Create .env from secret
+        env:
+          ENV_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
+        run: |
+          printf "%s" "$ENV_CONTENT" > .env
+      
       - name: Create key.properties
         run: |
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > android/app/upload-keystore.jks
