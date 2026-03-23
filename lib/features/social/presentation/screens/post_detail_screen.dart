@@ -181,7 +181,7 @@ class _PostDetailViewState extends State<_PostDetailView> {
     PostDetailState state,
     String? currentMssv,
   ) {
-    if (state.status == PostDetailStatus.loading && state.post == null) {
+    if (state.isPostLoading && state.post == null) {
       return const Center(
         child: CircularProgressIndicator(
           strokeWidth: 2.5,
@@ -190,7 +190,9 @@ class _PostDetailViewState extends State<_PostDetailView> {
       );
     }
 
-    if (state.status == PostDetailStatus.error && state.post == null) {
+    if (state.errorMessage != null &&
+        !state.isPostLoading &&
+        state.post == null) {
       return _buildErrorState(context, state);
     }
 
@@ -216,7 +218,9 @@ class _PostDetailViewState extends State<_PostDetailView> {
         SliverToBoxAdapter(child: _buildCommentsHeader(state)),
 
         // ── Comments list ─────────────────────────────────────────────────
-        if (state.comments.isEmpty && state.status == PostDetailStatus.loaded)
+        if (state.comments.isEmpty &&
+            !state.isPostLoading &&
+            !state.isCommentsLoading)
           SliverToBoxAdapter(child: _buildEmptyComments())
         else
           SliverList(

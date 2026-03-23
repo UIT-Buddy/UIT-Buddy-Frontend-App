@@ -65,7 +65,15 @@ class PostDatasourceImpl
         ),
       );
     }
-    await _dio.post<Map<String, dynamic>>('/api/posts', data: formData);
+    await _dio.post<Map<String, dynamic>>(
+      '/api/posts',
+      data: formData,
+      options: Options(
+        connectTimeout: const Duration(minutes: 10),
+        receiveTimeout: const Duration(minutes: 10),
+        sendTimeout: const Duration(minutes: 10),
+      ),
+    );
   }
 
   @override

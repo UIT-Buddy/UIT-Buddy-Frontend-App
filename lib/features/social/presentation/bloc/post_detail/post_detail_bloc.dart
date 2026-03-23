@@ -59,9 +59,7 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     PostDetailStarted event,
     Emitter<PostDetailState> emit,
   ) async {
-    emit(
-      state.copyWith(status: PostDetailStatus.loading, post: event.initialPost),
-    );
+    emit(state.copyWith(isPostLoading: true, post: event.initialPost));
 
     final postResult = await _getPostDetailUsecase(
       GetPostDetailParams(postId: event.postId),
@@ -70,16 +68,13 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     PostEntity? post;
     postResult.fold(
       (failure) => emit(
-        state.copyWith(
-          status: PostDetailStatus.error,
-          errorMessage: failure.message,
-        ),
+        state.copyWith(isPostLoading: false, errorMessage: failure.message),
       ),
       (p) => post = p,
     );
     if (post == null) return;
 
-    emit(state.copyWith(status: PostDetailStatus.loaded, post: post));
+    emit(state.copyWith(isPostLoading: false, post: post));
 
     await _onRefreshComments(post!.id, emit);
   }
@@ -88,13 +83,16 @@ class PostDetailBloc extends Bloc<PostDetailEvent, PostDetailState> {
     String postId,
     Emitter<PostDetailState> emit,
   ) async {
+    emit(state.copyWith(isCommentsLoading: true));
+
     final commentsResult = await _getPostCommentsUsecase(
       GetPostCommentsParams(postId: postId),
     );
     commentsResult.fold(
-      (_) => emit(state.copyWith(status: PostDetailStatus.error)),
+      (_) => emit(state.copyWith(isCommentsLoading: false)),
       (paged) => emit(
         state.copyWith(
+          isCommentsLoading: false,
           comments: paged.items,
           commentsCursor: paged.nextCursor,
           hasMoreComments: paged.hasMore,

@@ -9,6 +9,7 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/post_media_enti
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_action_bar.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_author_row.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_stats_row.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/media_viewer_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/posts/post_network_video_tile.dart';
 
 class PostCard extends StatelessWidget {
@@ -108,13 +109,21 @@ class PostCard extends StatelessWidget {
     final medias = post.medias;
     final count = medias.length;
 
+    // Helper to build a tile with shared post/callback context
+    _MediaTile tile(PostMediaEntity m, int i, {int? overflow}) => _MediaTile(
+      media: m,
+      allMedias: medias,
+      index: i,
+      post: post,
+      onLikeTap: onLikeTap,
+      onCommentTap: onCommentTap,
+      overflowCount: overflow,
+    );
+
     if (count == 1) {
       return Padding(
         padding: const EdgeInsets.only(top: 4),
-        child: AspectRatio(
-          aspectRatio: 16 / 10,
-          child: _MediaTile(media: medias[0]),
-        ),
+        child: AspectRatio(aspectRatio: 16 / 10, child: tile(medias[0], 0)),
       );
     }
 
@@ -125,9 +134,9 @@ class PostCard extends StatelessWidget {
           height: 220,
           child: Row(
             children: [
-              Expanded(child: _MediaTile(media: medias[0])),
+              Expanded(child: tile(medias[0], 0)),
               const SizedBox(width: 2),
-              Expanded(child: _MediaTile(media: medias[1])),
+              Expanded(child: tile(medias[1], 1)),
             ],
           ),
         ),
@@ -141,14 +150,14 @@ class PostCard extends StatelessWidget {
           height: 240,
           child: Row(
             children: [
-              Expanded(flex: 2, child: _MediaTile(media: medias[0])),
+              Expanded(flex: 2, child: tile(medias[0], 0)),
               const SizedBox(width: 2),
               Expanded(
                 child: Column(
                   children: [
-                    Expanded(child: _MediaTile(media: medias[1])),
+                    Expanded(child: tile(medias[1], 1)),
                     const SizedBox(height: 2),
-                    Expanded(child: _MediaTile(media: medias[2])),
+                    Expanded(child: tile(medias[2], 2)),
                   ],
                 ),
               ),
@@ -171,9 +180,9 @@ class PostCard extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  Expanded(child: _MediaTile(media: visibleMedias[0])),
+                  Expanded(child: tile(visibleMedias[0], 0)),
                   const SizedBox(width: 2),
-                  Expanded(child: _MediaTile(media: visibleMedias[1])),
+                  Expanded(child: tile(visibleMedias[1], 1)),
                 ],
               ),
             ),
@@ -181,12 +190,13 @@ class PostCard extends StatelessWidget {
             Expanded(
               child: Row(
                 children: [
-                  Expanded(child: _MediaTile(media: visibleMedias[2])),
+                  Expanded(child: tile(visibleMedias[2], 2)),
                   const SizedBox(width: 2),
                   Expanded(
-                    child: _MediaTile(
-                      media: visibleMedias[3],
-                      overflowCount: overflow > 0 ? overflow : null,
+                    child: tile(
+                      visibleMedias[3],
+                      3,
+                      overflow: overflow > 0 ? overflow : null,
                     ),
                   ),
                 ],
@@ -201,24 +211,55 @@ class PostCard extends StatelessWidget {
 
 class _MediaTile extends StatelessWidget {
   final PostMediaEntity media;
+  final List<PostMediaEntity> allMedias;
+  final int index;
+  final PostEntity post;
+  final VoidCallback onLikeTap;
+  final VoidCallback? onCommentTap;
   final int? overflowCount;
 
-  const _MediaTile({required this.media, this.overflowCount});
+  const _MediaTile({
+    required this.media,
+    required this.allMedias,
+    required this.index,
+    required this.post,
+    required this.onLikeTap,
+    this.onCommentTap,
+    this.overflowCount,
+  });
 
-  @override
-  Widget build(BuildContext context) {
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        _buildMedia(),
-        if (overflowCount != null && overflowCount! > 0) _buildOverlay(),
-      ],
+  void _openViewer(BuildContext context) {
+    Navigator.of(context).push(
+      MediaViewerScreen.route(
+        medias: allMedias,
+        initialIndex: index,
+        post: post,
+        onLikeTap: onLikeTap,
+        onCommentTap: onCommentTap,
+      ),
     );
   }
 
-  Widget _buildMedia() {
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _openViewer(context),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          _buildMedia(context),
+          if (overflowCount != null && overflowCount! > 0) _buildOverlay(),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMedia(BuildContext context) {
     if (media.type == PostMediaType.video) {
-      return PostNetworkVideoTile(url: media.url);
+      return PostNetworkVideoTile(
+        url: media.url,
+        onTap: () => _openViewer(context),
+      );
     }
 
     return CachedNetworkImage(

@@ -4,12 +4,11 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dar
 
 part 'post_detail_state.freezed.dart';
 
-enum PostDetailStatus { initial, loading, loaded, error }
-
 @freezed
 abstract class PostDetailState with _$PostDetailState {
   const factory PostDetailState({
-    @Default(PostDetailStatus.initial) PostDetailStatus status,
+    @Default(false) bool isPostLoading,
+    @Default(false) bool isCommentsLoading,
     PostEntity? post,
     @Default([]) List<CommentEntity> comments,
     @Default({}) Map<String, List<CommentEntity>> replies,
