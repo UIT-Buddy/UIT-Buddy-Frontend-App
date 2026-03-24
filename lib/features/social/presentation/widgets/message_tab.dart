@@ -1,27 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
-import 'package:uit_buddy_mobile/features/social/data/mock/mock_conversations.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/conversation/conversation_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/conversation/conversation_event.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/conversation/conversation_state.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/conversation_list_item.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/conversation_list_item_skeleton.dart';
 
-class MessageTab extends StatefulWidget {
+class MessageTab extends StatelessWidget {
   const MessageTab({super.key});
 
   @override
-  State<MessageTab> createState() => _MessageTabState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) =>
+          serviceLocator<ConversationBloc>()..add(const ConversationStarted()),
+      child: const _MessageTabView(),
+    );
+  }
 }
 
-class _MessageTabState extends State<MessageTab> {
-  final _searchController = TextEditingController();
-  List<ConversationEntity> _filtered = mockConversations;
+class _MessageTabView extends StatefulWidget {
+  const _MessageTabView();
 
   @override
-  void initState() {
-    super.initState();
-    _searchController.addListener(_onSearch);
-  }
+  State<_MessageTabView> createState() => _MessageTabViewState();
+}
+
+class _MessageTabViewState extends State<_MessageTabView> {
+  final _searchController = TextEditingController();
 
   @override
   void dispose() {
@@ -29,43 +40,18 @@ class _MessageTabState extends State<MessageTab> {
     super.dispose();
   }
 
-  void _onSearch() {
-    final query = _searchController.text.trim().toLowerCase();
-    setState(() {
-      _filtered = query.isEmpty
-          ? mockConversations
-          : mockConversations
-                .where((c) => c.name.toLowerCase().contains(query))
-                .toList();
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _buildSearchBar(),
+        _buildSearchBar(context),
         const SizedBox(height: 4),
-        Expanded(
-          child: _filtered.isEmpty
-              ? _buildEmpty()
-              : ListView.builder(
-                  padding: const EdgeInsets.symmetric(vertical: 4),
-                  itemCount: _filtered.length,
-                  itemBuilder: (context, index) {
-                    final conv = _filtered[index];
-                    return ConversationListItem(
-                      conversation: conv,
-                      onTap: () => _openChat(conv),
-                    );
-                  },
-                ),
-        ),
+        Expanded(child: _buildBody()),
       ],
     );
   }
 
-  Widget _buildSearchBar() {
+  Widget _buildSearchBar(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
       child: Container(
@@ -78,6 +64,11 @@ class _MessageTabState extends State<MessageTab> {
           controller: _searchController,
           style: AppTextStyle.bodySmall,
           textAlignVertical: TextAlignVertical.center,
+          onChanged: (value) {
+            context.read<ConversationBloc>().add(
+              ConversationSearchChanged(query: value),
+            );
+          },
           decoration: InputDecoration(
             hintText: 'Tìm kiếm cuộc trò chuyện...',
             hintStyle: AppTextStyle.bodySmall.copyWith(
@@ -103,15 +94,99 @@ class _MessageTabState extends State<MessageTab> {
     );
   }
 
-  Widget _buildEmpty() {
+  Widget _buildBody() {
+    return BlocBuilder<ConversationBloc, ConversationState>(
+      builder: (context, state) {
+        if (state.status == ConversationStatus.loading) {
+          return _buildLoading();
+        }
+
+        if (state.status == ConversationStatus.error) {
+          return _buildError(context, state.errorMessage);
+        }
+
+        if (state.filteredConversations.isEmpty) {
+          return _buildEmpty(state.status == ConversationStatus.loaded);
+        }
+
+        return RefreshIndicator(
+          color: AppColor.primaryBlue,
+          onRefresh: () async {
+            context.read<ConversationBloc>().add(const ConversationRefreshed());
+            await context.read<ConversationBloc>().stream.firstWhere(
+              (s) => s.status != ConversationStatus.loading,
+            );
+          },
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            itemCount: state.filteredConversations.length,
+            itemBuilder: (context, index) {
+              final conv = state.filteredConversations[index];
+              return ConversationListItem(
+                conversation: conv,
+                onTap: () => _openChat(conv),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoading() {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: 8,
+      itemBuilder: (_, _) => const ConversationListItemSkeleton(),
+    );
+  }
+
+  Widget _buildError(BuildContext context, String? message) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.search_off, color: AppColor.tertiaryText, size: 48),
+          const Icon(
+            Icons.error_outline,
+            color: AppColor.alertRed,
+            size: 48,
+          ),
           const SizedBox(height: 12),
           Text(
-            'Không tìm thấy cuộc trò chuyện',
+            message ?? 'Không thể tải cuộc trò chuyện',
+            style: AppTextStyle.bodyMedium.copyWith(
+              color: AppColor.secondaryText,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () => context
+                .read<ConversationBloc>()
+                .add(const ConversationRefreshed()),
+            child: const Text('Thử lại'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmpty(bool isLoaded) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            isLoaded ? Icons.search_off : Icons.chat_bubble_outline,
+            color: AppColor.tertiaryText,
+            size: 48,
+          ),
+          const SizedBox(height: 12),
+          Text(
+            isLoaded
+                ? 'Không tìm thấy cuộc trò chuyện'
+                : 'Chưa có cuộc trò chuyện nào',
             style: AppTextStyle.bodyMedium.copyWith(
               color: AppColor.secondaryText,
             ),

@@ -8,6 +8,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/user_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/create_post_bar.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/message_tab.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_header.dart';
@@ -76,17 +77,25 @@ class _NewFeedViewState extends State<_NewFeedView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.pureWhite,
-      body: SafeArea(
-        child: BlocBuilder<NewFeedBloc, NewFeedState>(
-          builder: (context, state) {
-            return Column(
+    return BlocBuilder<NewFeedBloc, NewFeedState>(
+      buildWhen: (prev, curr) => prev.selectedTab != curr.selectedTab,
+      builder: (context, state) {
+        final isMessageTab = state.selectedTab == NewFeedTab.message;
+        return Scaffold(
+          backgroundColor: AppColor.pureWhite,
+          floatingActionButton: isMessageTab
+              ? FloatingActionButton(
+                  onPressed: () => _openUserSearch(context),
+                  backgroundColor: AppColor.primaryBlue,
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.edit_outlined, color: Colors.white),
+                )
+              : null,
+          body: SafeArea(
+            child: Column(
               children: [
                 NewFeedHeader(
-                  selectedTabIndex: state.selectedTab == NewFeedTab.feed
-                      ? 0
-                      : 1,
+                  selectedTabIndex: state.selectedTab == NewFeedTab.feed ? 0 : 1,
                   onSearchTap: () => _openSearch(context, state.selectedTab),
                   onTabChanged: (index) {
                     context.read<NewFeedBloc>().add(
@@ -100,9 +109,34 @@ class _NewFeedViewState extends State<_NewFeedView> {
                       : _buildMessageTab(),
                 ),
               ],
-            );
-          },
-        ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _openUserSearch(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const UserSearchScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 280),
+        reverseTransitionDuration: const Duration(milliseconds: 240),
       ),
     );
   }

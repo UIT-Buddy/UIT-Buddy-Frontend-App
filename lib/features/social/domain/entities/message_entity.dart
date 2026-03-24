@@ -7,6 +7,9 @@ class MessageEntity {
   final bool isMine;
   final MessageType type;
 
+  /// Raw sent timestamp — used for accurate time-gap calculation between messages.
+  final DateTime? sentAtRaw;
+
   const MessageEntity({
     required this.id,
     required this.senderId,
@@ -15,6 +18,7 @@ class MessageEntity {
     required this.time,
     required this.isMine,
     this.type = MessageType.text,
+    this.sentAtRaw,
   });
 }
 
