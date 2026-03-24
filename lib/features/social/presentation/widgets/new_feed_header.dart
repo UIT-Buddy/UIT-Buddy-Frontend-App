@@ -6,28 +6,48 @@ import 'package:uit_buddy_mobile/features/social/presentation/constants/social_t
 class NewFeedHeader extends StatelessWidget {
   final int selectedTabIndex;
   final ValueChanged<int> onTabChanged;
+  final VoidCallback onSearchTap;
 
   const NewFeedHeader({
     super.key,
     required this.selectedTabIndex,
     required this.onTabChanged,
+    required this.onSearchTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 10),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            SocialText.title,
-            style: AppTextStyle.h1.copyWith(fontWeight: AppTextStyle.bold),
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: AppColor.veryLightGrey,
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: IconButton(
+              onPressed: onSearchTap,
+              icon: const Icon(
+                Icons.search_rounded,
+                color: AppColor.primaryText,
+                size: 22,
+              ),
+              tooltip: SocialText.searchTitle,
+            ),
           ),
-          _SlidingTabToggle(
-            tabs: [SocialText.feedTab, SocialText.messageTab],
-            selectedIndex: selectedTabIndex,
-            onTabChanged: onTabChanged,
+          const SizedBox(width: 12),
+          Expanded(
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _SlidingTabToggle(
+                tabs: [SocialText.feedTab, SocialText.messageTab],
+                selectedIndex: selectedTabIndex,
+                onTabChanged: onTabChanged,
+              ),
+            ),
           ),
         ],
       ),

@@ -3,6 +3,24 @@ class SocialText {
   static const String title = 'Social';
   static const String feedTab = 'Feed';
   static const String messageTab = 'Message';
+  static const String searchTitle = 'Search';
+  static const String searchHint = 'Search users or posts';
+  static const String searchFeedHint = 'Search posts and friends';
+  static const String searchMessageHint = 'Search messages';
+  static const String searchTabAll = 'All';
+  static const String searchTabUsers = 'Users';
+  static const String searchTabPosts = 'Posts';
+  static const String searchNoUsers = 'No users found';
+  static const String searchNoPosts = 'No posts found';
+  static const String searchEmptySubtitle =
+      'Try a different keyword or make it a bit more specific.';
+  static String searchEmptyTitle(String query) => 'No results for "$query"';
+  static const String retry = 'Retry';
+  static const String searchStartPrompt =
+      'Type a keyword to search posts and friends.';
+  static const String messageSearchComingSoon = 'Message search coming soon';
+  static const String messageSearchComingSoonSubtitle =
+      'The message search screen is ready, but backend/search flow for conversations is not implemented yet.';
 
   // Create Post
   static const String createPostHint = "What's on your mind?";

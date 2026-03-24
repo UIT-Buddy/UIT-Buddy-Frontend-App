@@ -4,6 +4,7 @@ import 'package:uit_buddy_mobile/core/common/paged_result.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/social_paging_mixin.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/post_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/models/post_model.dart';
+import 'package:uit_buddy_mobile/features/social/data/models/search_post_model.dart';
 
 class PostDatasourceImpl
     with SocialPagingMixin
@@ -31,6 +32,42 @@ class PostDatasourceImpl
         .toList();
 
     return PagedResult<PostModel>(
+      items: dataList,
+      nextCursor: extractNextCursor(body),
+      hasMore: extractHasMore(body, dataList.length, limit),
+    );
+  }
+
+  @override
+  Future<PagedResult<SearchPostModel>> searchPosts({
+    required String keyword,
+    int page = 1,
+    int limit = 10,
+    String? sortBy,
+    String? sortType,
+  }) async {
+    final queryParameters = <String, dynamic>{
+      'keyword': keyword,
+      'page': page,
+      'limit': limit,
+    };
+    if (sortBy != null && sortBy.isNotEmpty) queryParameters['sortBy'] = sortBy;
+    if (sortType != null && sortType.isNotEmpty) {
+      queryParameters['sortType'] = sortType;
+    }
+
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/posts/search',
+      queryParameters: queryParameters,
+    );
+
+    final body = response.data!;
+    final dataList = (body['data'] as List<dynamic>? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map(SearchPostModel.fromJson)
+        .toList();
+
+    return PagedResult<SearchPostModel>(
       items: dataList,
       nextCursor: extractNextCursor(body),
       hasMore: extractHasMore(body, dataList.length, limit),

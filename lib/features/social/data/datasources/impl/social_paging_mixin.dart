@@ -2,7 +2,20 @@
 mixin SocialPagingMixin {
   String? extractNextCursor(Map<String, dynamic> body) {
     final paging = body['paging'] as Map<String, dynamic>?;
-    return paging?['nextCursor'] as String?;
+    final nextCursor = paging?['nextCursor'] as String?;
+    if (nextCursor != null && nextCursor.isNotEmpty) return nextCursor;
+
+    if (paging != null &&
+        paging.containsKey('page') &&
+        paging.containsKey('totalPages')) {
+      final currentPage = (paging['page'] as num?)?.toInt() ?? 1;
+      final totalPages = (paging['totalPages'] as num?)?.toInt() ?? 1;
+      if (currentPage < totalPages) {
+        return '${currentPage + 1}';
+      }
+    }
+
+    return null;
   }
 
   /// Handles both cursor-based (`hasMore`) and offset-based (`page`/`totalPages`) paging.

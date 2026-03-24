@@ -117,14 +117,22 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/comment_dataso
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/comment_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/post_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/reaction_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/user_search_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/user_profile_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/post_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/reaction_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/user_search_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/user_profile_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/comment_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/post_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/reaction_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/user_search_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/user_profile_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/post_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/reaction_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/user_search_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/user_profile_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/create_comment_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/create_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_comment_usecase.dart';
@@ -133,7 +141,10 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_comment_rep
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_comments_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/search_posts_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/search_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_comment_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/update_post_usecase.dart';
@@ -142,6 +153,8 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picke
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/edit_post/edit_post_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/social_search/social_search_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
@@ -421,6 +434,16 @@ void _initSocialDependencies() {
       dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
+  serviceLocator.registerLazySingleton<UserSearchDatasourceInterface>(
+    () => UserSearchDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+  serviceLocator.registerLazySingleton<UserProfileDatasourceInterface>(
+    () => UserProfileDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
 
   // Repositories
   serviceLocator.registerLazySingleton<PostRepository>(
@@ -431,6 +454,12 @@ void _initSocialDependencies() {
   );
   serviceLocator.registerLazySingleton<ReactionRepository>(
     () => ReactionRepositoryImpl(datasource: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<UserSearchRepository>(
+    () => UserSearchRepositoryImpl(datasource: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<UserProfileRepository>(
+    () => UserProfileRepositoryImpl(datasource: serviceLocator()),
   );
 
   // Usecases — Post
@@ -445,6 +474,15 @@ void _initSocialDependencies() {
   );
   serviceLocator.registerLazySingleton(
     () => GetPostDetailUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => SearchPostsUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => SearchUsersUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetUserProfileUsecase(repository: serviceLocator()),
   );
 
   // Usecases — Reaction
@@ -498,6 +536,15 @@ void _initSocialDependencies() {
       getCommentRepliesUsecase: serviceLocator(),
       toggleLikeUsecase: serviceLocator(),
     ),
+  );
+  serviceLocator.registerFactory(
+    () => SocialSearchBloc(
+      searchUsersUsecase: serviceLocator(),
+      searchPostsUsecase: serviceLocator(),
+    ),
+  );
+  serviceLocator.registerFactory(
+    () => UserProfileBloc(getUserProfileUsecase: serviceLocator()),
   );
   serviceLocator.registerFactory(() => ChatSettingsBloc());
   serviceLocator.registerFactory(() => ContactPickerBloc());

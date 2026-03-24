@@ -14,7 +14,9 @@ import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_h
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_screen.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/message_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/social_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
 
 class NewFeedScreen extends StatelessWidget {
@@ -62,6 +64,16 @@ class _NewFeedViewState extends State<_NewFeedView> {
     }
   }
 
+  void _openSearch(BuildContext context, NewFeedTab tab) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => tab == NewFeedTab.feed
+            ? const SocialSearchScreen(initialQuery: '')
+            : const MessageSearchScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,6 +87,7 @@ class _NewFeedViewState extends State<_NewFeedView> {
                   selectedTabIndex: state.selectedTab == NewFeedTab.feed
                       ? 0
                       : 1,
+                  onSearchTap: () => _openSearch(context, state.selectedTab),
                   onTabChanged: (index) {
                     context.read<NewFeedBloc>().add(
                       NewFeedTabChanged(tabIndex: index),
