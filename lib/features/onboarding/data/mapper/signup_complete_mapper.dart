@@ -3,7 +3,7 @@ import 'package:uit_buddy_mobile/features/onboarding/domain/entities/signup_comp
 
 extension SignUpCompleteUserModelMapper on SignUpCompleteUserModel {
   SignUpCompleteUserEntity toEntity() =>
-      SignUpCompleteUserEntity(mssv: mssv, fullName: fullName, email: email);
+      SignUpCompleteUserEntity(mssv: mssv, fullName: fullName, email: email, avatarUrl: avatarUrl);
 }
 
 extension SignUpCompleteResponseModelMapper on SignUpCompleteResponseModel {
@@ -11,5 +11,7 @@ extension SignUpCompleteResponseModelMapper on SignUpCompleteResponseModel {
     accessToken: accessToken,
     refreshToken: refreshToken,
     user: user.toEntity(),
+    cometAuthToken: cometAuthToken,
+    avatarUrl: avatarUrl,
   );
 }

@@ -9,11 +9,13 @@ abstract class SignUpCompleteUserModel with _$SignUpCompleteUserModel {
     required String mssv,
     required String fullName,
     required String email,
+    String? avatarUrl,
   }) = _SignUpCompleteUserModel;
 
   factory SignUpCompleteUserModel.fromJson(Map<String, dynamic> json) =>
       _$SignUpCompleteUserModelFromJson(json);
 }
+
 
 @freezed
 abstract class SignUpCompleteResponseModel with _$SignUpCompleteResponseModel {
@@ -21,6 +23,8 @@ abstract class SignUpCompleteResponseModel with _$SignUpCompleteResponseModel {
     required String accessToken,
     required String refreshToken,
     required SignUpCompleteUserModel user,
+    required String cometAuthToken,
+    String? avatarUrl,
   }) = _SignUpCompleteResponseModel;
 
   factory SignUpCompleteResponseModel.fromJson(Map<String, dynamic> json) =>

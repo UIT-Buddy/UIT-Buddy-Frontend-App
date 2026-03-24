@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uit_buddy_mobile/app/router/app_router.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
@@ -174,6 +175,7 @@ import 'package:uit_buddy_mobile/features/home/data/repositories/weather_reposit
 import 'package:uit_buddy_mobile/features/home/domain/repositories/weather_repository.dart';
 import 'package:uit_buddy_mobile/features/home/domain/usecases/get_weather_usecase.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/weather_bloc.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -190,6 +192,18 @@ Future<void> initDependencies() async {
   await _initSettingsDependencies();
   // await _initYourPostsDependencies();
   _initWeatherDependencies();
+
+  AppSettings appSettings =
+      (AppSettingsBuilder()
+            ..subscriptionType = CometChatSubscriptionType.friends
+            ..region = AppEnv.cometChatRegion)
+          .build();
+  await CometChat.init(
+    AppEnv.cometChatAppId,
+    appSettings,
+    onSuccess: (successMessage) => debugPrint(successMessage),
+    onError: (error) => debugPrint(error.message),
+  );
 }
 
 Future<void> _initAuthDependencies() async {
