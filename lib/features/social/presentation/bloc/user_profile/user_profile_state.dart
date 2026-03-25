@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uit_buddy_mobile/features/session/domain/entities/user_entity.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/other_people_entity.dart';
 
 enum UserProfileStatus { initial, loading, loaded, error }
 
@@ -11,12 +11,12 @@ class UserProfileState extends Equatable {
   });
 
   final UserProfileStatus status;
-  final UserEntity? user;
+  final OtherPeopleEntity? user;
   final String? errorMessage;
 
   UserProfileState copyWith({
     UserProfileStatus? status,
-    UserEntity? user,
+    OtherPeopleEntity? user,
     Object? errorMessage = _sentinel,
   }) {
     return UserProfileState(

@@ -4,7 +4,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
-import 'package:uit_buddy_mobile/features/session/domain/entities/user_entity.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/other_people_entity.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_state.dart';
@@ -75,7 +76,7 @@ class _UserProfileView extends StatelessWidget {
 class _ProfileContent extends StatelessWidget {
   const _ProfileContent({required this.user});
 
-  final UserEntity user;
+  final OtherPeopleEntity user;
 
   @override
   Widget build(BuildContext context) {
@@ -143,21 +144,9 @@ class _ProfileContent extends StatelessWidget {
                 Row(
                   children: [
                     Expanded(
-                      child: ElevatedButton(
+                      child: _FriendStatusButton(
+                        status: user.friendStatus,
                         onPressed: () => _showSoon(context),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColor.primaryBlue,
-                          foregroundColor: AppColor.pureWhite,
-                          elevation: 0,
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          textStyle: AppTextStyle.bodySmall.copyWith(
-                            fontWeight: AppTextStyle.medium,
-                          ),
-                        ),
-                        child: const Text('Add friend'),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -257,10 +246,70 @@ class _ProfileContent extends StatelessWidget {
   void _showSoon(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Coming soon'),
+        content: Text('This action is coming soon.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+}
+
+class _FriendStatusButton extends StatelessWidget {
+  const _FriendStatusButton({required this.status, required this.onPressed});
+
+  final FriendStatus status;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final style = _FriendStatusButtonStyle.fromStatus(status);
+
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: style.backgroundColor,
+        foregroundColor: style.foregroundColor,
+        elevation: 0,
+        side: BorderSide(color: style.borderColor),
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        textStyle: AppTextStyle.bodySmall.copyWith(
+          fontWeight: AppTextStyle.medium,
+        ),
+      ),
+      child: Text(status.label),
+    );
+  }
+}
+
+class _FriendStatusButtonStyle {
+  const _FriendStatusButtonStyle({
+    required this.backgroundColor,
+    required this.foregroundColor,
+    required this.borderColor,
+  });
+
+  final Color backgroundColor;
+  final Color foregroundColor;
+  final Color borderColor;
+
+  factory _FriendStatusButtonStyle.fromStatus(FriendStatus status) {
+    return switch (status) {
+      FriendStatus.none => _FriendStatusButtonStyle(
+        backgroundColor: AppColor.primaryBlue,
+        foregroundColor: AppColor.pureWhite,
+        borderColor: AppColor.primaryBlue,
+      ),
+      FriendStatus.pending => _FriendStatusButtonStyle(
+        backgroundColor: AppColor.veryLightGrey,
+        foregroundColor: AppColor.secondaryText,
+        borderColor: AppColor.dividerGrey,
+      ),
+      FriendStatus.friends => _FriendStatusButtonStyle(
+        backgroundColor: AppColor.primaryBlue10,
+        foregroundColor: AppColor.primaryBlue,
+        borderColor: AppColor.primaryBlue10,
+      ),
+    };
   }
 }
 
