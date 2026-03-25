@@ -5,6 +5,8 @@ part 'courses_mode_state.freezed.dart';
 
 enum CoursesModeStatus { initial, loading, loaded, error }
 
+enum UploadScheduleStatus { idle, loading, success, failure }
+
 @freezed
 abstract class CoursesModeState with _$CoursesModeState {
   const factory CoursesModeState({
@@ -13,5 +15,7 @@ abstract class CoursesModeState with _$CoursesModeState {
     @Default(2) int semester,
     @Default(2026) int year,
     String? errorMessage,
+    @Default(UploadScheduleStatus.idle) UploadScheduleStatus uploadStatus,
+    String? uploadErrorMessage,
   }) = _CoursesModeState;
 }

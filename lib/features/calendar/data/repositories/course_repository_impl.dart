@@ -39,4 +39,20 @@ class CourseRepositoryImpl implements CourseRepository {
       return Left(Failure.fromException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> uploadSchedule({
+    required String filePath,
+    required String fileName,
+  }) async {
+    try {
+      await _courseDatasourceInterface.uploadSchedule(
+        filePath: filePath,
+        fileName: fileName,
+      );
+      return const Right(unit);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
 }

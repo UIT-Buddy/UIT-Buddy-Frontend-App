@@ -1,18 +1,24 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_mode_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/upload_schedule_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_state.dart';
 
 class CoursesModeBloc extends Bloc<CoursesModeEvent, CoursesModeState> {
-  CoursesModeBloc({required GetCoursesModeUsecase getCoursesModeUsecase})
-    : _getCoursesModeUsecase = getCoursesModeUsecase,
-      super(_buildInitialState()) {
+  CoursesModeBloc({
+    required GetCoursesModeUsecase getCoursesModeUsecase,
+    required UploadScheduleUsecase uploadScheduleUsecase,
+  }) : _getCoursesModeUsecase = getCoursesModeUsecase,
+       _uploadScheduleUsecase = uploadScheduleUsecase,
+       super(_buildInitialState()) {
     on<CoursesModeStarted>(_onStarted);
     on<CoursesModePreviousSemester>(_onPreviousSemester);
     on<CoursesModeNextSemester>(_onNextSemester);
+    on<CoursesModeUploadScheduleRequested>(_onUploadScheduleRequested);
   }
 
   final GetCoursesModeUsecase _getCoursesModeUsecase;
+  final UploadScheduleUsecase _uploadScheduleUsecase;
 
   static CoursesModeState _buildInitialState() {
     final now = DateTime.now();
@@ -44,6 +50,33 @@ class CoursesModeBloc extends Bloc<CoursesModeEvent, CoursesModeState> {
     final (semester, year) = _nextSemester(state.semester, state.year);
     emit(state.copyWith(semester: semester, year: year));
     await _fetchCourses(emit);
+  }
+
+  Future<void> _onUploadScheduleRequested(
+    CoursesModeUploadScheduleRequested event,
+    Emitter<CoursesModeState> emit,
+  ) async {
+    emit(
+      state.copyWith(
+        uploadStatus: UploadScheduleStatus.loading,
+        uploadErrorMessage: null,
+      ),
+    );
+    final result = await _uploadScheduleUsecase(
+      UploadScheduleParams(filePath: event.filePath, fileName: event.fileName),
+    );
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          uploadStatus: UploadScheduleStatus.failure,
+          uploadErrorMessage: failure.message,
+        ),
+      ),
+      (_) => emit(state.copyWith(uploadStatus: UploadScheduleStatus.success)),
+    );
+    if (result.isRight()) {
+      await _fetchCourses(emit);
+    }
   }
 
   Future<void> _fetchCourses(Emitter<CoursesModeState> emit) async {
