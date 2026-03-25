@@ -79,6 +79,12 @@ class CalendarText {
   /// Label shown in the period column for the Blended-Learning row.
   static const String blendedLearningRowLabel = 'BL';
 
+  // ── Update courses button ──────────────────────────────────────────────────
+  static const String updateCoursesButton = 'Update courses';
+  static const String updateCoursesSuccess = 'Schedule uploaded successfully!';
+  static const String updateCoursesError = 'Upload failed';
+  static const String updateCoursesPickerTitle = 'Select ICS file';
+
   // ── Course details bottom sheet ───────────────────────────────────────────
   static const String courseDetailsTitle = 'Course Details';
   static const String courseDetailsFieldClassId = 'CLASS ID';

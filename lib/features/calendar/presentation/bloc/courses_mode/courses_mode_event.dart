@@ -18,3 +18,16 @@ class CoursesModePreviousSemester extends CoursesModeEvent {
 class CoursesModeNextSemester extends CoursesModeEvent {
   const CoursesModeNextSemester();
 }
+
+class CoursesModeUploadScheduleRequested extends CoursesModeEvent {
+  const CoursesModeUploadScheduleRequested({
+    required this.filePath,
+    required this.fileName,
+  });
+
+  final String filePath;
+  final String fileName;
+
+  @override
+  List<Object?> get props => [filePath, fileName];
+}

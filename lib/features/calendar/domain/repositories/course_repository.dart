@@ -10,4 +10,9 @@ abstract interface class CourseRepository {
     required int semester,
     required int year,
   });
+
+  Future<Either<Failure, Unit>> uploadSchedule({
+    required String filePath,
+    required String fileName,
+  });
 }

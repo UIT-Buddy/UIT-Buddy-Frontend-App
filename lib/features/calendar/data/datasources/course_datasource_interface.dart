@@ -10,4 +10,10 @@ abstract interface class CourseDatasourceInterface {
     required int semester,
     required int year,
   });
+
+  /// Uploads an ICS schedule file to the server.
+  Future<void> uploadSchedule({
+    required String filePath,
+    required String fileName,
+  });
 }

@@ -24,6 +24,7 @@ import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadli
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_mode_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/search_courses_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/upload_schedule_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_bloc.dart';
@@ -358,10 +359,14 @@ void _initSessionDependencies() {
 Future<void> _initCalendarDependencies() async {
   // Datasources
   serviceLocator.registerLazySingleton<CalendarDatasourceInterface>(
-    () => CalendarDatasourceImpl(),
+    () => CalendarDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
   );
   serviceLocator.registerLazySingleton<CourseDatasourceInterface>(
-    () => CourseDatasourceImpl(),
+    () => CourseDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
   );
 
   // Repositories
@@ -386,6 +391,9 @@ Future<void> _initCalendarDependencies() async {
   serviceLocator.registerLazySingleton(
     () => GetCoursesModeUsecase(courseRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => UploadScheduleUsecase(courseRepository: serviceLocator()),
+  );
 
   // Blocs / Cubits
   serviceLocator.registerFactory(() => CalendarBloc());
@@ -393,7 +401,10 @@ Future<void> _initCalendarDependencies() async {
     () => DeadlineBloc(getDeadlineUsecase: serviceLocator()),
   );
   serviceLocator.registerFactory(
-    () => CoursesModeBloc(getCoursesModeUsecase: serviceLocator()),
+    () => CoursesModeBloc(
+      getCoursesModeUsecase: serviceLocator(),
+      uploadScheduleUsecase: serviceLocator(),
+    ),
   );
   serviceLocator.registerFactory(
     () => AddDeadlineBloc(

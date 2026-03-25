@@ -1,8 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/course_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/models/course_details_model.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/models/course_model.dart';
 
 class CourseDatasourceImpl implements CourseDatasourceInterface {
+  CourseDatasourceImpl({required Dio dio}) : _dio = dio;
+
+  final Dio _dio;
   static const List<CourseModel> _sampleCourses = [
     CourseModel(courseId: 'SE347.Q11', courseName: 'Công nghệ web và ứng dụng'),
     CourseModel(
@@ -352,5 +356,16 @@ class CourseDatasourceImpl implements CourseDatasourceInterface {
 
     // No data for other semesters — return empty list.
     return const [];
+  }
+
+  @override
+  Future<void> uploadSchedule({
+    required String filePath,
+    required String fileName,
+  }) async {
+    final formData = FormData.fromMap({
+      'icsFile': await MultipartFile.fromFile(filePath, filename: fileName),
+    });
+    await _dio.post<void>('/api/schedule/upload', data: formData);
   }
 }
