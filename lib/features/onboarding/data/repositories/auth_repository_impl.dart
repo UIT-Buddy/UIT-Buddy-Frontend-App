@@ -2,6 +2,8 @@ import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/onboarding/data/datasources/auth_remote_datasource.dart';
+import 'package:uit_buddy_mobile/features/onboarding/data/mapper/signup_complete_mapper.dart';
+import 'package:uit_buddy_mobile/features/onboarding/data/mapper/signup_init_mapper.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/entities/signup_complete_entity.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/entities/signup_init_entity.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/auth_repository.dart';

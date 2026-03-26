@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/comet_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_event.dart';
@@ -175,7 +176,7 @@ class _UserSearchViewState extends State<_UserSearchView> {
     );
   }
 
-  Widget _buildList(List<ConversationEntity> users) {
+  Widget _buildList(List<CometUserEntity> users) {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(vertical: 4),
       itemCount: users.length,
@@ -186,11 +187,11 @@ class _UserSearchViewState extends State<_UserSearchView> {
     );
   }
 
-  void _openChat(ConversationEntity user) {
+  void _openChat(CometUserEntity user) {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            ChatScreen(conversation: user),
+            ChatScreen(userId: user.uid),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final curved = CurvedAnimation(
             parent: animation,
@@ -213,7 +214,7 @@ class _UserSearchViewState extends State<_UserSearchView> {
 }
 
 class _UserListItem extends StatelessWidget {
-  final ConversationEntity user;
+  final CometUserEntity user;
   final VoidCallback onTap;
 
   const _UserListItem({required this.user, required this.onTap});
@@ -231,10 +232,10 @@ class _UserListItem extends StatelessWidget {
                 CircleAvatar(
                   radius: 26,
                   backgroundColor: AppColor.veryLightGrey,
-                  backgroundImage: user.avatarUrl.isNotEmpty
-                      ? CachedNetworkImageProvider(user.avatarUrl)
+                  backgroundImage: user.avatar?.isNotEmpty ?? false
+                      ? CachedNetworkImageProvider(user.avatar!)
                       : null,
-                  child: user.avatarUrl.isEmpty
+                  child: user.avatar?.isEmpty ?? false
                       ? Text(
                           user.name.isNotEmpty
                               ? user.name[0].toUpperCase()
@@ -245,7 +246,7 @@ class _UserListItem extends StatelessWidget {
                         )
                       : null,
                 ),
-                if (user.isOnline)
+                if (user.status == 'online')
                   Positioned(
                     right: 1,
                     bottom: 1,
@@ -276,9 +277,9 @@ class _UserListItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 3),
                   Text(
-                    user.isOnline ? 'Online' : 'Offline',
+                    user.status == 'online' ? 'Online' : 'Offline',
                     style: AppTextStyle.captionSmall.copyWith(
-                      color: user.isOnline
+                      color: user.status == 'online'
                           ? AppColor.successGreen
                           : AppColor.secondaryText,
                     ),

@@ -196,7 +196,7 @@ class _MessageTabViewState extends State<_MessageTabView> {
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            ChatScreen(conversation: conversation),
+            ChatScreen(userId: conversation.id),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final curved = CurvedAnimation(
             parent: animation,

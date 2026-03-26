@@ -1,3 +1,4 @@
+import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
 
 abstract interface class ChatDatasourceInterface {
@@ -12,4 +13,10 @@ abstract interface class ChatDatasourceInterface {
   });
 
   void reset();
+
+  Future<List<User>> searchCometUsers({
+    required String query,
+    int page = 1,
+    int limit = 10,
+  });
 }

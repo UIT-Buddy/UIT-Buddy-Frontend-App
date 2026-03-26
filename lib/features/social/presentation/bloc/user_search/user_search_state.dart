@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/comet_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 
 part 'user_search_state.freezed.dart';
@@ -9,7 +10,7 @@ enum UserSearchStatus { initial, loading, loaded, error }
 abstract class UserSearchState with _$UserSearchState {
   const factory UserSearchState({
     @Default(UserSearchStatus.initial) UserSearchStatus status,
-    @Default([]) List<ConversationEntity> users,
+    @Default([]) List<CometUserEntity> users,
     @Default('') String query,
     String? errorMessage,
   }) = _UserSearchState;

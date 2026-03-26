@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/user_profile_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/mapper/search_user_mapper.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/other_people_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/user_profile_repository.dart';
 

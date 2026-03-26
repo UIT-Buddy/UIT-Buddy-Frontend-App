@@ -494,7 +494,7 @@ void _initSocialDependencies() {
     () => ReactionRepositoryImpl(datasource: serviceLocator()),
   );
   serviceLocator.registerLazySingleton<UserSearchRepository>(
-    () => UserSearchRepositoryImpl(datasource: serviceLocator()),
+    () => UserSearchRepositoryImpl(datasource: serviceLocator(), chatDatasource: serviceLocator()),
   );
   serviceLocator.registerLazySingleton<UserProfileRepository>(
     () => UserProfileRepositoryImpl(datasource: serviceLocator()),
@@ -603,16 +603,16 @@ void _initSocialDependencies() {
 
   // User Search (CometChat)
   serviceLocator.registerLazySingleton<UserSearchDatasourceInterface>(
-    () => UserSearchDatasourceImpl(),
+    () => UserSearchDatasourceImpl(dio: serviceLocator(instanceName: 'authenticatedDio')),
   );
   serviceLocator.registerLazySingleton<UserSearchRepository>(
-    () => UserSearchRepositoryImpl(datasource: serviceLocator()),
+    () => UserSearchRepositoryImpl(datasource: serviceLocator(), chatDatasource: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
     () => SearchUsersUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerFactory(
-    () => UserSearchBloc(searchUsersUsecase: serviceLocator()),
+    () => UserSearchBloc(searchUsersUsecase: serviceLocator(), searchCometUsersUsecase: serviceLocator()),
   );
 
   // Chat Messages (CometChat)

@@ -132,4 +132,28 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
     final minute = sentAt.minute.toString().padLeft(2, '0');
     return '$hour:$minute';
   }
+
+  @override
+  Future<List<User>> searchCometUsers({
+    required String query,
+    int page = 1,
+    int limit = 10,
+  }) {
+    UsersRequest usersRequest =
+        (UsersRequestBuilder()
+              ..limit = limit
+              ..searchKeyword = query
+              ..setPage = page)
+            .build();
+    final completer = Completer<List<User>>();
+    usersRequest.fetchNext(
+      onSuccess: (List<User> users) {
+        completer.complete(users);
+      },
+      onError: (CometChatException e) {
+        completer.completeError(Exception(e.message));
+      },
+    );
+    return completer.future;
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
@@ -12,9 +13,9 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_sta
 import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_settings_screen.dart';
 
 class ChatScreen extends StatelessWidget {
-  final ConversationEntity conversation;
+  final String userId;
 
-  const ChatScreen({super.key, required this.conversation});
+  const ChatScreen({super.key, required this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -22,11 +23,11 @@ class ChatScreen extends StatelessWidget {
       create: (_) => serviceLocator<ChatBloc>()
         ..add(
           ChatStarted(
-            receiverId: conversation.id,
-            isGroup: conversation.isGroup,
+            receiverId: userId,
+            isGroup: false,
           ),
         ),
-      child: _ChatView(conversation: conversation),
+      child: _ChatView(userId: userId),
     );
   }
 }
@@ -67,6 +68,12 @@ class _ChatViewState extends State<_ChatView> {
   }
 
   void _onScroll() {
+    MessagesRequest messageRequest = (MessagesRequestBuilder()
+  ..uid = ""
+  ..hasReactions = true
+  ..limit = 50
+  
+  ).build();
     if (!_scrollController.hasClients) return;
     // ListView with reverse: true — scroll position 0 is the bottom.
     // Near maxScrollExtent means user scrolled towards the top (older messages).

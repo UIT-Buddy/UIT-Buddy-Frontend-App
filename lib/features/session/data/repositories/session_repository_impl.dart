@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/session/data/datasources/session_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/session/data/mapper/user_mapper.dart';
 import 'package:uit_buddy_mobile/features/session/domain/entities/user_entity.dart';
 import 'package:uit_buddy_mobile/features/session/domain/repositories/session_repository.dart';
 
