@@ -1,6 +1,7 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/profile_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/profile/data/mapper/profile_info_mapper.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/entities/profile_entity.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/profile_repository.dart';
 
