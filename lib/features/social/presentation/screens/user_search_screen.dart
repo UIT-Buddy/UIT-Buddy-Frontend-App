@@ -111,7 +111,7 @@ class _UserSearchViewState extends State<_UserSearchView> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       physics: const NeverScrollableScrollPhysics(),
       itemCount: 8,
-      itemBuilder: (_, __) => const ConversationListItemSkeleton(),
+      itemBuilder: (_, _) => const ConversationListItemSkeleton(),
     );
   }
 
@@ -142,11 +142,7 @@ class _UserSearchViewState extends State<_UserSearchView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.search_off,
-            size: 52,
-            color: AppColor.tertiaryText,
-          ),
+          const Icon(Icons.search_off, size: 52, color: AppColor.tertiaryText),
           const SizedBox(height: 12),
           Text(
             'Không tìm thấy người dùng\n"$query"',
@@ -185,10 +181,7 @@ class _UserSearchViewState extends State<_UserSearchView> {
       itemCount: users.length,
       itemBuilder: (context, index) {
         final user = users[index];
-        return _UserListItem(
-          user: user,
-          onTap: () => _openChat(user),
-        );
+        return _UserListItem(user: user, onTap: () => _openChat(user));
       },
     );
   }
@@ -262,10 +255,7 @@ class _UserListItem extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColor.successGreen,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: AppColor.pureWhite,
-                          width: 2,
-                        ),
+                        border: Border.all(color: AppColor.pureWhite, width: 2),
                       ),
                     ),
                   ),

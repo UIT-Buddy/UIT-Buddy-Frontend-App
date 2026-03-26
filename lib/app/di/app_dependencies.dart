@@ -154,17 +154,12 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/chat_datasourc
 import 'package:uit_buddy_mobile/features/social/data/datasources/conversation_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/chat_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/conversation_datasource_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/impl/user_search_datasource_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/user_search_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/chat_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/conversation_repository_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/repositories/user_search_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/chat_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/conversation_repository.dart';
-import 'package:uit_buddy_mobile/features/social/domain/repositories/user_search_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_conversations_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/search_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';

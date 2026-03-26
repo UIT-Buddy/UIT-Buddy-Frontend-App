@@ -25,10 +25,11 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
       _userRequest = null;
     }
 
-    _userRequest ??= (MessagesRequestBuilder()
-          ..uid = uid
-          ..limit = limit)
-        .build();
+    _userRequest ??=
+        (MessagesRequestBuilder()
+              ..uid = uid
+              ..limit = limit)
+            .build();
 
     return _fetchMessages(_userRequest!);
   }
@@ -45,10 +46,11 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
       _groupRequest = null;
     }
 
-    _groupRequest ??= (MessagesRequestBuilder()
-          ..guid = guid
-          ..limit = limit)
-        .build();
+    _groupRequest ??=
+        (MessagesRequestBuilder()
+              ..guid = guid
+              ..limit = limit)
+            .build();
 
     return _fetchMessages(_groupRequest!);
   }

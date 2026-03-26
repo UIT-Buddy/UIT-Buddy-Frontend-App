@@ -16,7 +16,6 @@ abstract class SignUpCompleteUserModel with _$SignUpCompleteUserModel {
       _$SignUpCompleteUserModelFromJson(json);
 }
 
-
 @freezed
 abstract class SignUpCompleteResponseModel with _$SignUpCompleteResponseModel {
   const factory SignUpCompleteResponseModel({

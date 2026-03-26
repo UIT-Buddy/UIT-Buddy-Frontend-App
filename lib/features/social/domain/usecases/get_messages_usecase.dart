@@ -8,14 +8,13 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/chat_reposi
 class GetMessagesUsecase
     implements UseCase<List<MessageEntity>, GetMessagesParams> {
   GetMessagesUsecase({required ChatRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ChatRepository _repository;
 
   @override
-  Future<Either<Failure, List<MessageEntity>>> call(
-    GetMessagesParams params,
-  ) => params.isGroup
+  Future<Either<Failure, List<MessageEntity>>> call(GetMessagesParams params) =>
+      params.isGroup
       ? _repository.getGroupMessages(guid: params.receiverId)
       : _repository.getMessages(uid: params.receiverId);
 }

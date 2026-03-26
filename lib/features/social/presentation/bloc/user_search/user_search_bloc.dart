@@ -9,8 +9,8 @@ EventTransformer<UserSearchQueryChanged> _debounce(Duration duration) =>
 
 class UserSearchBloc extends Bloc<UserSearchEvent, UserSearchState> {
   UserSearchBloc({required SearchUsersUsecase searchUsersUsecase})
-      : _searchUsersUsecase = searchUsersUsecase,
-        super(const UserSearchState()) {
+    : _searchUsersUsecase = searchUsersUsecase,
+      super(const UserSearchState()) {
     on<UserSearchQueryChanged>(
       _onQueryChanged,
       transformer: _debounce(const Duration(milliseconds: 300)),
@@ -27,20 +27,14 @@ class UserSearchBloc extends Bloc<UserSearchEvent, UserSearchState> {
 
     if (query.isEmpty) {
       emit(
-        state.copyWith(
-          status: UserSearchStatus.initial,
-          users: [],
-          query: '',
-        ),
+        state.copyWith(status: UserSearchStatus.initial, users: [], query: ''),
       );
       return;
     }
 
     emit(state.copyWith(status: UserSearchStatus.loading, query: query));
 
-    final result = await _searchUsersUsecase(
-      SearchUsersParams(keyword: query),
-    );
+    final result = await _searchUsersUsecase(SearchUsersParams(keyword: query));
 
     result.fold(
       (failure) => emit(
@@ -49,12 +43,8 @@ class UserSearchBloc extends Bloc<UserSearchEvent, UserSearchState> {
           errorMessage: failure.message,
         ),
       ),
-      (users) => emit(
-        state.copyWith(
-          status: UserSearchStatus.loaded,
-          users: users,
-        ),
-      ),
+      (users) =>
+          emit(state.copyWith(status: UserSearchStatus.loaded, users: users)),
     );
   }
 }

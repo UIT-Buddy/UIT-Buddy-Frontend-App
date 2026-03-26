@@ -5,8 +5,9 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_en
 import 'package:uit_buddy_mobile/features/social/domain/repositories/conversation_repository.dart';
 
 class ConversationRepositoryImpl implements ConversationRepository {
-  ConversationRepositoryImpl({required ConversationDatasourceInterface datasource})
-      : _datasource = datasource;
+  ConversationRepositoryImpl({
+    required ConversationDatasourceInterface datasource,
+  }) : _datasource = datasource;
 
   final ConversationDatasourceInterface _datasource;
 

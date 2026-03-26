@@ -7,8 +7,8 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/conversation/
 
 class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
   ConversationBloc({required GetConversationsUsecase getConversationsUsecase})
-      : _getConversationsUsecase = getConversationsUsecase,
-        super(const ConversationState()) {
+    : _getConversationsUsecase = getConversationsUsecase,
+      super(const ConversationState()) {
     on<ConversationStarted>(_onStarted);
     on<ConversationRefreshed>(_onRefreshed);
     on<ConversationSearchChanged>(_onSearchChanged);
@@ -40,14 +40,11 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     final filtered = query.isEmpty
         ? state.conversations
         : state.conversations
-            .where((c) => c.name.toLowerCase().contains(query))
-            .toList();
+              .where((c) => c.name.toLowerCase().contains(query))
+              .toList();
 
     emit(
-      state.copyWith(
-        searchQuery: event.query,
-        filteredConversations: filtered,
-      ),
+      state.copyWith(searchQuery: event.query, filteredConversations: filtered),
     );
   }
 

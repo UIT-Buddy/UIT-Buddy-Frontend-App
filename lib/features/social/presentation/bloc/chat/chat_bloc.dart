@@ -5,18 +5,15 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_sta
 
 class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({required GetMessagesUsecase getMessagesUsecase})
-      : _getMessagesUsecase = getMessagesUsecase,
-        super(const ChatState()) {
+    : _getMessagesUsecase = getMessagesUsecase,
+      super(const ChatState()) {
     on<ChatStarted>(_onStarted);
     on<ChatLoadMore>(_onLoadMore);
   }
 
   final GetMessagesUsecase _getMessagesUsecase;
 
-  Future<void> _onStarted(
-    ChatStarted event,
-    Emitter<ChatState> emit,
-  ) async {
+  Future<void> _onStarted(ChatStarted event, Emitter<ChatState> emit) async {
     emit(state.copyWith(status: ChatStatus.loading));
 
     final result = await _getMessagesUsecase(
@@ -25,10 +22,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
     result.fold(
       (failure) => emit(
-        state.copyWith(
-          status: ChatStatus.error,
-          errorMessage: failure.message,
-        ),
+        state.copyWith(status: ChatStatus.error, errorMessage: failure.message),
       ),
       (messages) {
         // SDK returns oldest-first; we reverse to display newest at bottom.
@@ -44,10 +38,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     );
   }
 
-  Future<void> _onLoadMore(
-    ChatLoadMore event,
-    Emitter<ChatState> emit,
-  ) async {
+  Future<void> _onLoadMore(ChatLoadMore event, Emitter<ChatState> emit) async {
     if (!state.hasMore || state.isLoadingMore) return;
 
     emit(state.copyWith(isLoadingMore: true));
@@ -68,23 +59,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ),
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(isLoadingMore: false)),
-      (olderMessages) {
-        if (olderMessages.isEmpty) {
-          emit(state.copyWith(isLoadingMore: false, hasMore: false));
-          return;
-        }
-        final sorted = olderMessages.reversed.toList();
-        emit(
-          state.copyWith(
-            isLoadingMore: false,
-            hasMore: olderMessages.length >= 30,
-            messages: [...sorted, ...state.messages],
-          ),
-        );
-      },
-    );
+    result.fold((failure) => emit(state.copyWith(isLoadingMore: false)), (
+      olderMessages,
+    ) {
+      if (olderMessages.isEmpty) {
+        emit(state.copyWith(isLoadingMore: false, hasMore: false));
+        return;
+      }
+      final sorted = olderMessages.reversed.toList();
+      emit(
+        state.copyWith(
+          isLoadingMore: false,
+          hasMore: olderMessages.length >= 30,
+          messages: [...sorted, ...state.messages],
+        ),
+      );
+    });
   }
 
   ChatStarted? _lastStartedEvent;

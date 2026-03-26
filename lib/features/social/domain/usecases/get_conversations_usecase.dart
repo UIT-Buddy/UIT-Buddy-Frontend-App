@@ -7,7 +7,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/conversatio
 class GetConversationsUsecase
     implements UseCase<List<ConversationEntity>, NoParams> {
   GetConversationsUsecase({required ConversationRepository repository})
-      : _repository = repository;
+    : _repository = repository;
 
   final ConversationRepository _repository;
 

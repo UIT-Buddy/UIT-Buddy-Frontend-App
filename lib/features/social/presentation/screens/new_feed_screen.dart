@@ -95,7 +95,9 @@ class _NewFeedViewState extends State<_NewFeedView> {
             child: Column(
               children: [
                 NewFeedHeader(
-                  selectedTabIndex: state.selectedTab == NewFeedTab.feed ? 0 : 1,
+                  selectedTabIndex: state.selectedTab == NewFeedTab.feed
+                      ? 0
+                      : 1,
                   onSearchTap: () => _openSearch(context, state.selectedTab),
                   onTabChanged: (index) {
                     context.read<NewFeedBloc>().add(

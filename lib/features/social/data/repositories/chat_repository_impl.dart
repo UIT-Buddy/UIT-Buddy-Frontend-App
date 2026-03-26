@@ -6,7 +6,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/chat_reposi
 
 class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl({required ChatDatasourceInterface datasource})
-      : _datasource = datasource;
+    : _datasource = datasource;
 
   final ChatDatasourceInterface _datasource;
 
@@ -29,8 +29,10 @@ class ChatRepositoryImpl implements ChatRepository {
     int limit = 30,
   }) async {
     try {
-      final messages =
-          await _datasource.getGroupMessages(guid: guid, limit: limit);
+      final messages = await _datasource.getGroupMessages(
+        guid: guid,
+        limit: limit,
+      );
       return Right(messages);
     } on Exception catch (e) {
       return Left(Failure.fromException(e));

@@ -312,12 +312,9 @@ class _ChatViewState extends State<_ChatView> {
                     final prevMsg = reversedIndex > 0
                         ? state.messages[reversedIndex - 1]
                         : null;
-                    final autoShowTime = prevMsg == null ||
-                        _minutesBetween(
-                              prevMsg.sentAtRaw,
-                              msg.sentAtRaw,
-                            ) >=
-                            10;
+                    final autoShowTime =
+                        prevMsg == null ||
+                        _minutesBetween(prevMsg.sentAtRaw, msg.sentAtRaw) >= 10;
                     final nextMsg = reversedIndex < state.messages.length - 1
                         ? state.messages[reversedIndex + 1]
                         : null;
@@ -365,8 +362,7 @@ class _ChatViewState extends State<_ChatView> {
                 ),
                 onPressed: () {},
                 padding: const EdgeInsets.all(4),
-                constraints:
-                    const BoxConstraints(minWidth: 36, minHeight: 36),
+                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
               ),
               const SizedBox(width: 4),
               Expanded(
@@ -501,8 +497,9 @@ class _MessageBubbleState extends State<_MessageBubble> {
             onTap: _onBubbleTap,
             behavior: HitTestBehavior.opaque,
             child: Row(
-              mainAxisAlignment:
-                  isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
+              mainAxisAlignment: isMine
+                  ? MainAxisAlignment.end
+                  : MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 if (!isMine) const SizedBox(width: 4),
@@ -549,8 +546,9 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 top: 3,
               ),
               child: Align(
-                alignment:
-                    isMine ? Alignment.centerRight : Alignment.centerLeft,
+                alignment: isMine
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
                 child: Text(
                   widget.message.time,
                   style: AppTextStyle.captionExtraSmall,

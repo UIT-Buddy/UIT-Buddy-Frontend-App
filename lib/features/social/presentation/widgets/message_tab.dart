@@ -147,11 +147,7 @@ class _MessageTabViewState extends State<_MessageTabView> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
-            Icons.error_outline,
-            color: AppColor.alertRed,
-            size: 48,
-          ),
+          const Icon(Icons.error_outline, color: AppColor.alertRed, size: 48),
           const SizedBox(height: 12),
           Text(
             message ?? 'Không thể tải cuộc trò chuyện',
@@ -162,9 +158,9 @@ class _MessageTabViewState extends State<_MessageTabView> {
           ),
           const SizedBox(height: 16),
           TextButton(
-            onPressed: () => context
-                .read<ConversationBloc>()
-                .add(const ConversationRefreshed()),
+            onPressed: () => context.read<ConversationBloc>().add(
+              const ConversationRefreshed(),
+            ),
             child: const Text('Thử lại'),
           ),
         ],
