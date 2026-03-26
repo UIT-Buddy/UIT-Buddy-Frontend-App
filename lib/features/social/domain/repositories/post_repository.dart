@@ -10,6 +10,14 @@ abstract interface class PostRepository {
     int limit = 10,
   });
 
+  Future<Either<Failure, PagedResult<PostEntity>>> searchPosts({
+    required String keyword,
+    int page = 1,
+    int limit = 10,
+    String? sortBy,
+    String? sortType,
+  });
+
   Future<Either<Failure, Unit>> createPost({
     required String title,
     String? content,
