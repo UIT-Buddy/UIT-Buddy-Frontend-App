@@ -14,4 +14,6 @@ class GetConversationsUsecase
   @override
   Future<Either<Failure, List<ConversationEntity>>> call(NoParams params) =>
       _repository.getConversations();
+
+  void reset() => _repository.reset();
 }

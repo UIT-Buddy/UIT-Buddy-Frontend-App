@@ -18,4 +18,17 @@ abstract interface class ChatRepository {
     required bool isGroup,
     required String text,
   });
+
+  Future<Either<Failure, MessageEntity>> editTextMessage({
+    required String messageId,
+    required String text,
+    required String receiverId,
+    required bool isGroup,
+  });
+
+  Future<Either<Failure, void>> deleteMessage({
+    required String messageId,
+  });
+
+  void reset();
 }

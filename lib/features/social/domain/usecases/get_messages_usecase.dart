@@ -17,6 +17,8 @@ class GetMessagesUsecase
       params.isGroup
       ? _repository.getGroupMessages(guid: params.receiverId)
       : _repository.getMessages(uid: params.receiverId);
+
+  void reset() => _repository.reset();
 }
 
 class GetMessagesParams extends Equatable {

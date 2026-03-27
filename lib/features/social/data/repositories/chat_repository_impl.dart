@@ -58,4 +58,41 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(Failure.fromException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, MessageEntity>> editTextMessage({
+    required String messageId,
+    required String text,
+    required String receiverId,
+    required bool isGroup,
+  }) async {
+    try {
+      final message = await _datasource.editTextMessage(
+        messageId: messageId,
+        text: text,
+        receiverId: receiverId,
+        isGroup: isGroup,
+      );
+      return Right(message);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteMessage({
+    required String messageId,
+  }) async {
+    try {
+      await _datasource.deleteMessage(messageId: messageId);
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  void reset() {
+    _datasource.reset();
+  }
 }

@@ -13,5 +13,6 @@ abstract class ChatState with _$ChatState {
     @Default(true) bool hasMore,
     @Default(false) bool isLoadingMore,
     String? errorMessage,
+    MessageEntity? editingMessage,
   }) = _ChatState;
 }

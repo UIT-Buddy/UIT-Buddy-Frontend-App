@@ -70,6 +70,8 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
       onSuccess: (List<BaseMessage> messages) {
         final entities = messages
             .map((m) => _mapToEntity(m, _loggedInUid ?? ''))
+            .where((e) => e != null)
+            .cast<MessageEntity>()
             .toList();
         completer.complete(entities);
       },
@@ -89,7 +91,7 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
     return completer.future;
   }
 
-  MessageEntity _mapToEntity(BaseMessage message, String loggedInUid) {
+  MessageEntity? _mapToEntity(BaseMessage message, String loggedInUid) {
     final isMine = message.sender?.uid == loggedInUid;
     final sentAt = message.sentAt;
     final time = _formatTime(sentAt);
@@ -110,8 +112,10 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
         _ => 'Đã gửi một tệp',
       };
     } else {
-      content = 'Tin nhắn hệ thống';
-      type = MessageType.system;
+      // debugPrint('Message type: ${message}');
+      // content = 'Tin nhắn hệ thống';
+      // type = MessageType.system;
+      return null;
     }
 
     return MessageEntity(
@@ -123,6 +127,9 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
       isMine: isMine,
       type: type,
       sentAtRaw: sentAt,
+      receiverId: message.receiverUid,
+      isGroup: message.receiverType == CometChatConversationType.group,
+      isEdited: message.editedAt != null,
     );
   }
 
@@ -157,10 +164,70 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
     CometChat.sendMessage(
       textMessage,
       onSuccess: (TextMessage sentMessage) {
-        completer.complete(_mapToEntity(sentMessage, _loggedInUid ?? ''));
+        final entity = _mapToEntity(sentMessage, _loggedInUid ?? '');
+        if (entity != null) {
+          completer.complete(entity);
+        } else {
+          completer.completeError(Exception('Failed to map message to entity'));
+        }
       },
       onError: (CometChatException e) {
         debugPrint('ChatDatasource sendTextMessage error: ${e.message}');
+        completer.completeError(Exception(e.message));
+      },
+    );
+
+    return completer.future;
+  }
+
+  @override
+  Future<MessageEntity> editTextMessage({
+    required String messageId,
+    required String text,
+    required String receiverId,
+    required bool isGroup,
+  }) async {
+    _loggedInUid ??= await _fetchLoggedInUid();
+
+    final receiverType = isGroup
+        ? CometChatConversationType.group
+        : CometChatConversationType.user;
+
+    final textMessage = TextMessage(
+      text: text,
+      receiverUid: receiverId,
+      receiverType: receiverType,
+      type: CometChatMessageType.text,
+    );
+    textMessage.id = int.parse(messageId);
+
+    final completer = Completer<MessageEntity>();
+
+    CometChat.editMessage(
+      textMessage,
+      onSuccess: (BaseMessage editedMessage) {
+        completer.complete(_mapToEntity(editedMessage, _loggedInUid ?? ''));
+      },
+      onError: (CometChatException e) {
+        debugPrint('ChatDatasource editTextMessage error: ${e.message}');
+        completer.completeError(Exception(e.message));
+      },
+    );
+
+    return completer.future;
+  }
+
+  @override
+  Future<void> deleteMessage({required String messageId}) async {
+    final completer = Completer<void>();
+
+    CometChat.deleteMessage(
+      int.parse(messageId),
+      onSuccess: (BaseMessage message) {
+        completer.complete();
+      },
+      onError: (CometChatException e) {
+        debugPrint('ChatDatasource deleteMessage error: ${e.message}');
         completer.completeError(Exception(e.message));
       },
     );

@@ -22,4 +22,9 @@ class ConversationRepositoryImpl implements ConversationRepository {
       return Left(Failure.fromException(e));
     }
   }
+
+  @override
+  void reset() {
+    _datasource.reset();
+  }
 }

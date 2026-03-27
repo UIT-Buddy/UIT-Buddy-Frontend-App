@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
@@ -20,6 +21,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     ConversationStarted event,
     Emitter<ConversationState> emit,
   ) async {
+    _getConversationsUsecase.reset();
     emit(state.copyWith(status: ConversationStatus.loading));
     await _fetchConversations(emit);
   }
@@ -28,6 +30,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     ConversationRefreshed event,
     Emitter<ConversationState> emit,
   ) async {
+    _getConversationsUsecase.reset();
     emit(state.copyWith(status: ConversationStatus.loading, searchQuery: ''));
     await _fetchConversations(emit);
   }
@@ -72,6 +75,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     List<ConversationEntity> conversations,
     String query,
   ) {
+    debugPrint('Applying search: $query length conversations: ${conversations.length}');
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return conversations;
     return conversations

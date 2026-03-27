@@ -6,4 +6,6 @@ abstract interface class ConversationRepository {
   Future<Either<Failure, List<ConversationEntity>>> getConversations({
     int limit = 50,
   });
+
+  void reset();
 }

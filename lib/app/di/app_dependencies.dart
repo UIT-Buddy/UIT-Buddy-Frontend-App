@@ -165,6 +165,8 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/conversatio
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_conversations_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/send_text_message_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/edit_text_message_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
@@ -646,10 +648,18 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton(
     () => SendTextMessageUsecase(repository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => EditTextMessageUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DeleteMessageUsecase(repository: serviceLocator()),
+  );
   serviceLocator.registerFactory(
     () => ChatBloc(
       getMessagesUsecase: serviceLocator(),
       sendTextMessageUsecase: serviceLocator(),
+      editTextMessageUsecase: serviceLocator(),
+      deleteMessageUsecase: serviceLocator(),
     ),
   );
 }
