@@ -1,7 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:stream_transform/stream_transform.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_comet_user_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/search_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_state.dart';
 
@@ -9,19 +8,15 @@ EventTransformer<UserSearchQueryChanged> _debounce(Duration duration) =>
     (events, mapper) => events.debounce(duration).switchMap(mapper);
 
 class UserSearchBloc extends Bloc<UserSearchEvent, UserSearchState> {
-  UserSearchBloc({
-    required SearchUsersUsecase searchUsersUsecase,
-    required SearchCometUserUsecase searchCometUsersUsecase,
-  }) : _searchUsersUsecase = searchUsersUsecase,
-       _searchCometUsersUsecase = searchCometUsersUsecase,
-       super(const UserSearchState()) {
+  UserSearchBloc({required SearchCometUserUsecase searchCometUsersUsecase})
+    : _searchCometUsersUsecase = searchCometUsersUsecase,
+      super(const UserSearchState()) {
     on<UserSearchQueryChanged>(
       _onQueryChanged,
       transformer: _debounce(const Duration(milliseconds: 300)),
     );
   }
 
-  final SearchUsersUsecase _searchUsersUsecase;
   final SearchCometUserUsecase _searchCometUsersUsecase;
 
   Future<void> _onQueryChanged(

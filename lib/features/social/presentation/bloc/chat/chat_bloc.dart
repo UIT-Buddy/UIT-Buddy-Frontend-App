@@ -63,32 +63,28 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ),
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(isLoadingMore: false)),
-      (olderMessages) {
-        if (olderMessages.isEmpty) {
-          emit(state.copyWith(isLoadingMore: false, hasMore: false));
-          return;
-        }
-        final merged = _dedupeById([
-          ..._sortOldestFirst(olderMessages),
-          ...state.messages,
-        ]);
-        emit(
-          state.copyWith(
-            isLoadingMore: false,
-            hasMore: olderMessages.length >= 30,
-            messages: merged,
-          ),
-        );
-      },
-    );
+    result.fold((failure) => emit(state.copyWith(isLoadingMore: false)), (
+      olderMessages,
+    ) {
+      if (olderMessages.isEmpty) {
+        emit(state.copyWith(isLoadingMore: false, hasMore: false));
+        return;
+      }
+      final merged = _dedupeById([
+        ..._sortOldestFirst(olderMessages),
+        ...state.messages,
+      ]);
+      emit(
+        state.copyWith(
+          isLoadingMore: false,
+          hasMore: olderMessages.length >= 30,
+          messages: merged,
+        ),
+      );
+    });
   }
 
-  Future<void> _onSendText(
-    ChatSendText event,
-    Emitter<ChatState> emit,
-  ) async {
+  Future<void> _onSendText(ChatSendText event, Emitter<ChatState> emit) async {
     final currentEvent = _lastStartedEvent;
     if (currentEvent == null) return;
 
@@ -100,13 +96,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ),
     );
 
-    result.fold(
-      (failure) {},
-      (sentMessage) {
-        final merged = _dedupeById([...state.messages, sentMessage]);
-        emit(state.copyWith(messages: _sortOldestFirst(merged)));
-      },
-    );
+    result.fold((failure) {}, (sentMessage) {
+      final merged = _dedupeById([...state.messages, sentMessage]);
+      emit(state.copyWith(messages: _sortOldestFirst(merged)));
+    });
   }
 
   List<MessageEntity> _sortOldestFirst(List<MessageEntity> messages) {

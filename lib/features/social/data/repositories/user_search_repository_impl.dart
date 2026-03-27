@@ -5,7 +5,6 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/chat_datasourc
 import 'package:uit_buddy_mobile/features/social/data/datasources/user_search_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/mapper/search_user_mapper.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/comet_user_entity.dart';
-import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/user_search_repository.dart';
 

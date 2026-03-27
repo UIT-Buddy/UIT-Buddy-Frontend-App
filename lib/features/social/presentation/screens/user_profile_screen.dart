@@ -52,7 +52,41 @@ class _UserProfileView extends StatelessWidget {
           child: Divider(height: 1, color: AppColor.dividerGrey),
         ),
       ),
-      body: BlocBuilder<UserProfileBloc, UserProfileState>(
+      body: BlocConsumer<UserProfileBloc, UserProfileState>(
+        listenWhen: (previous, current) =>
+            previous.actionErrorMessage != current.actionErrorMessage ||
+            previous.actionSuccessMessage != current.actionSuccessMessage,
+        listener: (context, state) {
+          final messenger = ScaffoldMessenger.of(context);
+
+          if (state.actionErrorMessage != null) {
+            messenger
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(state.actionErrorMessage!),
+                  backgroundColor: AppColor.alertRed,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            context.read<UserProfileBloc>().add(
+              const UserProfileFeedbackCleared(),
+            );
+          } else if (state.actionSuccessMessage != null) {
+            messenger
+              ..hideCurrentSnackBar()
+              ..showSnackBar(
+                SnackBar(
+                  content: Text(state.actionSuccessMessage!),
+                  backgroundColor: AppColor.successGreen,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            context.read<UserProfileBloc>().add(
+              const UserProfileFeedbackCleared(),
+            );
+          }
+        },
         builder: (context, state) {
           switch (state.status) {
             case UserProfileStatus.initial:
@@ -67,7 +101,7 @@ class _UserProfileView extends StatelessWidget {
               if (user == null) {
                 return const _ErrorState(message: 'User not found.');
               }
-              return _ProfileContent(user: user);
+              return _ProfileContent(user: user, state: state);
           }
         },
       ),
@@ -76,9 +110,10 @@ class _UserProfileView extends StatelessWidget {
 }
 
 class _ProfileContent extends StatelessWidget {
-  const _ProfileContent({required this.user});
+  const _ProfileContent({required this.user, required this.state});
 
   final OtherPeopleEntity user;
+  final UserProfileState state;
 
   @override
   Widget build(BuildContext context) {
@@ -143,34 +178,9 @@ class _ProfileContent extends StatelessWidget {
                   _InfoChip(label: user.homeClassCode!),
                   const SizedBox(height: 16),
                 ],
-                Row(
-                  children: [
-                    Expanded(
-                      child: _FriendStatusButton(
-                        status: user.friendStatus,
-                        onPressed: () => _showSoon(context),
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: OutlinedButton(
-                        onPressed: () => _openMessage(context),
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColor.primaryBlue,
-                          side: const BorderSide(color: AppColor.primaryBlue),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          textStyle: AppTextStyle.bodySmall.copyWith(
-                            fontWeight: AppTextStyle.medium,
-                          ),
-                        ),
-                        child: const Text('Message'),
-                      ),
-                    ),
-                  ],
-                ),
+                _FriendStatusBanner(status: user.friendStatus),
+                const SizedBox(height: 12),
+                _ProfileActionBar(user: user, state: state),
                 const SizedBox(height: 24),
                 _InfoSection(
                   title: 'Bio',
@@ -244,22 +254,212 @@ class _ProfileContent extends StatelessWidget {
       ),
     );
   }
+}
 
-  void _showSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('This action is coming soon.'),
-        behavior: SnackBarBehavior.floating,
+class _FriendStatusBanner extends StatelessWidget {
+  const _FriendStatusBanner({required this.status});
+
+  final FriendStatus status;
+
+  @override
+  Widget build(BuildContext context) {
+    if (status == FriendStatus.none) return const SizedBox.shrink();
+
+    final data = switch (status) {
+      FriendStatus.pending => (
+        icon: Icons.schedule_rounded,
+        text: 'Friend request sent. You can cancel it anytime.',
+        background: AppColor.veryLightGrey,
+        foreground: AppColor.secondaryText,
+      ),
+      FriendStatus.requested => (
+        icon: Icons.mark_email_unread_rounded,
+        text: 'This user sent you a friend request.',
+        background: AppColor.warningOrangeLight,
+        foreground: AppColor.warningOrangeDark,
+      ),
+      FriendStatus.friends => (
+        icon: Icons.verified_rounded,
+        text: 'You are friends now.',
+        background: AppColor.successGreen10,
+        foreground: AppColor.successGreenDark,
+      ),
+      FriendStatus.none => (
+        icon: Icons.person_add_alt_1_rounded,
+        text: '',
+        background: AppColor.pureWhite,
+        foreground: AppColor.primaryText,
+      ),
+    };
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: data.background,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        children: [
+          Icon(data.icon, color: data.foreground, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              data.text,
+              style: AppTextStyle.bodySmall.copyWith(
+                color: data.foreground,
+                fontWeight: AppTextStyle.medium,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ProfileActionBar extends StatelessWidget {
+  const _ProfileActionBar({required this.user, required this.state});
+
+  final OtherPeopleEntity user;
+  final UserProfileState state;
+
+  bool _isLoading(UserProfileFriendAction action) =>
+      state.isFriendActionLoading && state.activeFriendAction == action;
+
+  bool get _areActionsDisabled => state.isFriendActionLoading;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (user.friendStatus) {
+      FriendStatus.none => _buildSingleAction(
+        context,
+        action: UserProfileFriendAction.sendRequest,
+        label: 'Add Friend',
+        style: _ProfileActionButtonStyle.primary(),
+      ),
+      FriendStatus.pending => _buildSingleAction(
+        context,
+        action: UserProfileFriendAction.cancelRequest,
+        label: 'Cancel Request',
+        style: _ProfileActionButtonStyle.neutral(),
+      ),
+      FriendStatus.requested => Row(
+        children: [
+          Expanded(
+            child: _ProfileActionButton(
+              label: 'Accept',
+              style: _ProfileActionButtonStyle.primary(),
+              isLoading: _isLoading(UserProfileFriendAction.acceptRequest),
+              onPressed: _areActionsDisabled
+                  ? null
+                  : () => _submitAction(
+                      context,
+                      UserProfileFriendAction.acceptRequest,
+                    ),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _ProfileActionButton(
+              label: 'Reject',
+              style: _ProfileActionButtonStyle.destructive(),
+              isLoading: _isLoading(UserProfileFriendAction.rejectRequest),
+              onPressed: _areActionsDisabled
+                  ? null
+                  : () => _submitAction(
+                      context,
+                      UserProfileFriendAction.rejectRequest,
+                    ),
+            ),
+          ),
+        ],
+      ),
+      FriendStatus.friends => Row(
+        children: [
+          Expanded(
+            child: _ProfileActionButton(
+              label: 'Unfriend',
+              style: _ProfileActionButtonStyle.destructive(),
+              isLoading: _isLoading(UserProfileFriendAction.unfriend),
+              onPressed: _areActionsDisabled
+                  ? null
+                  : () => _confirmUnfriend(context),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: _ProfileActionButton(
+              label: 'Message',
+              style: _ProfileActionButtonStyle.secondary(),
+              onPressed: _areActionsDisabled
+                  ? null
+                  : () => _openMessage(context),
+            ),
+          ),
+        ],
+      ),
+    };
+  }
+
+  Widget _buildSingleAction(
+    BuildContext context, {
+    required UserProfileFriendAction action,
+    required String label,
+    required _ProfileActionButtonStyle style,
+  }) {
+    return SizedBox(
+      width: double.infinity,
+      child: _ProfileActionButton(
+        label: label,
+        style: style,
+        isLoading: _isLoading(action),
+        onPressed: _areActionsDisabled
+            ? null
+            : () => _submitAction(context, action),
       ),
     );
   }
 
+  void _submitAction(BuildContext context, UserProfileFriendAction action) {
+    context.read<UserProfileBloc>().add(
+      UserProfileFriendActionSubmitted(action: action),
+    );
+  }
+
+  Future<void> _confirmUnfriend(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) {
+        return AlertDialog(
+          title: const Text('Remove Friend'),
+          content: Text('Remove ${user.fullName} from your friend list?'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: TextButton.styleFrom(foregroundColor: AppColor.alertRed),
+              child: const Text('Unfriend'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true && context.mounted) {
+      _submitAction(context, UserProfileFriendAction.unfriend);
+    }
+  }
+
   void _openMessage(BuildContext context) {
-    final cometUid = user.cometUid?.trim() ?? user.mssv;
+    final cometUid = user.cometUid?.trim() ?? '';
     if (cometUid.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Người dùng này chưa có Comet UID để nhắn tin.'),
+          content: Text('Messaging is unavailable for this user.'),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -285,36 +485,52 @@ class _ProfileContent extends StatelessWidget {
   }
 }
 
-class _FriendStatusButton extends StatelessWidget {
-  const _FriendStatusButton({required this.status, required this.onPressed});
+class _ProfileActionButton extends StatelessWidget {
+  const _ProfileActionButton({
+    required this.label,
+    required this.style,
+    this.isLoading = false,
+    this.onPressed,
+  });
 
-  final FriendStatus status;
-  final VoidCallback onPressed;
+  final String label;
+  final _ProfileActionButtonStyle style;
+  final bool isLoading;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final style = _FriendStatusButtonStyle.fromStatus(status);
-
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         backgroundColor: style.backgroundColor,
         foregroundColor: style.foregroundColor,
+        disabledBackgroundColor: style.backgroundColor,
+        disabledForegroundColor: style.foregroundColor,
         elevation: 0,
         side: BorderSide(color: style.borderColor),
-        padding: const EdgeInsets.symmetric(vertical: 14),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        minimumSize: const Size.fromHeight(48),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         textStyle: AppTextStyle.bodySmall.copyWith(
           fontWeight: AppTextStyle.medium,
         ),
       ),
-      child: Text(status.label),
+      child: isLoading
+          ? SizedBox(
+              width: 18,
+              height: 18,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: style.foregroundColor,
+              ),
+            )
+          : Text(label),
     );
   }
 }
 
-class _FriendStatusButtonStyle {
-  const _FriendStatusButtonStyle({
+class _ProfileActionButtonStyle {
+  const _ProfileActionButtonStyle({
     required this.backgroundColor,
     required this.foregroundColor,
     required this.borderColor,
@@ -324,24 +540,36 @@ class _FriendStatusButtonStyle {
   final Color foregroundColor;
   final Color borderColor;
 
-  factory _FriendStatusButtonStyle.fromStatus(FriendStatus status) {
-    return switch (status) {
-      FriendStatus.none => _FriendStatusButtonStyle(
-        backgroundColor: AppColor.primaryBlue,
-        foregroundColor: AppColor.pureWhite,
-        borderColor: AppColor.primaryBlue,
-      ),
-      FriendStatus.pending => _FriendStatusButtonStyle(
-        backgroundColor: AppColor.veryLightGrey,
-        foregroundColor: AppColor.secondaryText,
-        borderColor: AppColor.dividerGrey,
-      ),
-      FriendStatus.friends => _FriendStatusButtonStyle(
-        backgroundColor: AppColor.primaryBlue10,
-        foregroundColor: AppColor.primaryBlue,
-        borderColor: AppColor.primaryBlue10,
-      ),
-    };
+  factory _ProfileActionButtonStyle.primary() {
+    return const _ProfileActionButtonStyle(
+      backgroundColor: AppColor.primaryBlue,
+      foregroundColor: AppColor.pureWhite,
+      borderColor: AppColor.primaryBlue,
+    );
+  }
+
+  factory _ProfileActionButtonStyle.secondary() {
+    return const _ProfileActionButtonStyle(
+      backgroundColor: AppColor.pureWhite,
+      foregroundColor: AppColor.primaryBlue,
+      borderColor: AppColor.primaryBlue,
+    );
+  }
+
+  factory _ProfileActionButtonStyle.neutral() {
+    return const _ProfileActionButtonStyle(
+      backgroundColor: AppColor.veryLightGrey,
+      foregroundColor: AppColor.secondaryText,
+      borderColor: AppColor.dividerGrey,
+    );
+  }
+
+  factory _ProfileActionButtonStyle.destructive() {
+    return _ProfileActionButtonStyle(
+      backgroundColor: AppColor.alertRed10,
+      foregroundColor: AppColor.alertRed,
+      borderColor: AppColor.alertRed.withValues(alpha: 0.2),
+    );
   }
 }
 

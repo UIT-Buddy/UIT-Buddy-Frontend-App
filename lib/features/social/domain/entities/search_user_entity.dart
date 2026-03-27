@@ -1,10 +1,11 @@
-enum FriendStatus { none, pending, friends }
+enum FriendStatus { none, pending, friends, requested }
 
 extension FriendStatusX on FriendStatus {
   String get label => switch (this) {
     FriendStatus.none => 'Add Friend',
     FriendStatus.pending => 'Pending',
     FriendStatus.friends => 'Friends',
+    FriendStatus.requested => 'Requested',
   };
 }
 

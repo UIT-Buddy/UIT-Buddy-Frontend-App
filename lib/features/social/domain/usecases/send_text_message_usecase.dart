@@ -13,13 +13,12 @@ class SendTextMessageUsecase
   final ChatRepository _repository;
 
   @override
-  Future<Either<Failure, MessageEntity>> call(
-    SendTextMessageParams params,
-  ) => _repository.sendTextMessage(
-    receiverId: params.receiverId,
-    isGroup: params.isGroup,
-    text: params.text,
-  );
+  Future<Either<Failure, MessageEntity>> call(SendTextMessageParams params) =>
+      _repository.sendTextMessage(
+        receiverId: params.receiverId,
+        isGroup: params.isGroup,
+        text: params.text,
+      );
 }
 
 class SendTextMessageParams extends Equatable {

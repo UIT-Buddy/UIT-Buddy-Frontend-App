@@ -21,4 +21,40 @@ class UserProfileRepositoryImpl implements UserProfileRepository {
       return Left(Failure.fromException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, Unit>> toggleFriendRequest(String receiverMssv) async {
+    try {
+      await _datasource.toggleFriendRequest(receiverMssv);
+      return const Right(unit);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> respondToFriendRequest({
+    required String senderMssv,
+    required FriendRequestResponseAction action,
+  }) async {
+    try {
+      await _datasource.respondToFriendRequest(
+        senderMssv: senderMssv,
+        action: action,
+      );
+      return const Right(unit);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, Unit>> unfriend(String friendMssv) async {
+    try {
+      await _datasource.unfriend(friendMssv);
+      return const Right(unit);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
 }
