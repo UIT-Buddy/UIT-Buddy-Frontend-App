@@ -20,3 +20,12 @@ class ChatStarted extends ChatEvent {
 class ChatLoadMore extends ChatEvent {
   const ChatLoadMore();
 }
+
+class ChatSendText extends ChatEvent {
+  final String text;
+
+  const ChatSendText({required this.text});
+
+  @override
+  List<Object?> get props => [text];
+}

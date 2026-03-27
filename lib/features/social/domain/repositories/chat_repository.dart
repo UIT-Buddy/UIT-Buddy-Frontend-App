@@ -12,4 +12,10 @@ abstract interface class ChatRepository {
     required String guid,
     int limit = 30,
   });
+
+  Future<Either<Failure, MessageEntity>> sendTextMessage({
+    required String receiverId,
+    required bool isGroup,
+    required String text,
+  });
 }

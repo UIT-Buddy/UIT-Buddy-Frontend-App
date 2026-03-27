@@ -145,6 +145,7 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_commen
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/search_comet_user_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_posts_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_comment_like_usecase.dart';
@@ -160,6 +161,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/chat_reposi
 import 'package:uit_buddy_mobile/features/social/domain/repositories/conversation_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_conversations_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/send_text_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
@@ -472,11 +474,7 @@ void _initSocialDependencies() {
       dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
-  serviceLocator.registerLazySingleton<UserSearchDatasourceInterface>(
-    () => UserSearchDatasourceImpl(
-      dio: serviceLocator(instanceName: 'authenticatedDio'),
-    ),
-  );
+
   serviceLocator.registerLazySingleton<UserProfileDatasourceInterface>(
     () => UserProfileDatasourceImpl(
       dio: serviceLocator(instanceName: 'authenticatedDio'),
@@ -605,14 +603,13 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton<UserSearchDatasourceInterface>(
     () => UserSearchDatasourceImpl(dio: serviceLocator(instanceName: 'authenticatedDio')),
   );
-  serviceLocator.registerLazySingleton<UserSearchRepository>(
-    () => UserSearchRepositoryImpl(datasource: serviceLocator(), chatDatasource: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => SearchUsersUsecase(repository: serviceLocator()),
-  );
+
+
   serviceLocator.registerFactory(
     () => UserSearchBloc(searchUsersUsecase: serviceLocator(), searchCometUsersUsecase: serviceLocator()),
+  );
+    serviceLocator.registerFactory(
+    () => SearchCometUserUsecase(repository: serviceLocator()),
   );
 
   // Chat Messages (CometChat)
@@ -625,8 +622,14 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton(
     () => GetMessagesUsecase(repository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => SendTextMessageUsecase(repository: serviceLocator()),
+  );
   serviceLocator.registerFactory(
-    () => ChatBloc(getMessagesUsecase: serviceLocator()),
+    () => ChatBloc(
+      getMessagesUsecase: serviceLocator(),
+      sendTextMessageUsecase: serviceLocator(),
+    ),
   );
 }
 

@@ -14,6 +14,12 @@ abstract interface class ChatDatasourceInterface {
 
   void reset();
 
+  Future<MessageEntity> sendTextMessage({
+    required String receiverId,
+    required bool isGroup,
+    required String text,
+  });
+
   Future<List<User>> searchCometUsers({
     required String query,
     int page = 1,

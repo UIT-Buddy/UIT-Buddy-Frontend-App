@@ -188,10 +188,19 @@ class _UserSearchViewState extends State<_UserSearchView> {
   }
 
   void _openChat(CometUserEntity user) {
+    final conversation = ConversationEntity(
+      id: user.uid,
+      name: user.name,
+      avatarUrl: user.avatar ?? '',
+      lastMessage: '',
+      time: '',
+      isOnline: user.status == 'online',
+      conversationType: 'user',
+    );
     Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            ChatScreen(userId: user.uid),
+            ChatScreen(conversation: conversation),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           final curved = CurvedAnimation(
             parent: animation,

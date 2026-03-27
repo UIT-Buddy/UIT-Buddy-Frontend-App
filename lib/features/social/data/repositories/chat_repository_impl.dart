@@ -38,4 +38,22 @@ class ChatRepositoryImpl implements ChatRepository {
       return Left(Failure.fromException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, MessageEntity>> sendTextMessage({
+    required String receiverId,
+    required bool isGroup,
+    required String text,
+  }) async {
+    try {
+      final message = await _datasource.sendTextMessage(
+        receiverId: receiverId,
+        isGroup: isGroup,
+        text: text,
+      );
+      return Right(message);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
 }

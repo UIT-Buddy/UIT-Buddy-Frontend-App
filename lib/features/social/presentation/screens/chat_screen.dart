@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
@@ -13,9 +12,9 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_sta
 import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_settings_screen.dart';
 
 class ChatScreen extends StatelessWidget {
-  final String userId;
+  final ConversationEntity conversation;
 
-  const ChatScreen({super.key, required this.userId});
+  const ChatScreen({super.key, required this.conversation});
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +22,11 @@ class ChatScreen extends StatelessWidget {
       create: (_) => serviceLocator<ChatBloc>()
         ..add(
           ChatStarted(
-            receiverId: userId,
-            isGroup: false,
+            receiverId: conversation.id,
+            isGroup: conversation.isGroup,
           ),
         ),
-      child: _ChatView(userId: userId),
+      child: _ChatView(conversation: conversation),
     );
   }
 }
@@ -68,12 +67,6 @@ class _ChatViewState extends State<_ChatView> {
   }
 
   void _onScroll() {
-    MessagesRequest messageRequest = (MessagesRequestBuilder()
-  ..uid = ""
-  ..hasReactions = true
-  ..limit = 50
-  
-  ).build();
     if (!_scrollController.hasClients) return;
     // ListView with reverse: true — scroll position 0 is the bottom.
     // Near maxScrollExtent means user scrolled towards the top (older messages).
@@ -81,6 +74,13 @@ class _ChatViewState extends State<_ChatView> {
         _scrollController.position.maxScrollExtent - 200) {
       context.read<ChatBloc>().add(const ChatLoadMore());
     }
+  }
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+    _messageController.clear();
+    context.read<ChatBloc>().add(ChatSendText(text: text));
   }
 
   void _openSettings() {
@@ -340,8 +340,7 @@ class _ChatViewState extends State<_ChatView> {
     );
   }
 
-  /// Returns gap in minutes between two messages using sentAtRaw,
-  /// falls back to parsing the time string.
+  /// Returns gap in minutes between two messages using sentAtRaw.
   int _minutesBetween(DateTime? earlier, DateTime? later) {
     if (earlier == null || later == null) return 0;
     final diff = later.difference(earlier).inMinutes;
@@ -385,6 +384,7 @@ class _ChatViewState extends State<_ChatView> {
                     maxLines: null,
                     textCapitalization: TextCapitalization.sentences,
                     style: AppTextStyle.bodySmall,
+                    onSubmitted: (_) => _sendMessage(),
                     decoration: InputDecoration(
                       hintText: 'Nhập tin nhắn...',
                       hintStyle: AppTextStyle.bodySmall.copyWith(
@@ -418,7 +418,7 @@ class _ChatViewState extends State<_ChatView> {
                 child: _hasText
                     ? GestureDetector(
                         key: const ValueKey('send'),
-                        onTap: () {},
+                        onTap: _sendMessage,
                         child: Container(
                           width: 40,
                           height: 40,

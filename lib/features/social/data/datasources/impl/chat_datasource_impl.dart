@@ -134,6 +134,41 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
   }
 
   @override
+  Future<MessageEntity> sendTextMessage({
+    required String receiverId,
+    required bool isGroup,
+    required String text,
+  }) async {
+    _loggedInUid ??= await _fetchLoggedInUid();
+
+    final receiverType = isGroup
+        ? CometChatConversationType.group
+        : CometChatConversationType.user;
+
+    final textMessage = TextMessage(
+      text: text,
+      receiverUid: receiverId,
+      receiverType: receiverType,
+      type: CometChatMessageType.text,
+    );
+
+    final completer = Completer<MessageEntity>();
+
+    CometChat.sendMessage(
+      textMessage,
+      onSuccess: (TextMessage sentMessage) {
+        completer.complete(_mapToEntity(sentMessage, _loggedInUid ?? ''));
+      },
+      onError: (CometChatException e) {
+        debugPrint('ChatDatasource sendTextMessage error: ${e.message}');
+        completer.completeError(Exception(e.message));
+      },
+    );
+
+    return completer.future;
+  }
+
+  @override
   Future<List<User>> searchCometUsers({
     required String query,
     int page = 1,
