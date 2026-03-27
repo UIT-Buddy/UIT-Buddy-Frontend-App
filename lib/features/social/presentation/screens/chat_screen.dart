@@ -23,10 +23,7 @@ class ChatScreen extends StatelessWidget {
     return BlocProvider(
       create: (_) => serviceLocator<ChatBloc>()
         ..add(
-          ChatStarted(
-            receiverId: receiverId,
-            isGroup: conversation.isGroup,
-          ),
+          ChatStarted(receiverId: receiverId, isGroup: conversation.isGroup),
         ),
       child: _ChatView(conversation: conversation),
     );
@@ -369,7 +366,9 @@ class _ChatViewState extends State<_ChatView> {
         return Container(
           decoration: const BoxDecoration(
             color: AppColor.pureWhite,
-            border: Border(top: BorderSide(color: AppColor.dividerGrey, width: 1)),
+            border: Border(
+              top: BorderSide(color: AppColor.dividerGrey, width: 1),
+            ),
           ),
           child: SafeArea(
             top: false,
@@ -378,12 +377,18 @@ class _ChatViewState extends State<_ChatView> {
               children: [
                 if (isEditing)
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     color: AppColor.primaryBlue.withValues(alpha: 0.05),
                     child: Row(
                       children: [
-                        const Icon(Icons.edit_outlined,
-                            size: 16, color: AppColor.primaryBlue),
+                        const Icon(
+                          Icons.edit_outlined,
+                          size: 16,
+                          color: AppColor.primaryBlue,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Column(
@@ -408,11 +413,14 @@ class _ChatViewState extends State<_ChatView> {
                           ),
                         ),
                         IconButton(
-                          icon: const Icon(Icons.close,
-                              size: 18, color: AppColor.secondaryText),
-                          onPressed: () => context
-                              .read<ChatBloc>()
-                              .add(const ChatToggleEdit()),
+                          icon: const Icon(
+                            Icons.close,
+                            size: 18,
+                            color: AppColor.secondaryText,
+                          ),
+                          onPressed: () => context.read<ChatBloc>().add(
+                            const ChatToggleEdit(),
+                          ),
                           padding: EdgeInsets.zero,
                           constraints: const BoxConstraints(),
                         ),
@@ -420,7 +428,10 @@ class _ChatViewState extends State<_ChatView> {
                     ),
                   ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -432,8 +443,10 @@ class _ChatViewState extends State<_ChatView> {
                         ),
                         onPressed: isEditing ? null : () {},
                         padding: const EdgeInsets.all(4),
-                        constraints:
-                            const BoxConstraints(minWidth: 36, minHeight: 36),
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       Expanded(
@@ -484,8 +497,9 @@ class _ChatViewState extends State<_ChatView> {
                         child: _hasText || isEditing
                             ? GestureDetector(
                                 key: ValueKey(isEditing ? 'update' : 'send'),
-                                onTap:
-                                    isEditing ? _updateMessage : _sendMessage,
+                                onTap: isEditing
+                                    ? _updateMessage
+                                    : _sendMessage,
                                 child: Container(
                                   width: 40,
                                   height: 40,
@@ -540,13 +554,13 @@ class _ChatViewState extends State<_ChatView> {
     if (editingMsg == null) return;
 
     context.read<ChatBloc>().add(
-          ChatEditMessage(
-            messageId: editingMsg.id,
-            text: text,
-            receiverId: editingMsg.receiverId,
-            isGroup: editingMsg.isGroup,
-          ),
-        );
+      ChatEditMessage(
+        messageId: editingMsg.id,
+        text: text,
+        receiverId: editingMsg.receiverId,
+        isGroup: editingMsg.isGroup,
+      ),
+    );
     _messageController.clear();
     _focusNode.unfocus();
   }
@@ -602,18 +616,28 @@ class _MessageBubbleState extends State<_MessageBubble> {
             ),
             const SizedBox(height: 16),
             ListTile(
-              leading: const Icon(Icons.edit_outlined, color: AppColor.primaryBlue),
+              leading: const Icon(
+                Icons.edit_outlined,
+                color: AppColor.primaryBlue,
+              ),
               title: Text('Sửa tin nhắn', style: AppTextStyle.bodyMedium),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
-                context.read<ChatBloc>().add(ChatToggleEdit(message: widget.message));
+                context.read<ChatBloc>().add(
+                  ChatToggleEdit(message: widget.message),
+                );
               },
             ),
             ListTile(
-              leading: const Icon(Icons.delete_outline, color: AppColor.alertRed),
+              leading: const Icon(
+                Icons.delete_outline,
+                color: AppColor.alertRed,
+              ),
               title: Text(
                 'Xóa tin nhắn',
-                style: AppTextStyle.bodyMedium.copyWith(color: AppColor.alertRed),
+                style: AppTextStyle.bodyMedium.copyWith(
+                  color: AppColor.alertRed,
+                ),
               ),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
@@ -640,10 +664,15 @@ class _MessageBubbleState extends State<_MessageBubble> {
           ),
           TextButton(
             onPressed: () {
-              context.read<ChatBloc>().add(ChatDeleteMessage(messageId: widget.message.id));
+              context.read<ChatBloc>().add(
+                ChatDeleteMessage(messageId: widget.message.id),
+              );
               Navigator.pop(dialogContext);
             },
-            child: const Text('Xóa', style: TextStyle(color: AppColor.alertRed)),
+            child: const Text(
+              'Xóa',
+              style: TextStyle(color: AppColor.alertRed),
+            ),
           ),
         ],
       ),
@@ -720,36 +749,37 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 top: 3,
               ),
               child: Align(
-              alignment: isMine
-                  ? Alignment.centerRight
-                  : Alignment.centerLeft,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.message.isEdited) ...[
-                    Text(
-                      'Đã chỉnh sửa',
-                      style: AppTextStyle.captionExtraSmall.copyWith(
-                        fontStyle: FontStyle.italic,
-                        color: AppColor.secondaryText.withValues(alpha: 0.7),
+                alignment: isMine
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.message.isEdited) ...[
+                      Text(
+                        'Đã chỉnh sửa',
+                        style: AppTextStyle.captionExtraSmall.copyWith(
+                          fontStyle: FontStyle.italic,
+                          color: AppColor.secondaryText.withValues(alpha: 0.7),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '•',
-                      style: AppTextStyle.captionExtraSmall.copyWith(
-                        color: AppColor.secondaryText.withValues(alpha: 0.5),
+                      const SizedBox(width: 4),
+                      Text(
+                        '•',
+                        style: AppTextStyle.captionExtraSmall.copyWith(
+                          color: AppColor.secondaryText.withValues(alpha: 0.5),
+                        ),
                       ),
+                      const SizedBox(width: 4),
+                    ],
+                    Text(
+                      widget.message.time,
+                      style: AppTextStyle.captionExtraSmall,
                     ),
-                    const SizedBox(width: 4),
                   ],
-                  Text(
-                    widget.message.time,
-                    style: AppTextStyle.captionExtraSmall,
-                  ),
-                ],
+                ),
               ),
-              ),            ),
+            ),
         ],
       ),
     );
