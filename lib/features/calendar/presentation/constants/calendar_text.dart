@@ -75,6 +75,7 @@ class CalendarText {
 
   static const String coursesEmptyState = 'No classes this semester';
   static const String coursesErrorPrefix = 'Failed to load timetable';
+  static const String coursesRetry = 'Try again';
 
   /// Label shown in the period column for the Blended-Learning row.
   static const String blendedLearningRowLabel = 'BL';

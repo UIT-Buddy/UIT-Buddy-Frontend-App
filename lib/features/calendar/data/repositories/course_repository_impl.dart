@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/course_datasource_interface.dart';
@@ -19,8 +21,10 @@ class CourseRepositoryImpl implements CourseRepository {
     try {
       final models = await _courseDatasourceInterface.getCourses();
       return Right(models.map((m) => m.toEntity()).toList());
-    } on Exception catch (e) {
-      return Left(Failure.fromException(e));
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e, st) {
+      log('getCourses error: $e', stackTrace: st, name: 'CourseRepository');
+      return Left(Failure(e.toString()));
     }
   }
 
@@ -35,24 +39,32 @@ class CourseRepositoryImpl implements CourseRepository {
         year: year,
       );
       return Right(models.map((m) => m.toEntity()).toList());
-    } on Exception catch (e) {
-      return Left(Failure.fromException(e));
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e, st) {
+      log(
+        'getCoursesByMode error: $e',
+        stackTrace: st,
+        name: 'CourseRepository',
+      );
+      return Left(Failure(e.toString()));
     }
   }
 
   @override
-  Future<Either<Failure, Unit>> uploadSchedule({
+  Future<Either<Failure, List<CourseDetailsEntity>>> uploadSchedule({
     required String filePath,
     required String fileName,
   }) async {
     try {
-      await _courseDatasourceInterface.uploadSchedule(
+      final models = await _courseDatasourceInterface.uploadSchedule(
         filePath: filePath,
         fileName: fileName,
       );
-      return const Right(unit);
-    } on Exception catch (e) {
-      return Left(Failure.fromException(e));
+      return Right(models.map((m) => m.toEntity()).toList());
+      // ignore: avoid_catches_without_on_clauses
+    } catch (e, st) {
+      log('uploadSchedule error: $e', stackTrace: st, name: 'CourseRepository');
+      return Left(Failure(e.toString()));
     }
   }
 }

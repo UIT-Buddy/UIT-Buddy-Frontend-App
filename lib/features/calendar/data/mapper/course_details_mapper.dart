@@ -28,12 +28,13 @@ extension DeadlineDetailInCourseMapper on DeadlineDetailInCourseModel {
     title: title,
     status: _mapStatus(status),
     deadline: DateTime.parse(deadline),
+    url: url,
   );
 
-  TaskEntityStatus _mapStatus(String s) => switch (s) {
-    'done' => TaskEntityStatus.done,
-    'nearDeadline' => TaskEntityStatus.nearDeadline,
-    'overdue' => TaskEntityStatus.overdue,
+  TaskEntityStatus _mapStatus(String s) => switch (s.toUpperCase()) {
+    'DONE' => TaskEntityStatus.done,
+    'NEARDEADLINE' => TaskEntityStatus.nearDeadline,
+    'OVERDUE' => TaskEntityStatus.overdue,
     _ => TaskEntityStatus.upcoming,
   };
 }
