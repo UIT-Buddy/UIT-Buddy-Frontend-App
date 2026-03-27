@@ -72,11 +72,17 @@ class CoursesModeBloc extends Bloc<CoursesModeEvent, CoursesModeState> {
           uploadErrorMessage: failure.message,
         ),
       ),
-      (_) => emit(state.copyWith(uploadStatus: UploadScheduleStatus.success)),
+      (courses) => emit(
+        state.copyWith(
+          uploadStatus: UploadScheduleStatus.success,
+          status: CoursesModeStatus.loaded,
+          courses: courses,
+        ),
+      ),
     );
-    if (result.isRight()) {
-      await _fetchCourses(emit);
-    }
+    // Reset uploadStatus to idle so the listener can fire again on the next upload
+    // and users are not stuck in a terminal success/failure state.
+    emit(state.copyWith(uploadStatus: UploadScheduleStatus.idle));
   }
 
   Future<void> _fetchCourses(Emitter<CoursesModeState> emit) async {

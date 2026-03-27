@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/constants/calendar_text.dart';
 
 /// Displayed when the courses bloc emits an error state.
@@ -48,6 +51,39 @@ class CoursesErrorView extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
             ),
+          const SizedBox(height: 16),
+          GestureDetector(
+            onTap: () =>
+                context.read<CoursesModeBloc>().add(const CoursesModeStarted()),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColor.primaryBlue.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppColor.primaryBlue.withValues(alpha: 0.30),
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.refresh_rounded,
+                    size: 16,
+                    color: AppColor.primaryBlue,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    CalendarText.coursesRetry,
+                    style: AppTextStyle.captionMedium.copyWith(
+                      color: AppColor.primaryBlue,
+                      fontWeight: AppTextStyle.medium,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
         ],
       ),
     );

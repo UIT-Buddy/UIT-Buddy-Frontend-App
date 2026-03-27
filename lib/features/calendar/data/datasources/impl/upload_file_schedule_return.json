@@ -1,0 +1,354 @@
+{
+    "statusCode": 200,
+    "message": "Schedule uploaded successfully",
+    "data": [
+        {
+            "courseCode": "IT002",
+            "classId": "IT002.P215.2",
+            "courseName": "Lập trình hướng đối tượng",
+            "lecturer": "Huỳnh Minh Đức",
+            "dayOfWeek": 5,
+            "startTime": "13:00",
+            "labOfClassId": "IT002.P215",
+            "isBlendedLearning": false,
+            "endTime": "17:00",
+            "startPeriod": "6",
+            "endPeriod": "10",
+            "roomCode": "B2.12",
+            "startDate": "2025-03-13",
+            "endDate": "2025-06-07",
+            "credits": 1,
+            "deadline": {
+                "courseName": "IT002.P215",
+                "exercises": [
+                    {
+                        "exerciseName": "Kiểm tra thực hành OOP",
+                        "dueDate": "2025-06-11T12:45:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=404211",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 05 - Lớp 02",
+                        "dueDate": "2025-05-25T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=398996",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 05 - Lớp 01",
+                        "dueDate": "2025-05-18T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=396176",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 04 - Lớp 02",
+                        "dueDate": "2025-05-11T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=393481",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 04 - Lớp 01",
+                        "dueDate": "2025-04-20T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=388951",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Bài Tập Sáng 17/04",
+                        "dueDate": "2025-04-17T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=388941",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 03 - Lớp 02",
+                        "dueDate": "2025-04-13T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=385651",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 03 - Lớp 01",
+                        "dueDate": "2025-04-06T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=383781",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Bài Tập Sáng 03/04",
+                        "dueDate": "2025-04-04T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=383776",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Thực Hanh 02 - Lớp 02",
+                        "dueDate": "2025-03-30T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=380326",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 02 - Lớp 01",
+                        "dueDate": "2025-03-23T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=375898",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 01 - Lớp 02",
+                        "dueDate": "2025-03-16T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=372938",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hanh 01 - Lớp 01",
+                        "dueDate": "2025-03-09T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=369583",
+                        "status": "OVERDUE"
+                    }
+                ]
+            }
+        },
+        {
+            "courseCode": "SS006",
+            "classId": "SS006.P21",
+            "courseName": "Pháp luật đại cương",
+            "lecturer": "Nguyễn Lê Mỹ Kim",
+            "dayOfWeek": 2,
+            "startTime": "07:30",
+            "isBlendedLearning": false,
+            "endTime": "09:00",
+            "startPeriod": "1",
+            "endPeriod": "2",
+            "roomCode": "B4.14",
+            "startDate": "2025-02-17",
+            "endDate": "2025-06-07",
+            "credits": 2,
+            "deadline": {
+                "courseName": "SS006.P21",
+                "exercises": [
+                    {
+                        "exerciseName": "wheel of life",
+                        "dueDate": "2025-04-28T21:00:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=391021",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Warm up _ let me know ab you",
+                        "dueDate": "2025-02-17T21:00:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=340938",
+                        "status": "DONE"
+                    }
+                ]
+            }
+        },
+        {
+            "courseCode": "IT002",
+            "classId": "IT002.P215",
+            "courseName": "Lập trình hướng đối tượng",
+            "lecturer": "Huỳnh Minh Đức",
+            "dayOfWeek": 5,
+            "startTime": "07:30",
+            "isBlendedLearning": false,
+            "endTime": "09:45",
+            "startPeriod": "1",
+            "endPeriod": "3",
+            "roomCode": "B1.22",
+            "startDate": "2025-02-20",
+            "endDate": "2025-06-07",
+            "credits": 3,
+            "deadline": {
+                "courseName": "IT002.P215",
+                "exercises": [
+                    {
+                        "exerciseName": "Kiểm tra thực hành OOP",
+                        "dueDate": "2025-06-11T12:45:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=404211",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 05 - Lớp 02",
+                        "dueDate": "2025-05-25T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=398996",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 05 - Lớp 01",
+                        "dueDate": "2025-05-18T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=396176",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 04 - Lớp 02",
+                        "dueDate": "2025-05-11T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=393481",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 04 - Lớp 01",
+                        "dueDate": "2025-04-20T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=388951",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Bài Tập Sáng 17/04",
+                        "dueDate": "2025-04-17T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=388941",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 03 - Lớp 02",
+                        "dueDate": "2025-04-13T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=385651",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 03 - Lớp 01",
+                        "dueDate": "2025-04-06T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=383781",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Bài Tập Sáng 03/04",
+                        "dueDate": "2025-04-04T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=383776",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Thực Hanh 02 - Lớp 02",
+                        "dueDate": "2025-03-30T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=380326",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 02 - Lớp 01",
+                        "dueDate": "2025-03-23T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=375898",
+                        "status": "OVERDUE"
+                    },
+                    {
+                        "exerciseName": "Thực Hành 01 - Lớp 02",
+                        "dueDate": "2025-03-16T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=372938",
+                        "status": "DONE"
+                    },
+                    {
+                        "exerciseName": "Thực Hanh 01 - Lớp 01",
+                        "dueDate": "2025-03-09T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=369583",
+                        "status": "OVERDUE"
+                    }
+                ]
+            }
+        },
+        {
+            "courseCode": "IT003",
+            "classId": "IT003.P214",
+            "courseName": "Cấu trúc dữ liệu và giải thuật",
+            "lecturer": "Nguyễn Thị Ngọc Diễm",
+            "dayOfWeek": 3,
+            "startTime": "13:00",
+            "isBlendedLearning": false,
+            "endTime": "15:15",
+            "startPeriod": "6",
+            "endPeriod": "8",
+            "roomCode": "B6.08",
+            "startDate": "2025-02-18",
+            "endDate": "2025-06-07",
+            "credits": 3,
+            "deadline": {
+                "courseName": "IT003.P214",
+                "exercises": [
+                    {
+                        "exerciseName": "Bài tập Buổi 1: DSA- Analysis (Deadline: 23h59 ngày 03/03/2025)",
+                        "dueDate": "2025-03-03T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=348918",
+                        "status": "DONE"
+                    }
+                ]
+            }
+        },
+        {
+            "courseCode": "MA004",
+            "classId": "MA004.P23",
+            "courseName": "Cấu trúc rời rạc",
+            "lecturer": "Cao Thanh Tình",
+            "dayOfWeek": 2,
+            "startTime": "13:00",
+            "isBlendedLearning": false,
+            "endTime": "16:15",
+            "startPeriod": "6",
+            "endPeriod": "9",
+            "roomCode": "B1.18",
+            "startDate": "2025-02-17",
+            "endDate": "2025-06-07",
+            "credits": 4,
+            "deadline": null
+        },
+        {
+            "courseCode": "SS008",
+            "classId": "SS008.P23",
+            "courseName": "Kinh tế chính trị Mác – Lênin",
+            "lecturer": "Trương Thị Thanh Thùy",
+            "dayOfWeek": 6,
+            "startTime": "13:00",
+            "isBlendedLearning": false,
+            "endTime": "14:30",
+            "startPeriod": "6",
+            "endPeriod": "7",
+            "roomCode": "B4.14",
+            "startDate": "2025-02-21",
+            "endDate": "2025-06-07",
+            "credits": 2,
+            "deadline": {
+                "courseName": "SS008.P23",
+                "exercises": [
+                    {
+                        "exerciseName": "BÀI TẬP LÀM VIỆC NHÓM LẦN THỨ 1",
+                        "dueDate": "2025-03-13T12:00:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=370763",
+                        "status": "OVERDUE"
+                    }
+                ]
+            }
+        },
+        {
+            "courseCode": "IT003",
+            "classId": "IT003.P214.2",
+            "courseName": "Cấu trúc dữ liệu và giải thuật",
+            "lecturer": "Nguyễn Thị Ngọc Diễm",
+            "dayOfWeek": 3,
+            "startTime": "07:30",
+            "labOfClassId": "IT003.P214",
+            "isBlendedLearning": false,
+            "endTime": "11:30",
+            "startPeriod": "1",
+            "endPeriod": "5",
+            "roomCode": "B5.02",
+            "startDate": "2025-03-11",
+            "endDate": "2025-06-07",
+            "credits": 1,
+            "deadline": {
+                "courseName": "IT003.P214",
+                "exercises": [
+                    {
+                        "exerciseName": "Bài tập Buổi 1: DSA- Analysis (Deadline: 23h59 ngày 03/03/2025)",
+                        "dueDate": "2025-03-03T23:59:00",
+                        "url": "https://courses.uit.edu.vn/mod/assign/view.php?id=348918",
+                        "status": "DONE"
+                    }
+                ]
+            }
+        },
+        {
+            "courseCode": "MA005",
+            "classId": "MA005.P28",
+            "courseName": "Xác suất thống kê",
+            "lecturer": "Nguyễn Chiến Thắng",
+            "dayOfWeek": 4,
+            "startTime": "07:30",
+            "isBlendedLearning": false,
+            "endTime": "10:45",
+            "startPeriod": "1",
+            "endPeriod": "4",
+            "roomCode": "B3.20",
+            "startDate": "2025-02-19",
+            "endDate": "2025-05-10",
+            "credits": 3,
+            "deadline": null
+        }
+    ]
+}

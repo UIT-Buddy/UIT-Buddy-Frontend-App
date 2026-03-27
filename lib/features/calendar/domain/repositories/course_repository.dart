@@ -11,7 +11,7 @@ abstract interface class CourseRepository {
     required int year,
   });
 
-  Future<Either<Failure, Unit>> uploadSchedule({
+  Future<Either<Failure, List<CourseDetailsEntity>>> uploadSchedule({
     required String filePath,
     required String fileName,
   });
