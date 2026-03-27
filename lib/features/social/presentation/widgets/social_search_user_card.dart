@@ -140,6 +140,11 @@ class _FriendStatusButtonStyle {
         foregroundColor: AppColor.primaryBlue,
         borderColor: AppColor.primaryBlue10,
       ),
+      FriendStatus.requested => _FriendStatusButtonStyle(
+        backgroundColor: AppColor.warningOrangeLight,
+        foregroundColor: AppColor.warningOrangeDark,
+        borderColor: AppColor.warningOrangeLight,
+      ),
     };
   }
 }

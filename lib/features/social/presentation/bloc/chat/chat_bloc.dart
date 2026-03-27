@@ -2,6 +2,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/send_text_message_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/edit_text_message_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_state.dart';
 
@@ -9,19 +11,29 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   ChatBloc({
     required GetMessagesUsecase getMessagesUsecase,
     required SendTextMessageUsecase sendTextMessageUsecase,
+    required EditTextMessageUsecase editTextMessageUsecase,
+    required DeleteMessageUsecase deleteMessageUsecase,
   }) : _getMessagesUsecase = getMessagesUsecase,
        _sendTextMessageUsecase = sendTextMessageUsecase,
+       _editTextMessageUsecase = editTextMessageUsecase,
+       _deleteMessageUsecase = deleteMessageUsecase,
        super(const ChatState()) {
     on<ChatStarted>(_onStarted);
     on<ChatLoadMore>(_onLoadMore);
     on<ChatSendText>(_onSendText);
+    on<ChatEditMessage>(_onEditMessage);
+    on<ChatDeleteMessage>(_onDeleteMessage);
+    on<ChatToggleEdit>(_onToggleEdit);
   }
 
   final GetMessagesUsecase _getMessagesUsecase;
   final SendTextMessageUsecase _sendTextMessageUsecase;
+  final EditTextMessageUsecase _editTextMessageUsecase;
+  final DeleteMessageUsecase _deleteMessageUsecase;
   ChatStarted? _lastStartedEvent;
 
   Future<void> _onStarted(ChatStarted event, Emitter<ChatState> emit) async {
+    _getMessagesUsecase.reset();
     emit(state.copyWith(status: ChatStatus.loading));
 
     final result = await _getMessagesUsecase(
@@ -63,32 +75,28 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ),
     );
 
-    result.fold(
-      (failure) => emit(state.copyWith(isLoadingMore: false)),
-      (olderMessages) {
-        if (olderMessages.isEmpty) {
-          emit(state.copyWith(isLoadingMore: false, hasMore: false));
-          return;
-        }
-        final merged = _dedupeById([
-          ..._sortOldestFirst(olderMessages),
-          ...state.messages,
-        ]);
-        emit(
-          state.copyWith(
-            isLoadingMore: false,
-            hasMore: olderMessages.length >= 30,
-            messages: merged,
-          ),
-        );
-      },
-    );
+    result.fold((failure) => emit(state.copyWith(isLoadingMore: false)), (
+      olderMessages,
+    ) {
+      if (olderMessages.isEmpty) {
+        emit(state.copyWith(isLoadingMore: false, hasMore: false));
+        return;
+      }
+      final merged = _dedupeById([
+        ..._sortOldestFirst(olderMessages),
+        ...state.messages,
+      ]);
+      emit(
+        state.copyWith(
+          isLoadingMore: false,
+          hasMore: olderMessages.length >= 30,
+          messages: merged,
+        ),
+      );
+    });
   }
 
-  Future<void> _onSendText(
-    ChatSendText event,
-    Emitter<ChatState> emit,
-  ) async {
+  Future<void> _onSendText(ChatSendText event, Emitter<ChatState> emit) async {
     final currentEvent = _lastStartedEvent;
     if (currentEvent == null) return;
 
@@ -100,13 +108,66 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ),
     );
 
+    result.fold((failure) {}, (sentMessage) {
+      final merged = _dedupeById([...state.messages, sentMessage]);
+      emit(state.copyWith(messages: _sortOldestFirst(merged)));
+    });
+  }
+
+  Future<void> _onEditMessage(
+    ChatEditMessage event,
+    Emitter<ChatState> emit,
+  ) async {
+    final result = await _editTextMessageUsecase(
+      EditTextMessageParams(
+        messageId: event.messageId,
+        text: event.text,
+        receiverId: event.receiverId,
+        isGroup: event.isGroup,
+      ),
+    );
+
     result.fold(
-      (failure) {},
-      (sentMessage) {
-        final merged = _dedupeById([...state.messages, sentMessage]);
-        emit(state.copyWith(messages: _sortOldestFirst(merged)));
+      (failure) {
+        emit(state.copyWith(errorMessage: failure.message));
+      },
+      (editedMessage) {
+        final updatedMessages = state.messages.map((m) {
+          return m.id == editedMessage.id ? editedMessage : m;
+        }).toList();
+        emit(
+          state.copyWith(
+            messages: updatedMessages,
+            editingMessage: null, // Clear edit mode
+          ),
+        );
       },
     );
+  }
+
+  Future<void> _onDeleteMessage(
+    ChatDeleteMessage event,
+    Emitter<ChatState> emit,
+  ) async {
+    final result = await _deleteMessageUsecase(
+      DeleteMessageParams(messageId: event.messageId),
+    );
+
+    result.fold(
+      (failure) {
+        emit(state.copyWith(errorMessage: failure.message));
+      },
+      (_) {
+        final updatedMessages = state.messages
+            .where((m) => m.id != event.messageId)
+            .toList();
+        emit(state.copyWith(messages: updatedMessages));
+      },
+    );
+  }
+
+  void _onToggleEdit(ChatToggleEdit event, Emitter<ChatState> emit) {
+    emit(state.copyWith(editingMessage: event.message));
   }
 
   List<MessageEntity> _sortOldestFirst(List<MessageEntity> messages) {

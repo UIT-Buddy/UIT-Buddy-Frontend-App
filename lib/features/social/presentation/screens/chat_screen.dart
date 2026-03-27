@@ -18,13 +18,12 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final receiverId = conversation.conversationWith ?? conversation.id;
+
     return BlocProvider(
       create: (_) => serviceLocator<ChatBloc>()
         ..add(
-          ChatStarted(
-            receiverId: conversation.id,
-            isGroup: conversation.isGroup,
-          ),
+          ChatStarted(receiverId: receiverId, isGroup: conversation.isGroup),
         ),
       child: _ChatView(conversation: conversation),
     );
@@ -110,14 +109,26 @@ class _ChatViewState extends State<_ChatView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.pureWhite,
-      appBar: _buildAppBar(),
-      body: Column(
-        children: [
-          Expanded(child: _buildMessageList()),
-          _buildInputBar(),
-        ],
+    return BlocListener<ChatBloc, ChatState>(
+      listenWhen: (prev, curr) => prev.editingMessage != curr.editingMessage,
+      listener: (context, state) {
+        if (state.editingMessage != null) {
+          _messageController.text = state.editingMessage!.content;
+          _focusNode.requestFocus();
+        } else {
+          _messageController.clear();
+          _focusNode.unfocus();
+        }
+      },
+      child: Scaffold(
+        backgroundColor: AppColor.pureWhite,
+        appBar: _buildAppBar(),
+        body: Column(
+          children: [
+            Expanded(child: _buildMessageList()),
+            _buildInputBar(),
+          ],
+        ),
       ),
     );
   }
@@ -348,114 +359,210 @@ class _ChatViewState extends State<_ChatView> {
   }
 
   Widget _buildInputBar() {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColor.pureWhite,
-        border: Border(top: BorderSide(color: AppColor.dividerGrey, width: 1)),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              IconButton(
-                icon: const Icon(
-                  Icons.add_circle_outline,
-                  color: AppColor.primaryBlue,
-                  size: 26,
-                ),
-                onPressed: () {},
-                padding: const EdgeInsets.all(4),
-                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-              ),
-              const SizedBox(width: 4),
-              Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(maxHeight: 120),
-                  decoration: BoxDecoration(
-                    color: AppColor.veryLightGrey,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: TextField(
-                    controller: _messageController,
-                    focusNode: _focusNode,
-                    maxLines: null,
-                    textCapitalization: TextCapitalization.sentences,
-                    style: AppTextStyle.bodySmall,
-                    onSubmitted: (_) => _sendMessage(),
-                    decoration: InputDecoration(
-                      hintText: 'Nhập tin nhắn...',
-                      hintStyle: AppTextStyle.bodySmall.copyWith(
-                        color: AppColor.secondaryText,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 10,
-                      ),
-                      border: InputBorder.none,
-                      enabledBorder: InputBorder.none,
-                      focusedBorder: InputBorder.none,
-                      filled: false,
-                      suffixIcon: IconButton(
-                        icon: const Icon(
-                          Icons.emoji_emotions_outlined,
-                          color: AppColor.secondaryText,
-                          size: 20,
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
+        final isEditing = state.editingMessage != null;
+
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColor.pureWhite,
+            border: Border(
+              top: BorderSide(color: AppColor.dividerGrey, width: 1),
+            ),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isEditing)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    color: AppColor.primaryBlue.withValues(alpha: 0.05),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.edit_outlined,
+                          size: 16,
+                          color: AppColor.primaryBlue,
                         ),
-                        onPressed: () {},
-                      ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Sửa tin nhắn',
+                                style: AppTextStyle.captionExtraSmall.copyWith(
+                                  color: AppColor.primaryBlue,
+                                  fontWeight: AppTextStyle.bold,
+                                ),
+                              ),
+                              Text(
+                                state.editingMessage!.content,
+                                style: AppTextStyle.captionExtraSmall.copyWith(
+                                  color: AppColor.secondaryText,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.close,
+                            size: 18,
+                            color: AppColor.secondaryText,
+                          ),
+                          onPressed: () => context.read<ChatBloc>().add(
+                            const ChatToggleEdit(),
+                          ),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(),
+                        ),
+                      ],
                     ),
                   ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                transitionBuilder: (child, animation) =>
-                    ScaleTransition(scale: animation, child: child),
-                child: _hasText
-                    ? GestureDetector(
-                        key: const ValueKey('send'),
-                        onTap: _sendMessage,
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: const BoxDecoration(
-                            color: AppColor.primaryBlue,
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Icon(
-                            Icons.send_rounded,
-                            color: AppColor.pureWhite,
-                            size: 18,
-                          ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        icon: const Icon(
+                          Icons.add_circle_outline,
+                          color: AppColor.primaryBlue,
+                          size: 26,
                         ),
-                      )
-                    : GestureDetector(
-                        key: const ValueKey('mic'),
-                        onTap: () {},
+                        onPressed: isEditing ? null : () {},
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(
+                          minWidth: 36,
+                          minHeight: 36,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
                         child: Container(
-                          width: 40,
-                          height: 40,
+                          constraints: const BoxConstraints(maxHeight: 120),
                           decoration: BoxDecoration(
                             color: AppColor.veryLightGrey,
-                            shape: BoxShape.circle,
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                          child: const Icon(
-                            Icons.mic_outlined,
-                            color: AppColor.primaryBlue,
-                            size: 22,
+                          child: TextField(
+                            controller: _messageController,
+                            focusNode: _focusNode,
+                            maxLines: null,
+                            textCapitalization: TextCapitalization.sentences,
+                            style: AppTextStyle.bodySmall,
+                            onSubmitted: (_) =>
+                                isEditing ? _updateMessage() : _sendMessage(),
+                            decoration: InputDecoration(
+                              hintText: 'Nhập tin nhắn...',
+                              hintStyle: AppTextStyle.bodySmall.copyWith(
+                                color: AppColor.secondaryText,
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 10,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                              filled: false,
+                              suffixIcon: IconButton(
+                                icon: const Icon(
+                                  Icons.emoji_emotions_outlined,
+                                  color: AppColor.secondaryText,
+                                  size: 20,
+                                ),
+                                onPressed: () {},
+                              ),
+                            ),
                           ),
                         ),
                       ),
-              ),
-            ],
+                      const SizedBox(width: 8),
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 200),
+                        transitionBuilder: (child, animation) =>
+                            ScaleTransition(scale: animation, child: child),
+                        child: _hasText || isEditing
+                            ? GestureDetector(
+                                key: ValueKey(isEditing ? 'update' : 'send'),
+                                onTap: isEditing
+                                    ? _updateMessage
+                                    : _sendMessage,
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: const BoxDecoration(
+                                    color: AppColor.primaryBlue,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    isEditing
+                                        ? Icons.check_rounded
+                                        : Icons.send_rounded,
+                                    color: AppColor.pureWhite,
+                                    size: isEditing ? 22 : 18,
+                                  ),
+                                ),
+                              )
+                            : GestureDetector(
+                                key: const ValueKey('mic'),
+                                onTap: () {},
+                                child: Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: AppColor.veryLightGrey,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(
+                                    Icons.mic_outlined,
+                                    color: AppColor.primaryBlue,
+                                    size: 22,
+                                  ),
+                                ),
+                              ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
+        );
+      },
+    );
+  }
+
+  void _updateMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+
+    final state = context.read<ChatBloc>().state;
+    final editingMsg = state.editingMessage;
+    if (editingMsg == null) return;
+
+    context.read<ChatBloc>().add(
+      ChatEditMessage(
+        messageId: editingMsg.id,
+        text: text,
+        receiverId: editingMsg.receiverId,
+        isGroup: editingMsg.isGroup,
       ),
     );
+    _messageController.clear();
+    _focusNode.unfocus();
   }
 }
 
@@ -484,6 +591,94 @@ class _MessageBubbleState extends State<_MessageBubble> {
     }
   }
 
+  void _onBubbleLongPress() {
+    if (!widget.message.isMine) return;
+
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) => Container(
+        decoration: const BoxDecoration(
+          color: AppColor.pureWhite,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: AppColor.dividerGrey,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 16),
+            ListTile(
+              leading: const Icon(
+                Icons.edit_outlined,
+                color: AppColor.primaryBlue,
+              ),
+              title: Text('Sửa tin nhắn', style: AppTextStyle.bodyMedium),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                context.read<ChatBloc>().add(
+                  ChatToggleEdit(message: widget.message),
+                );
+              },
+            ),
+            ListTile(
+              leading: const Icon(
+                Icons.delete_outline,
+                color: AppColor.alertRed,
+              ),
+              title: Text(
+                'Xóa tin nhắn',
+                style: AppTextStyle.bodyMedium.copyWith(
+                  color: AppColor.alertRed,
+                ),
+              ),
+              onTap: () {
+                Navigator.pop(bottomSheetContext);
+                _confirmDelete();
+              },
+            ),
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _confirmDelete() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Xóa tin nhắn?'),
+        content: const Text('Bạn có chắc chắn muốn xóa tin nhắn này không?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Hủy'),
+          ),
+          TextButton(
+            onPressed: () {
+              context.read<ChatBloc>().add(
+                ChatDeleteMessage(messageId: widget.message.id),
+              );
+              Navigator.pop(dialogContext);
+            },
+            child: const Text(
+              'Xóa',
+              style: TextStyle(color: AppColor.alertRed),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final isMine = widget.message.isMine;
@@ -502,6 +697,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
           if (showTs) _buildTimestamp(),
           GestureDetector(
             onTap: _onBubbleTap,
+            onLongPress: _onBubbleLongPress,
             behavior: HitTestBehavior.opaque,
             child: Row(
               mainAxisAlignment: isMine
@@ -556,9 +752,31 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 alignment: isMine
                     ? Alignment.centerRight
                     : Alignment.centerLeft,
-                child: Text(
-                  widget.message.time,
-                  style: AppTextStyle.captionExtraSmall,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (widget.message.isEdited) ...[
+                      Text(
+                        'Đã chỉnh sửa',
+                        style: AppTextStyle.captionExtraSmall.copyWith(
+                          fontStyle: FontStyle.italic,
+                          color: AppColor.secondaryText.withValues(alpha: 0.7),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        '•',
+                        style: AppTextStyle.captionExtraSmall.copyWith(
+                          color: AppColor.secondaryText.withValues(alpha: 0.5),
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                    ],
+                    Text(
+                      widget.message.time,
+                      style: AppTextStyle.captionExtraSmall,
+                    ),
+                  ],
                 ),
               ),
             ),

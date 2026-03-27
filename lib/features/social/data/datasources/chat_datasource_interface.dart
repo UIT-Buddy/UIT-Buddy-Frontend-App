@@ -20,6 +20,15 @@ abstract interface class ChatDatasourceInterface {
     required String text,
   });
 
+  Future<MessageEntity> editTextMessage({
+    required String messageId,
+    required String text,
+    required String receiverId,
+    required bool isGroup,
+  });
+
+  Future<void> deleteMessage({required String messageId});
+
   Future<List<User>> searchCometUsers({
     required String query,
     int page = 1,

@@ -26,7 +26,7 @@ class NewFeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => serviceLocator<NewFeedBloc>()..add(const NewFeedStarted()),
+      create: (_) => serviceLocator<NewFeedBloc>(),
       child: const _NewFeedView(),
     );
   }
@@ -47,6 +47,7 @@ class _NewFeedViewState extends State<_NewFeedView> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+    context.read<NewFeedBloc>().add(const NewFeedStarted());
   }
 
   @override
@@ -78,7 +79,15 @@ class _NewFeedViewState extends State<_NewFeedView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<NewFeedBloc, NewFeedState>(
-      buildWhen: (prev, curr) => prev.selectedTab != curr.selectedTab,
+      // Rebuild for feed state changes too (loading/loaded/posts/load-more),
+      // otherwise first fetch won't appear until another UI-triggered rebuild.
+      buildWhen: (prev, curr) =>
+          prev.selectedTab != curr.selectedTab ||
+          prev.status != curr.status ||
+          prev.posts != curr.posts ||
+          prev.isLoadingMore != curr.isLoadingMore ||
+          prev.hasMore != curr.hasMore ||
+          prev.errorMessage != curr.errorMessage,
       builder: (context, state) {
         final isMessageTab = state.selectedTab == NewFeedTab.message;
         return Scaffold(
@@ -106,9 +115,13 @@ class _NewFeedViewState extends State<_NewFeedView> {
                   },
                 ),
                 Expanded(
-                  child: state.selectedTab == NewFeedTab.feed
-                      ? _buildFeedTab(context, state)
-                      : _buildMessageTab(),
+                  child: IndexedStack(
+                    index: state.selectedTab == NewFeedTab.feed ? 0 : 1,
+                    children: [
+                      _buildFeedTab(context, state),
+                      _buildMessageTab(),
+                    ],
+                  ),
                 ),
               ],
             ),

@@ -4,7 +4,6 @@ import 'package:uit_buddy_mobile/core/common/paged_result.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/comet_user_entity.dart';
-import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/user_search_repository.dart';
 
 class SearchCometUserUsecase

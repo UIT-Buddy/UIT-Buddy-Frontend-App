@@ -43,6 +43,7 @@ dependencies:
   image_picker: ^1.2.1
   flutter_markdown: ^0.7.6
   cometchat_sdk: ^4.1.0
+  stream_transform: ^2.1.1
   cometchat_calls_sdk: ^4.2.2
 
 dev_dependencies:

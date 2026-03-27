@@ -34,9 +34,11 @@ FriendStatus _mapFriendStatus(String? rawValue) {
     case 'ACCEPTED':
       return FriendStatus.friends;
     case 'PENDING':
-    case 'REQUESTED':
     case 'SENT':
       return FriendStatus.pending;
+    case 'REQUESTED':
+    case 'RECEIVED':
+      return FriendStatus.requested;
     case 'NONE':
     case 'NOT_FRIEND':
     case 'NOT_FRIENDS':

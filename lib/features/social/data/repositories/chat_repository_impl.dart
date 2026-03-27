@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/chat_datasource_interface.dart';
@@ -46,6 +47,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required String text,
   }) async {
     try {
+      debugPrint('Sending text message to $receiverId $isGroup $text');
       final message = await _datasource.sendTextMessage(
         receiverId: receiverId,
         isGroup: isGroup,
@@ -55,5 +57,42 @@ class ChatRepositoryImpl implements ChatRepository {
     } on Exception catch (e) {
       return Left(Failure.fromException(e));
     }
+  }
+
+  @override
+  Future<Either<Failure, MessageEntity>> editTextMessage({
+    required String messageId,
+    required String text,
+    required String receiverId,
+    required bool isGroup,
+  }) async {
+    try {
+      final message = await _datasource.editTextMessage(
+        messageId: messageId,
+        text: text,
+        receiverId: receiverId,
+        isGroup: isGroup,
+      );
+      return Right(message);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, void>> deleteMessage({
+    required String messageId,
+  }) async {
+    try {
+      await _datasource.deleteMessage(messageId: messageId);
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  void reset() {
+    _datasource.reset();
   }
 }

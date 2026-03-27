@@ -43,14 +43,17 @@ class ConversationDatasourceImpl implements ConversationDatasourceInterface {
     String name = '';
     String avatarUrl = '';
     bool isOnline = false;
+    String conversationWithUid = '';
 
     if (conversationWith is User) {
       name = conversationWith.name;
       avatarUrl = conversationWith.avatar ?? '';
       isOnline = conversationWith.status == CometChatUserStatus.online;
+      conversationWithUid = conversationWith.uid;
     } else if (conversationWith is Group) {
       name = conversationWith.name;
       avatarUrl = conversationWith.icon ?? '';
+      conversationWithUid = conversationWith.guid;
     }
 
     return ConversationEntity(
@@ -63,6 +66,7 @@ class ConversationDatasourceImpl implements ConversationDatasourceInterface {
       isGroup: isGroup,
       isOnline: isOnline,
       conversationType: conversation.conversationType,
+      conversationWith: conversationWithUid,
     );
   }
 

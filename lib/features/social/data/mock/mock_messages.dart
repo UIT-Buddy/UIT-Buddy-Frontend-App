@@ -10,6 +10,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       content: 'Hey! Bạn xong phần backend chưa?',
       time: '10:00',
       isMine: false,
+      receiverId: 'me',
+      isGroup: false,
     ),
     MessageEntity(
       id: 'm2',
@@ -18,6 +20,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       content: 'Chưa, mình đang fix bug phần authentication 😅',
       time: '10:02',
       isMine: true,
+      receiverId: conversationId,
+      isGroup: false,
     ),
     MessageEntity(
       id: 'm3',
@@ -26,6 +30,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       content: 'Oke, bạn cần giúp không? Phần đó mình làm xong rồi',
       time: '10:03',
       isMine: false,
+      receiverId: 'me',
+      isGroup: false,
     ),
     MessageEntity(
       id: 'm4',
@@ -34,6 +40,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       content: 'Cảm ơn! Mình gửi code cho bạn xem nhé',
       time: '10:05',
       isMine: true,
+      receiverId: conversationId,
+      isGroup: false,
     ),
     MessageEntity(
       id: 'm5',
@@ -42,6 +50,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       content: 'Oke send đây, mình check cho',
       time: '10:06',
       isMine: false,
+      receiverId: 'me',
+      isGroup: false,
     ),
     MessageEntity(
       id: 'm6',
@@ -50,6 +60,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       content: 'Đây nha: github.com/minhdp/auth-fix',
       time: '10:10',
       isMine: true,
+      receiverId: conversationId,
+      isGroup: false,
     ),
     MessageEntity(
       id: 'm7',
@@ -59,6 +71,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
           'Nhìn vào rồi, vấn đề ở chỗ bạn chưa refresh token đúng cách. Thêm middleware vào là được',
       time: '10:20',
       isMine: false,
+      receiverId: 'me',
+      isGroup: false,
     ),
     MessageEntity(
       id: 'm8',
@@ -67,6 +81,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       content: 'Aaaa hiểu rồi! Để mình fix thử',
       time: '10:22',
       isMine: true,
+      receiverId: conversationId,
+      isGroup: false,
     ),
     MessageEntity(
       id: 'm9',
@@ -75,6 +91,8 @@ List<MessageEntity> getMockMessages(String conversationId) {
       content: 'Bạn đã xem tài liệu mình gửi chưa?',
       time: '10:45',
       isMine: false,
+      receiverId: 'me',
+      isGroup: false,
     ),
   ];
 }
