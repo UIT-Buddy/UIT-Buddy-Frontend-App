@@ -196,6 +196,7 @@ class _UserSearchViewState extends State<_UserSearchView> {
       time: '',
       isOnline: user.status == 'online',
       conversationType: 'user',
+      conversationWith: user.uid,
     );
     Navigator.of(context).push(
       PageRouteBuilder(
