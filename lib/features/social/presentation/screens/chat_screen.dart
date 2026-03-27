@@ -1,45 +1,86 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
-import 'package:uit_buddy_mobile/features/social/data/mock/mock_messages.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_event.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_settings_screen.dart';
 
-class ChatScreen extends StatefulWidget {
+class ChatScreen extends StatelessWidget {
   final ConversationEntity conversation;
 
   const ChatScreen({super.key, required this.conversation});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => serviceLocator<ChatBloc>()
+        ..add(
+          ChatStarted(
+            receiverId: conversation.id,
+            isGroup: conversation.isGroup,
+          ),
+        ),
+      child: _ChatView(conversation: conversation),
+    );
+  }
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatView extends StatefulWidget {
+  final ConversationEntity conversation;
+
+  const _ChatView({required this.conversation});
+
+  @override
+  State<_ChatView> createState() => _ChatViewState();
+}
+
+class _ChatViewState extends State<_ChatView> {
   final _messageController = TextEditingController();
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
-  late List<MessageEntity> _messages;
   bool _hasText = false;
 
   @override
   void initState() {
     super.initState();
-    _messages = getMockMessages(widget.conversation.id);
     _messageController.addListener(() {
       final hasText = _messageController.text.trim().isNotEmpty;
       if (hasText != _hasText) setState(() => _hasText = hasText);
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+    _scrollController.addListener(_onScroll);
   }
 
   @override
   void dispose() {
     _messageController.dispose();
-    _scrollController.dispose();
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    // ListView with reverse: true — scroll position 0 is the bottom.
+    // Near maxScrollExtent means user scrolled towards the top (older messages).
+    if (_scrollController.position.pixels >=
+        _scrollController.position.maxScrollExtent - 200) {
+      context.read<ChatBloc>().add(const ChatLoadMore());
+    }
+  }
+
+  void _sendMessage() {
+    final text = _messageController.text.trim();
+    if (text.isEmpty) return;
+    _messageController.clear();
+    context.read<ChatBloc>().add(ChatSendText(text: text));
   }
 
   void _openSettings() {
@@ -67,41 +108,6 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _scrollToBottom() {
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
-  }
-
-  void _onSend() {
-    final text = _messageController.text.trim();
-    if (text.isEmpty) return;
-    setState(() {
-      _messages = [
-        ..._messages,
-        MessageEntity(
-          id: DateTime.now().millisecondsSinceEpoch.toString(),
-          senderId: 'me',
-          senderName: 'Minh',
-          content: text,
-          time: _currentTime(),
-          isMine: true,
-        ),
-      ];
-      _messageController.clear();
-    });
-    WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
-  }
-
-  String _currentTime() {
-    final now = DateTime.now();
-    return '${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,7 +132,6 @@ class _ChatScreenState extends State<ChatScreen> {
         icon: const Icon(
           Icons.arrow_back_ios,
           size: 20,
-
           color: AppColor.primaryText,
         ),
         onPressed: () => Navigator.of(context).pop(),
@@ -142,9 +147,21 @@ class _ChatScreenState extends State<ChatScreen> {
                 CircleAvatar(
                   radius: 18,
                   backgroundColor: AppColor.veryLightGrey,
-                  backgroundImage: CachedNetworkImageProvider(
-                    widget.conversation.avatarUrl,
-                  ),
+                  backgroundImage: widget.conversation.avatarUrl.isNotEmpty
+                      ? CachedNetworkImageProvider(
+                          widget.conversation.avatarUrl,
+                        )
+                      : null,
+                  child: widget.conversation.avatarUrl.isEmpty
+                      ? Text(
+                          widget.conversation.name.isNotEmpty
+                              ? widget.conversation.name[0].toUpperCase()
+                              : '?',
+                          style: AppTextStyle.bodySmall.copyWith(
+                            color: AppColor.secondaryText,
+                          ),
+                        )
+                      : null,
                 ),
                 if (widget.conversation.isOnline)
                   Positioned(
@@ -219,38 +236,115 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  /// Returns the gap in minutes between two "HH:mm" time strings.
-  int _minutesBetween(String earlier, String later) {
-    final e = earlier.split(':');
-    final l = later.split(':');
-    final eMin = int.parse(e[0]) * 60 + int.parse(e[1]);
-    final lMin = int.parse(l[0]) * 60 + int.parse(l[1]);
-    final diff = lMin - eMin;
-    return diff < 0 ? diff + 1440 : diff;
+  Widget _buildMessageList() {
+    return BlocBuilder<ChatBloc, ChatState>(
+      builder: (context, state) {
+        if (state.status == ChatStatus.loading) {
+          return const Center(
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: AppColor.primaryBlue,
+            ),
+          );
+        }
+
+        if (state.status == ChatStatus.error) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline,
+                  color: AppColor.alertRed,
+                  size: 48,
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  state.errorMessage ?? 'Không thể tải tin nhắn',
+                  style: AppTextStyle.bodyMedium.copyWith(
+                    color: AppColor.secondaryText,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          );
+        }
+
+        if (state.messages.isEmpty && state.status == ChatStatus.loaded) {
+          return Center(
+            child: Text(
+              'Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!',
+              style: AppTextStyle.bodyMedium.copyWith(
+                color: AppColor.secondaryText,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          );
+        }
+
+        // messages are stored oldest-first; reverse:true shows newest at bottom
+        // and allows scroll-up to load older messages.
+        return GestureDetector(
+          onTap: () => _focusNode.unfocus(),
+          child: Column(
+            children: [
+              if (state.isLoadingMore)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8),
+                  child: Center(
+                    child: SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColor.primaryBlue,
+                      ),
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  reverse: true,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  itemCount: state.messages.length,
+                  itemBuilder: (context, index) {
+                    // reverse:true means index 0 = last message (newest).
+                    final reversedIndex = state.messages.length - 1 - index;
+                    final msg = state.messages[reversedIndex];
+                    final prevMsg = reversedIndex > 0
+                        ? state.messages[reversedIndex - 1]
+                        : null;
+                    final autoShowTime =
+                        prevMsg == null ||
+                        _minutesBetween(prevMsg.sentAtRaw, msg.sentAtRaw) >= 10;
+                    final nextMsg = reversedIndex < state.messages.length - 1
+                        ? state.messages[reversedIndex + 1]
+                        : null;
+                    return _MessageBubble(
+                      message: msg,
+                      showTimestamp: autoShowTime,
+                      nextMessage: nextMsg,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
-  Widget _buildMessageList() {
-    return GestureDetector(
-      onTap: () => _focusNode.unfocus(),
-      child: ListView.builder(
-        controller: _scrollController,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        itemCount: _messages.length,
-        itemBuilder: (context, index) {
-          final msg = _messages[index];
-          final prevMsg = index > 0 ? _messages[index - 1] : null;
-          final autoShowTime =
-              prevMsg == null || _minutesBetween(prevMsg.time, msg.time) >= 10;
-          return _MessageBubble(
-            message: msg,
-            showTimestamp: autoShowTime,
-            nextMessage: index < _messages.length - 1
-                ? _messages[index + 1]
-                : null,
-          );
-        },
-      ),
-    );
+  /// Returns gap in minutes between two messages using sentAtRaw.
+  int _minutesBetween(DateTime? earlier, DateTime? later) {
+    if (earlier == null || later == null) return 0;
+    final diff = later.difference(earlier).inMinutes;
+    return diff < 0 ? 0 : diff;
   }
 
   Widget _buildInputBar() {
@@ -266,7 +360,6 @@ class _ChatScreenState extends State<ChatScreen> {
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
-              // Extra action
               IconButton(
                 icon: const Icon(
                   Icons.add_circle_outline,
@@ -278,7 +371,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
               ),
               const SizedBox(width: 4),
-              // Text field
               Expanded(
                 child: Container(
                   constraints: const BoxConstraints(maxHeight: 120),
@@ -292,6 +384,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     maxLines: null,
                     textCapitalization: TextCapitalization.sentences,
                     style: AppTextStyle.bodySmall,
+                    onSubmitted: (_) => _sendMessage(),
                     decoration: InputDecoration(
                       hintText: 'Nhập tin nhắn...',
                       hintStyle: AppTextStyle.bodySmall.copyWith(
@@ -318,7 +411,6 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              // Send / mic button
               AnimatedSwitcher(
                 duration: const Duration(milliseconds: 200),
                 transitionBuilder: (child, animation) =>
@@ -326,7 +418,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: _hasText
                     ? GestureDetector(
                         key: const ValueKey('send'),
-                        onTap: _onSend,
+                        onTap: _sendMessage,
                         child: Container(
                           width: 40,
                           height: 40,
@@ -367,11 +459,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-/// Individual message bubble widget
 class _MessageBubble extends StatefulWidget {
   final MessageEntity message;
-
-  /// True when the gap from the previous message is ≥ 10 min (always visible).
   final bool showTimestamp;
   final MessageEntity? nextMessage;
 
@@ -390,7 +479,6 @@ class _MessageBubbleState extends State<_MessageBubble> {
 
   void _onBubbleTap() {
     FocusScope.of(context).unfocus();
-    // Only toggle tap-timestamp when the auto-timestamp is not already shown.
     if (!widget.showTimestamp) {
       setState(() => _tappedTimestamp = !_tappedTimestamp);
     }
@@ -421,11 +509,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                   : MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                if (!isMine && isLastInGroup) ...[
-                  const SizedBox(width: 4),
-                ] else if (!isMine) ...[
-                  const SizedBox(width: 4),
-                ],
+                if (!isMine) const SizedBox(width: 4),
                 Flexible(
                   child: Container(
                     margin: EdgeInsets.only(

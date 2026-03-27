@@ -24,6 +24,7 @@ void main() {
       fullName: 'Test User',
       email: 'test@uit.edu.vn',
     ),
+    cometAuthToken: 'comet_auth_token',
   );
 
   setUp(() {

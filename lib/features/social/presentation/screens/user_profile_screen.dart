@@ -4,11 +4,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/other_people_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_state.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_screen.dart';
 
 class UserProfileScreen extends StatelessWidget {
   const UserProfileScreen({super.key, required this.mssv});
@@ -152,7 +154,7 @@ class _ProfileContent extends StatelessWidget {
                     const SizedBox(width: 12),
                     Expanded(
                       child: OutlinedButton(
-                        onPressed: () => _showSoon(context),
+                        onPressed: () => _openMessage(context),
                         style: OutlinedButton.styleFrom(
                           foregroundColor: AppColor.primaryBlue,
                           side: const BorderSide(color: AppColor.primaryBlue),
@@ -248,6 +250,36 @@ class _ProfileContent extends StatelessWidget {
       const SnackBar(
         content: Text('This action is coming soon.'),
         behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
+  void _openMessage(BuildContext context) {
+    final cometUid = user.cometUid?.trim() ?? user.mssv;
+    if (cometUid.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Người dùng này chưa có Comet UID để nhắn tin.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    final conversation = ConversationEntity(
+      id: cometUid,
+      name: user.fullName,
+      avatarUrl: user.avatarUrl ?? '',
+      lastMessage: '',
+      time: '',
+      isGroup: false,
+      isOnline: false,
+      conversationType: 'user',
+    );
+
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => ChatScreen(conversation: conversation),
       ),
     );
   }
