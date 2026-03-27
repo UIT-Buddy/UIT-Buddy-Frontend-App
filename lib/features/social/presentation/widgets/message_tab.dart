@@ -70,7 +70,7 @@ class _MessageTabViewState extends State<_MessageTabView> {
             );
           },
           decoration: InputDecoration(
-            hintText: 'Tìm kiếm cuộc trò chuyện...',
+            hintText: 'Search conversations...',
             hintStyle: AppTextStyle.bodySmall.copyWith(
               color: AppColor.secondaryText,
             ),
@@ -150,7 +150,7 @@ class _MessageTabViewState extends State<_MessageTabView> {
           const Icon(Icons.error_outline, color: AppColor.alertRed, size: 48),
           const SizedBox(height: 12),
           Text(
-            message ?? 'Không thể tải cuộc trò chuyện',
+            message ?? 'Unable to load conversations',
             style: AppTextStyle.bodyMedium.copyWith(
               color: AppColor.secondaryText,
             ),
@@ -161,7 +161,7 @@ class _MessageTabViewState extends State<_MessageTabView> {
             onPressed: () => context.read<ConversationBloc>().add(
               const ConversationRefreshed(),
             ),
-            child: const Text('Thử lại'),
+            child: const Text('Retry'),
           ),
         ],
       ),
@@ -181,8 +181,8 @@ class _MessageTabViewState extends State<_MessageTabView> {
           const SizedBox(height: 12),
           Text(
             isLoaded
-                ? 'Không tìm thấy cuộc trò chuyện'
-                : 'Chưa có cuộc trò chuyện nào',
+                ? 'No conversations found'
+                : 'No conversations yet',
             style: AppTextStyle.bodyMedium.copyWith(
               color: AppColor.secondaryText,
             ),
