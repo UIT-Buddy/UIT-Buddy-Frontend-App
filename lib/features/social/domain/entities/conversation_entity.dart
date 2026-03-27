@@ -7,6 +7,7 @@ class ConversationEntity {
   final int unreadCount;
   final bool isGroup;
   final bool isOnline;
+  final String? conversationWith;
 
   /// "user" or "group" — mirrors CometChat's conversationType field.
   final String conversationType;
@@ -21,5 +22,6 @@ class ConversationEntity {
     this.isGroup = false,
     this.isOnline = false,
     this.conversationType = 'user',
+    this.conversationWith,
   });
 }

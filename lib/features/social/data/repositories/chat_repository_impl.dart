@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/chat_datasource_interface.dart';
@@ -46,6 +47,7 @@ class ChatRepositoryImpl implements ChatRepository {
     required String text,
   }) async {
     try {
+      debugPrint('Sending text message to $receiverId $isGroup $text');
       final message = await _datasource.sendTextMessage(
         receiverId: receiverId,
         isGroup: isGroup,

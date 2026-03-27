@@ -455,7 +455,7 @@ class _ProfileActionBar extends StatelessWidget {
   }
 
   void _openMessage(BuildContext context) {
-    final cometUid = user.cometUid?.trim() ?? '';
+    final cometUid = user.cometUid?.trim() ?? user.mssv.trim();
     if (cometUid.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

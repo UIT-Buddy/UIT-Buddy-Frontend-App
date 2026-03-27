@@ -26,7 +26,7 @@ class NewFeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => serviceLocator<NewFeedBloc>()..add(const NewFeedStarted()),
+      create: (_) => serviceLocator<NewFeedBloc>(),
       child: const _NewFeedView(),
     );
   }
@@ -47,6 +47,8 @@ class _NewFeedViewState extends State<_NewFeedView> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+    context.read<NewFeedBloc>().add(const NewFeedStarted());
+
   }
 
   @override

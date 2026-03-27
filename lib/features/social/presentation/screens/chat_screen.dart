@@ -18,11 +18,13 @@ class ChatScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final receiverId = conversation.conversationWith ?? conversation.id;
+
     return BlocProvider(
       create: (_) => serviceLocator<ChatBloc>()
         ..add(
           ChatStarted(
-            receiverId: conversation.id,
+            receiverId: receiverId,
             isGroup: conversation.isGroup,
           ),
         ),
