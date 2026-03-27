@@ -68,14 +68,16 @@ class DeadlineDetailEntity extends Equatable {
   final String title;
   final TaskEntityStatus status;
   final DateTime deadline;
+  final String? url;
 
   const DeadlineDetailEntity({
     required this.id,
     required this.title,
     required this.status,
     required this.deadline,
+    this.url,
   });
 
   @override
-  List<Object?> get props => [id, title, status, deadline];
+  List<Object?> get props => [id, title, status, deadline, url];
 }
