@@ -233,6 +233,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  cometchat_calls_sdk:
+    dependency: "direct main"
+    description:
+      name: cometchat_calls_sdk
+      sha256: "886b7f2d804a94e960afd2c27326caf969cf60a5cd04d736753fdb6c34cc38f5"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.2.2"
   cometchat_sdk:
     dependency: "direct main"
     description:
