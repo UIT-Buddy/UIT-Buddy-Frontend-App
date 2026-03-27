@@ -13,6 +13,10 @@ abstract interface class UserSearchRepository {
     String? sortType,
   });
 
+  Future<Either<Failure, List<CometUserEntity>>> getFriendUsers({
+    int limit = 100,
+  });
+
   Future<Either<Failure, PagedResult<CometUserEntity>>> searchCometUsers({
     required String query,
     int page = 1,

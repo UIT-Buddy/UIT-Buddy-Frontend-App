@@ -143,6 +143,7 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_comment_rep
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_comments_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_friend_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/respond_friend_request_usecase.dart';
@@ -499,6 +500,7 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton<UserSearchRepository>(
     () => UserSearchRepositoryImpl(
       datasource: serviceLocator(),
+      userProfileDatasource: serviceLocator(),
       chatDatasource: serviceLocator(),
     ),
   );
@@ -629,7 +631,10 @@ void _initSocialDependencies() {
   );
 
   serviceLocator.registerFactory(
-    () => UserSearchBloc(searchCometUsersUsecase: serviceLocator()),
+    () => UserSearchBloc(getFriendUsersUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => GetFriendUsersUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerFactory(
     () => SearchCometUserUsecase(repository: serviceLocator()),
