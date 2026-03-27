@@ -48,7 +48,6 @@ class _NewFeedViewState extends State<_NewFeedView> {
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
     context.read<NewFeedBloc>().add(const NewFeedStarted());
-
   }
 
   @override

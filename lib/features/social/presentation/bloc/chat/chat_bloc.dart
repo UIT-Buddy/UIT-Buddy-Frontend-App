@@ -127,19 +127,22 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ),
     );
 
-    result.fold((failure) {
-      emit(state.copyWith(errorMessage: failure.message));
-    }, (editedMessage) {
-      final updatedMessages = state.messages.map((m) {
-        return m.id == editedMessage.id ? editedMessage : m;
-      }).toList();
-      emit(
-        state.copyWith(
-          messages: updatedMessages,
-          editingMessage: null, // Clear edit mode
-        ),
-      );
-    });
+    result.fold(
+      (failure) {
+        emit(state.copyWith(errorMessage: failure.message));
+      },
+      (editedMessage) {
+        final updatedMessages = state.messages.map((m) {
+          return m.id == editedMessage.id ? editedMessage : m;
+        }).toList();
+        emit(
+          state.copyWith(
+            messages: updatedMessages,
+            editingMessage: null, // Clear edit mode
+          ),
+        );
+      },
+    );
   }
 
   Future<void> _onDeleteMessage(
@@ -150,13 +153,17 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       DeleteMessageParams(messageId: event.messageId),
     );
 
-    result.fold((failure) {
-      emit(state.copyWith(errorMessage: failure.message));
-    }, (_) {
-      final updatedMessages =
-          state.messages.where((m) => m.id != event.messageId).toList();
-      emit(state.copyWith(messages: updatedMessages));
-    });
+    result.fold(
+      (failure) {
+        emit(state.copyWith(errorMessage: failure.message));
+      },
+      (_) {
+        final updatedMessages = state.messages
+            .where((m) => m.id != event.messageId)
+            .toList();
+        emit(state.copyWith(messages: updatedMessages));
+      },
+    );
   }
 
   void _onToggleEdit(ChatToggleEdit event, Emitter<ChatState> emit) {

@@ -26,9 +26,7 @@ abstract interface class ChatRepository {
     required bool isGroup,
   });
 
-  Future<Either<Failure, void>> deleteMessage({
-    required String messageId,
-  });
+  Future<Either<Failure, void>> deleteMessage({required String messageId});
 
   void reset();
 }

@@ -27,9 +27,7 @@ abstract interface class ChatDatasourceInterface {
     required bool isGroup,
   });
 
-  Future<void> deleteMessage({
-    required String messageId,
-  });
+  Future<void> deleteMessage({required String messageId});
 
   Future<List<User>> searchCometUsers({
     required String query,

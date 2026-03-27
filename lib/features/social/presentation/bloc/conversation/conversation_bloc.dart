@@ -75,7 +75,9 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     List<ConversationEntity> conversations,
     String query,
   ) {
-    debugPrint('Applying search: $query length conversations: ${conversations.length}');
+    debugPrint(
+      'Applying search: $query length conversations: ${conversations.length}',
+    );
     final q = query.trim().toLowerCase();
     if (q.isEmpty) return conversations;
     return conversations

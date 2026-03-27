@@ -180,9 +180,7 @@ class _MessageTabViewState extends State<_MessageTabView> {
           ),
           const SizedBox(height: 12),
           Text(
-            isLoaded
-                ? 'No conversations found'
-                : 'No conversations yet',
+            isLoaded ? 'No conversations found' : 'No conversations yet',
             style: AppTextStyle.bodyMedium.copyWith(
               color: AppColor.secondaryText,
             ),

@@ -379,7 +379,7 @@ class _ChatViewState extends State<_ChatView> {
                 if (isEditing)
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    color: AppColor.primaryBlue.withOpacity(0.05),
+                    color: AppColor.primaryBlue.withValues(alpha: 0.05),
                     child: Row(
                       children: [
                         const Icon(Icons.edit_outlined,
@@ -731,14 +731,14 @@ class _MessageBubbleState extends State<_MessageBubble> {
                       'Đã chỉnh sửa',
                       style: AppTextStyle.captionExtraSmall.copyWith(
                         fontStyle: FontStyle.italic,
-                        color: AppColor.secondaryText.withOpacity(0.7),
+                        color: AppColor.secondaryText.withValues(alpha: 0.7),
                       ),
                     ),
                     const SizedBox(width: 4),
                     Text(
                       '•',
                       style: AppTextStyle.captionExtraSmall.copyWith(
-                        color: AppColor.secondaryText.withOpacity(0.5),
+                        color: AppColor.secondaryText.withValues(alpha: 0.5),
                       ),
                     ),
                     const SizedBox(width: 4),
