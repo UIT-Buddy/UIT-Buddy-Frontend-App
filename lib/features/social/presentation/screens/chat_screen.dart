@@ -271,7 +271,7 @@ class _ChatViewState extends State<_ChatView> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  state.errorMessage ?? 'Không thể tải tin nhắn',
+                  state.errorMessage ?? 'Cannot load messages',
                   style: AppTextStyle.bodyMedium.copyWith(
                     color: AppColor.secondaryText,
                   ),
@@ -285,7 +285,7 @@ class _ChatViewState extends State<_ChatView> {
         if (state.messages.isEmpty && state.status == ChatStatus.loaded) {
           return Center(
             child: Text(
-              'Chưa có tin nhắn nào. Hãy bắt đầu cuộc trò chuyện!',
+              'No messages yet. Start a conversation!',
               style: AppTextStyle.bodyMedium.copyWith(
                 color: AppColor.secondaryText,
               ),
@@ -395,7 +395,7 @@ class _ChatViewState extends State<_ChatView> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Sửa tin nhắn',
+                                'Edit message',
                                 style: AppTextStyle.captionExtraSmall.copyWith(
                                   color: AppColor.primaryBlue,
                                   fontWeight: AppTextStyle.bold,
@@ -465,7 +465,7 @@ class _ChatViewState extends State<_ChatView> {
                             onSubmitted: (_) =>
                                 isEditing ? _updateMessage() : _sendMessage(),
                             decoration: InputDecoration(
-                              hintText: 'Nhập tin nhắn...',
+                              hintText: 'Enter message...',
                               hintStyle: AppTextStyle.bodySmall.copyWith(
                                 color: AppColor.secondaryText,
                               ),
@@ -620,7 +620,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 Icons.edit_outlined,
                 color: AppColor.primaryBlue,
               ),
-              title: Text('Sửa tin nhắn', style: AppTextStyle.bodyMedium),
+              title: Text('Edit message', style: AppTextStyle.bodyMedium),
               onTap: () {
                 Navigator.pop(bottomSheetContext);
                 context.read<ChatBloc>().add(
@@ -634,7 +634,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                 color: AppColor.alertRed,
               ),
               title: Text(
-                'Xóa tin nhắn',
+                'Delete message',
                 style: AppTextStyle.bodyMedium.copyWith(
                   color: AppColor.alertRed,
                 ),
@@ -655,12 +655,12 @@ class _MessageBubbleState extends State<_MessageBubble> {
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Xóa tin nhắn?'),
-        content: const Text('Bạn có chắc chắn muốn xóa tin nhắn này không?'),
+        title: const Text('Delete message?'),
+        content: const Text('Are you sure you want to delete this message?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text('Hủy'),
+            child: const Text('Cancel'),
           ),
           TextButton(
             onPressed: () {
@@ -670,7 +670,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
               Navigator.pop(dialogContext);
             },
             child: const Text(
-              'Xóa',
+              'Delete',
               style: TextStyle(color: AppColor.alertRed),
             ),
           ),
@@ -681,6 +681,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
 
   @override
   Widget build(BuildContext context) {
+    debugPrint("message: ${widget.message}");
     final isMine = widget.message.isMine;
     final isLastInGroup =
         widget.nextMessage == null ||
@@ -757,7 +758,7 @@ class _MessageBubbleState extends State<_MessageBubble> {
                   children: [
                     if (widget.message.isEdited) ...[
                       Text(
-                        'Đã chỉnh sửa',
+                        'Edited',
                         style: AppTextStyle.captionExtraSmall.copyWith(
                           fontStyle: FontStyle.italic,
                           color: AppColor.secondaryText.withValues(alpha: 0.7),

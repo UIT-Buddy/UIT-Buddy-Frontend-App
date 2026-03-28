@@ -29,6 +29,8 @@ abstract interface class ChatDatasourceInterface {
 
   Future<void> deleteMessage({required String messageId});
 
+  Future<void> markAsRead({required MessageEntity message});
+
   Future<List<User>> searchCometUsers({
     required String query,
     int page = 1,

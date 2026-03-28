@@ -28,5 +28,7 @@ abstract interface class ChatRepository {
 
   Future<Either<Failure, void>> deleteMessage({required String messageId});
 
+  Future<Either<Failure, void>> markAsRead({required MessageEntity message});
+
   void reset();
 }

@@ -190,8 +190,12 @@ class _MessageTabViewState extends State<_MessageTabView> {
     );
   }
 
-  void _openChat(ConversationEntity conversation) {
-    Navigator.of(context).push(
+  Future<void> _openChat(ConversationEntity conversation) async {
+    context.read<ConversationBloc>().add(
+      ConversationOpened(conversationId: conversation.id),
+    );
+
+    await Navigator.of(context).push(
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             ChatScreen(conversation: conversation),

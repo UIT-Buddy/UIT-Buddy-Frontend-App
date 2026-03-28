@@ -1,3 +1,6 @@
+import 'package:cometchat_sdk/cometchat_sdk.dart';
+import 'package:cometchat_sdk/main/cometchat.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
@@ -45,7 +48,14 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     Emitter<ProfileState> emit,
   ) async {
     emit(state.copyWith(status: ProfileStatus.signingOut));
-
+      await CometChat.logout(
+          onSuccess: (String sessionId) {
+            debugPrint("Logout CometChat Successful: $sessionId");
+          },
+          onError: (CometChatException e) {
+            debugPrint("Logout failed with exception: ${e.message}");
+          },
+        );
     final result = await _signOutUsecase(const NoParams());
 
     result.fold(

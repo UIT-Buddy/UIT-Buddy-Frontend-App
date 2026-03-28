@@ -236,6 +236,35 @@ class ChatDatasourceImpl implements ChatDatasourceInterface {
   }
 
   @override
+  Future<void> markAsRead({required MessageEntity message}) async {
+    final receiverType = message.isGroup
+        ? CometChatConversationType.group
+        : CometChatConversationType.user;
+    final receiverUid = message.isGroup ? message.receiverId : message.senderId;
+
+    final readReceiptMessage = BaseMessage(
+      id: int.parse(message.id),
+      receiverUid: receiverUid,
+      receiverType: receiverType,
+      type: CometChatMessageType.text,
+      readAt: DateTime.now(),
+    );
+
+    final completer = Completer<void>();
+
+    CometChat.markAsRead(
+      readReceiptMessage,
+      onSuccess: (_) => completer.complete(),
+      onError: (CometChatException e) {
+        debugPrint('ChatDatasource markAsRead error: ${e.message}');
+        completer.completeError(Exception(e.message));
+      },
+    );
+
+    return completer.future;
+  }
+
+  @override
   Future<List<User>> searchCometUsers({
     required String query,
     int page = 1,

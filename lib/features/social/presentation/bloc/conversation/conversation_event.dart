@@ -23,3 +23,12 @@ class ConversationSearchChanged extends ConversationEvent {
   @override
   List<Object?> get props => [query];
 }
+
+class ConversationOpened extends ConversationEvent {
+  final String conversationId;
+
+  const ConversationOpened({required this.conversationId});
+
+  @override
+  List<Object?> get props => [conversationId];
+}

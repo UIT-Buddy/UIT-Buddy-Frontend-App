@@ -92,6 +92,18 @@ class ChatRepositoryImpl implements ChatRepository {
   }
 
   @override
+  Future<Either<Failure, void>> markAsRead({
+    required MessageEntity message,
+  }) async {
+    try {
+      await _datasource.markAsRead(message: message);
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
   void reset() {
     _datasource.reset();
   }

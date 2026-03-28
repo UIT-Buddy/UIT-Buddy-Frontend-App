@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/send_text_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/edit_text_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_message_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/mark_message_as_read_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_state.dart';
 
@@ -13,10 +16,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     required SendTextMessageUsecase sendTextMessageUsecase,
     required EditTextMessageUsecase editTextMessageUsecase,
     required DeleteMessageUsecase deleteMessageUsecase,
+    required MarkMessageAsReadUsecase markMessageAsReadUsecase,
   }) : _getMessagesUsecase = getMessagesUsecase,
        _sendTextMessageUsecase = sendTextMessageUsecase,
        _editTextMessageUsecase = editTextMessageUsecase,
        _deleteMessageUsecase = deleteMessageUsecase,
+       _markMessageAsReadUsecase = markMessageAsReadUsecase,
        super(const ChatState()) {
     on<ChatStarted>(_onStarted);
     on<ChatLoadMore>(_onLoadMore);
@@ -30,6 +35,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final SendTextMessageUsecase _sendTextMessageUsecase;
   final EditTextMessageUsecase _editTextMessageUsecase;
   final DeleteMessageUsecase _deleteMessageUsecase;
+  final MarkMessageAsReadUsecase _markMessageAsReadUsecase;
   ChatStarted? _lastStartedEvent;
 
   Future<void> _onStarted(ChatStarted event, Emitter<ChatState> emit) async {
@@ -46,6 +52,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       ),
       (messages) {
         final sorted = _sortOldestFirst(messages);
+        final lastIncomingMessage = _findLastIncomingMessage(sorted);
         emit(
           state.copyWith(
             status: ChatStatus.loaded,
@@ -53,6 +60,9 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
             hasMore: messages.length >= 30,
           ),
         );
+        if (lastIncomingMessage != null) {
+          unawaited(_markMessageAsRead(lastIncomingMessage));
+        }
       },
     );
   }
@@ -186,6 +196,20 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   List<MessageEntity> _dedupeById(List<MessageEntity> messages) {
     final seen = <String>{};
     return messages.where((m) => seen.add(m.id)).toList();
+  }
+
+  MessageEntity? _findLastIncomingMessage(List<MessageEntity> messages) {
+    for (var i = messages.length - 1; i >= 0; i--) {
+      final message = messages[i];
+      if (!message.isMine) {
+        return message;
+      }
+    }
+    return null;
+  }
+
+  Future<void> _markMessageAsRead(MessageEntity message) async {
+    await _markMessageAsReadUsecase(MarkMessageAsReadParams(message: message));
   }
 
   @override

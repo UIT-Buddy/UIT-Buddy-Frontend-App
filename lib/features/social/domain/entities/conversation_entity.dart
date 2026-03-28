@@ -24,4 +24,30 @@ class ConversationEntity {
     this.conversationType = 'user',
     this.conversationWith,
   });
+
+  ConversationEntity copyWith({
+    String? id,
+    String? name,
+    String? avatarUrl,
+    String? lastMessage,
+    String? time,
+    int? unreadCount,
+    bool? isGroup,
+    bool? isOnline,
+    String? conversationType,
+    String? conversationWith,
+  }) {
+    return ConversationEntity(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      lastMessage: lastMessage ?? this.lastMessage,
+      time: time ?? this.time,
+      unreadCount: unreadCount ?? this.unreadCount,
+      isGroup: isGroup ?? this.isGroup,
+      isOnline: isOnline ?? this.isOnline,
+      conversationType: conversationType ?? this.conversationType,
+      conversationWith: conversationWith ?? this.conversationWith,
+    );
+  }
 }

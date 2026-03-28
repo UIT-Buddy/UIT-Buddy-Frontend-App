@@ -165,6 +165,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/chat_reposi
 import 'package:uit_buddy_mobile/features/social/domain/repositories/conversation_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_conversations_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/mark_message_as_read_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/send_text_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/edit_text_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_message_usecase.dart';
@@ -659,12 +660,16 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton(
     () => DeleteMessageUsecase(repository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => MarkMessageAsReadUsecase(repository: serviceLocator()),
+  );
   serviceLocator.registerFactory(
     () => ChatBloc(
       getMessagesUsecase: serviceLocator(),
       sendTextMessageUsecase: serviceLocator(),
       editTextMessageUsecase: serviceLocator(),
       deleteMessageUsecase: serviceLocator(),
+      markMessageAsReadUsecase: serviceLocator(),
     ),
   );
 }
