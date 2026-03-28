@@ -1,8 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum MediaType {
-  image, video
-}
+enum MediaType { image, video }
 
 class PostEntity extends Equatable {
   final String id;
@@ -42,7 +40,7 @@ class PostEntity extends Equatable {
     shareCount,
     isLiked,
     isShared,
-    createdAt
+    createdAt,
   ];
 
   PostEntity copyWith({
@@ -84,7 +82,7 @@ class AuthorEntity extends Equatable {
     required this.mssv,
     required this.fullName,
     required this.avatarUrl,
-    required this.homeClassCode
+    required this.homeClassCode,
   });
 
   @override
@@ -95,10 +93,7 @@ class MediaEntity extends Equatable {
   final MediaType type;
   final String url;
 
-  const MediaEntity({
-    required this.type,
-    required this.url
-  });
+  const MediaEntity({required this.type, required this.url});
 
   @override
   List<Object?> get props => [type, url];

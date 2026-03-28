@@ -26,7 +26,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
         PagedResult<NotificationEntity>(
           items: apiResponse.items.map((e) => e.toEntity()).toList(),
           nextCursor: apiResponse.nextCursor,
-          hasMore: apiResponse.hasMore
+          hasMore: apiResponse.hasMore,
         ),
       );
     } on Exception catch (e) {
@@ -35,15 +35,19 @@ class NotificationRepositoryImpl implements NotificationRepository {
   }
 
   @override
-  Future<Either<Failure, Unit>> markNotificationAsRead(String notificationId) async {
+  Future<Either<Failure, Unit>> markNotificationAsRead(
+    String notificationId,
+  ) async {
     try {
-      await _notificationDatasourceInterface.markNotificationAsRead(notificationId);
+      await _notificationDatasourceInterface.markNotificationAsRead(
+        notificationId,
+      );
       return const Right(unit);
     } on Exception catch (e) {
       return Left(Failure.fromException(e));
     }
   }
-  
+
   @override
   Future<Either<Failure, Unit>> markAllNotificationsAsRead() async {
     try {
@@ -53,7 +57,7 @@ class NotificationRepositoryImpl implements NotificationRepository {
       return Left(Failure.fromException(e));
     }
   }
-  
+
   @override
   Future<Either<Failure, int>> getUnreadCount() async {
     try {
@@ -63,9 +67,11 @@ class NotificationRepositoryImpl implements NotificationRepository {
       return Left(Failure.fromException(e));
     }
   }
-  
+
   @override
-  Future<Either<Failure, Unit>> deleteNotification(String notificationId) async {
+  Future<Either<Failure, Unit>> deleteNotification(
+    String notificationId,
+  ) async {
     try {
       await _notificationDatasourceInterface.deleteNotification(notificationId);
       return const Right(unit);

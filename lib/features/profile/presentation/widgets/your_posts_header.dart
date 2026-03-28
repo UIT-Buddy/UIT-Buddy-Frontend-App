@@ -12,19 +12,14 @@ class YourPostsHeader extends StatelessWidget {
       child: Row(
         children: [
           IconButton(
-            icon: const Icon(
-              Icons.arrow_back,
-              color: AppColor.primaryText,
-            ),
+            icon: const Icon(Icons.arrow_back, color: AppColor.primaryText),
             onPressed: () => Navigator.of(context).pop(),
           ),
           Expanded(
             child: Text(
               'Your Posts',
               textAlign: TextAlign.center,
-              style: AppTextStyle.h3.copyWith(
-                fontWeight: AppTextStyle.bold,
-              ),
+              style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
             ),
           ),
           const SizedBox(width: 48),

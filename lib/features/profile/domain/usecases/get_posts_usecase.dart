@@ -6,13 +6,16 @@ import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/post_repository.dart';
 
-class GetPostsUsecase implements UseCase<PagedResult<PostEntity>, GetPostsParams> {
+class GetPostsUsecase
+    implements UseCase<PagedResult<PostEntity>, GetPostsParams> {
   GetPostsUsecase({required ProfilePostRepository postRepository})
     : _postRepository = postRepository;
 
   final ProfilePostRepository _postRepository;
   @override
-  Future<Either<Failure, PagedResult<PostEntity>>> call(GetPostsParams params) async =>
+  Future<Either<Failure, PagedResult<PostEntity>>> call(
+    GetPostsParams params,
+  ) async =>
       _postRepository.getPosts(cursor: params.cursor, limit: params.limit);
 }
 

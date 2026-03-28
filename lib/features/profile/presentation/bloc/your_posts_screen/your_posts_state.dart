@@ -13,7 +13,7 @@ abstract class YourPostsState with _$YourPostsState {
     @Default([]) List<PostEntity> filtered,
     String? errorMessage,
     String? nextCursor,
-    @Default('')String searchQuery,
+    @Default('') String searchQuery,
     @Default(true) bool hasMore,
     @Default(false) bool isLoadingMore,
     @Default(false) bool isSubmittingPost,

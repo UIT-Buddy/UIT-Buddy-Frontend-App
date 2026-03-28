@@ -15,7 +15,7 @@ extension YourPostModelMapper on YourPostModel {
     shareCount: shareCount,
     isLiked: isLiked,
     isShared: isShared,
-    createdAt: createdAt
+    createdAt: createdAt,
   );
 }
 
@@ -24,7 +24,7 @@ extension YourPostAuthorMapper on YourPostAuthorModel {
     mssv: mssv,
     fullName: fullName,
     avatarUrl: avatarUrl ?? '',
-    homeClassCode: homeClassCode
+    homeClassCode: homeClassCode,
   );
 }
 

@@ -9,10 +9,7 @@ import 'package:uit_buddy_mobile/features/profile/presentation/bloc/your_posts_s
 class YourPostsSearchBar extends StatefulWidget {
   final TextEditingController searchController;
 
-  const YourPostsSearchBar({
-    super.key,
-    required this.searchController,
-  });
+  const YourPostsSearchBar({super.key, required this.searchController});
 
   @override
   State<YourPostsSearchBar> createState() => _YourPostsSearchBarState();
@@ -33,8 +30,8 @@ class _YourPostsSearchBarState extends State<YourPostsSearchBar> {
 
   void _onSearchChanged() {
     context.read<YourPostsBloc>().add(
-          YourPostsSearchChanged(query: widget.searchController.text),
-        );
+      YourPostsSearchChanged(query: widget.searchController.text),
+    );
   }
 
   @override
@@ -50,11 +47,7 @@ class _YourPostsSearchBarState extends State<YourPostsSearchBar> {
         child: Row(
           children: [
             const SizedBox(width: 12),
-            const Icon(
-              Icons.search,
-              color: AppColor.secondaryText,
-              size: 20,
-            ),
+            const Icon(Icons.search, color: AppColor.secondaryText, size: 20),
             const SizedBox(width: 8),
             Expanded(
               child: TextField(

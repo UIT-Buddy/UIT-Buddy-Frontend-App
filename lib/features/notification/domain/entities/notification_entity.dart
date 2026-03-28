@@ -7,7 +7,7 @@ enum NotificationType {
   postComment,
   postShare,
   commentLike,
-  friendRequestReceived, 
+  friendRequestReceived,
   friendRequestAccepted,
   academic,
   reminder,

@@ -51,4 +51,3 @@ class YourPostsPostUpdated extends YourPostsEvent {
   @override
   List<Object?> get props => [updatedPost];
 }
-

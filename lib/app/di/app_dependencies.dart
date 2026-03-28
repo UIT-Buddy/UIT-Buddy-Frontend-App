@@ -584,7 +584,7 @@ Future<void> _initProfileDependencies() async {
   );
   serviceLocator.registerLazySingleton<ProfilePostDatasourceInterface>(
     () => ProfilePostDatasourceImpl(
-      dio: serviceLocator(instanceName: 'authenticatedDio')
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
   serviceLocator.registerLazySingleton<SignOutDatasource>(
@@ -704,7 +704,7 @@ Future<void> _initNotificationDependencies() async {
   // Datasource
   serviceLocator.registerLazySingleton<NotificationDatasourceInterface>(
     () => NotificationDatasourceImpl(
-      dio: serviceLocator(instanceName: 'authenticatedDio')
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
 
@@ -723,7 +723,9 @@ Future<void> _initNotificationDependencies() async {
     () => MarkNotificationReadUsecase(notificationRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => MarkAllNotificationsReadUsecase(notificationRepository: serviceLocator()),
+    () => MarkAllNotificationsReadUsecase(
+      notificationRepository: serviceLocator(),
+    ),
   );
   serviceLocator.registerLazySingleton(
     () => GetUnreadCountUsecase(notificationRepository: serviceLocator()),

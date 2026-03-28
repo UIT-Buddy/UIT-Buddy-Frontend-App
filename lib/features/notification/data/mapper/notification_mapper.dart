@@ -11,7 +11,7 @@ extension NotificationMapper on model.NotificationModel {
     isRead: isRead,
     type: _mapType(type),
     dataId: dataId,
-    createdAt: createdAt
+    createdAt: createdAt,
   );
 
   entity.NotificationType _mapType(String type) {

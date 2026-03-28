@@ -19,7 +19,10 @@ class ProfilePostRepositoryImpl implements ProfilePostRepository {
     int limit = 10,
   }) async {
     try {
-      final response = await _postDatasource.getPosts(cursor: cursor, limit: limit);
+      final response = await _postDatasource.getPosts(
+        cursor: cursor,
+        limit: limit,
+      );
 
       return Right(
         PagedResult<PostEntity>(
@@ -53,4 +56,3 @@ class ProfilePostRepositoryImpl implements ProfilePostRepository {
     }
   }
 }
-

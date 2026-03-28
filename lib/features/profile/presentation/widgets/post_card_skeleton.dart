@@ -58,10 +58,7 @@ class PostCardSkeleton extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  height: 12,
-                  color: AppColor.veryLightGrey,
-                ),
+                Container(height: 12, color: AppColor.veryLightGrey),
                 const SizedBox(height: 8),
                 Container(
                   height: 12,

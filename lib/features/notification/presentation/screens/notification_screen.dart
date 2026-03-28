@@ -15,8 +15,7 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          serviceLocator<NotificationBloc>()
-            ..add(const NotificationsLoaded()),
+          serviceLocator<NotificationBloc>()..add(const NotificationsLoaded()),
       child: Scaffold(
         backgroundColor: AppColor.pureWhite,
         body: SafeArea(

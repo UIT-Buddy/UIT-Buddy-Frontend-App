@@ -10,10 +10,10 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
     required GetPostsUsecase getPostsUsecase,
     required DeleteYourPostUsecase deletePostUsecase,
     required TogglePostLikeUsecase togglePostLikeUsecase,
-  })  : _getPostsUsecase = getPostsUsecase,
-        _deletePostUsecase = deletePostUsecase,
-        _togglePostLikeUsecase = togglePostLikeUsecase,
-        super(const YourPostsState()) {
+  }) : _getPostsUsecase = getPostsUsecase,
+       _deletePostUsecase = deletePostUsecase,
+       _togglePostLikeUsecase = togglePostLikeUsecase,
+       super(const YourPostsState()) {
     on<YourPostsLoaded>(_onLoaded);
     on<YourPostsRefreshed>(_onRefreshed);
     on<YourPostsLoadMore>(_onLoadMore);
@@ -95,27 +95,26 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
     final result = await _getPostsUsecase(
       GetPostsParams(cursor: state.nextCursor),
     );
-    result.fold(
-      (failure) => emit(state.copyWith(isLoadingMore: false)),
-      (paged) {
-        final allPosts = [...state.posts, ...paged.items];
-        final query = state.searchQuery.trim().toLowerCase();
-        final filtered = query.isEmpty
-            ? allPosts
-            : allPosts
+    result.fold((failure) => emit(state.copyWith(isLoadingMore: false)), (
+      paged,
+    ) {
+      final allPosts = [...state.posts, ...paged.items];
+      final query = state.searchQuery.trim().toLowerCase();
+      final filtered = query.isEmpty
+          ? allPosts
+          : allPosts
                 .where((p) => p.content.toLowerCase().contains(query))
                 .toList();
-        emit(
-          state.copyWith(
-            isLoadingMore: false,
-            posts: allPosts,
-            filtered: filtered,
-            nextCursor: paged.nextCursor,
-            hasMore: paged.hasMore,
-          ),
-        );
-      },
-    );
+      emit(
+        state.copyWith(
+          isLoadingMore: false,
+          posts: allPosts,
+          filtered: filtered,
+          nextCursor: paged.nextCursor,
+          hasMore: paged.hasMore,
+        ),
+      );
+    });
   }
 
   Future<void> _onPostLiked(
@@ -142,19 +141,16 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
     );
 
     // Rollback on failure
-    result.fold(
-      (_) => emit(state.copyWith(posts: previousPosts)),
-      (_) {
-        // Like successful, keep the update
-        final query = state.searchQuery.trim().toLowerCase();
-        final filtered = query.isEmpty
-            ? state.posts
-            : state.posts
+    result.fold((_) => emit(state.copyWith(posts: previousPosts)), (_) {
+      // Like successful, keep the update
+      final query = state.searchQuery.trim().toLowerCase();
+      final filtered = query.isEmpty
+          ? state.posts
+          : state.posts
                 .where((p) => p.content.toLowerCase().contains(query))
                 .toList();
-        emit(state.copyWith(filtered: filtered));
-      },
-    );
+      emit(state.copyWith(filtered: filtered));
+    });
   }
 
   Future<void> _onPostDeleted(
@@ -190,8 +186,8 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
     final filtered = query.isEmpty
         ? state.posts
         : state.posts
-            .where((p) => p.content.toLowerCase().contains(query))
-            .toList();
+              .where((p) => p.content.toLowerCase().contains(query))
+              .toList();
     emit(state.copyWith(searchQuery: event.query, filtered: filtered));
   }
 
@@ -208,8 +204,8 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
     final updatedFiltered = query.isEmpty
         ? updatedPosts
         : updatedPosts
-            .where((p) => p.content.toLowerCase().contains(query))
-            .toList();
+              .where((p) => p.content.toLowerCase().contains(query))
+              .toList();
 
     emit(state.copyWith(posts: updatedPosts, filtered: updatedFiltered));
   }

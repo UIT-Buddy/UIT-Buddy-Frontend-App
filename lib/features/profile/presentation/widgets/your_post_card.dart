@@ -207,9 +207,11 @@ class YourPostCard extends StatelessWidget {
   }
 
   Widget _buildActionBar() {
-    final likeIconColor = post.isLiked ? AppColor.alertRed : AppColor.secondaryText;
+    final likeIconColor = post.isLiked
+        ? AppColor.alertRed
+        : AppColor.secondaryText;
     final likeIcon = post.isLiked ? Icons.favorite : Icons.favorite_border;
-    
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 4),
       decoration: const BoxDecoration(
@@ -220,8 +222,12 @@ class YourPostCard extends StatelessWidget {
       child: Row(
         children: [
           _actionButton(likeIcon, 'Like', likeIconColor, onLikeTap),
-          _actionButton(Icons.chat_bubble_outline, 'Comment',
-              AppColor.secondaryText, onCommentTap),
+          _actionButton(
+            Icons.chat_bubble_outline,
+            'Comment',
+            AppColor.secondaryText,
+            onCommentTap,
+          ),
           _actionButton(
             Icons.share_outlined,
             'Share',

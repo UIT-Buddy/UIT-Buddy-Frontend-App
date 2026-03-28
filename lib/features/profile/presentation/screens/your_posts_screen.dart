@@ -17,4 +17,3 @@ class YourPostsScreen extends StatelessWidget {
     );
   }
 }
-

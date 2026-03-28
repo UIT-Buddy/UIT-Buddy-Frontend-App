@@ -7,7 +7,7 @@ enum NotificationStatus { initial, loading, loaded, error }
 
 @freezed
 abstract class NotificationState with _$NotificationState {
-  const factory NotificationState ({
+  const factory NotificationState({
     @Default(NotificationStatus.initial) NotificationStatus status,
     @Default([]) List<NotificationEntity> notifs,
     String? errorMessage,

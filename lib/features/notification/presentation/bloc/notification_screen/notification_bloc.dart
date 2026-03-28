@@ -118,10 +118,12 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   ) async {
     final result = await _getUnreadCountUsecase(NoParams());
     result.fold(
-      (failure) => emit(state.copyWith(
-        status: NotificationStatus.error,
-        errorMessage: failure.message,
-      )),
+      (failure) => emit(
+        state.copyWith(
+          status: NotificationStatus.error,
+          errorMessage: failure.message,
+        ),
+      ),
       (_) {
         // Unread count retrieved, update state if needed
       },
@@ -150,10 +152,7 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
               ? notif.copyWith(isRead: true)
               : notif;
         }).toList();
-        emit(state.copyWith(
-          notifs: updatedNotifs,
-          isMarkingAsRead: false,
-        ));
+        emit(state.copyWith(notifs: updatedNotifs, isMarkingAsRead: false));
       },
     );
   }

@@ -85,7 +85,8 @@ class _YourPostsListState extends State<YourPostsList> {
     final socialPost = post.toSocialPost();
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => PostDetailScreen(postId: post.id, initialPost: socialPost),
+        builder: (_) =>
+            PostDetailScreen(postId: post.id, initialPost: socialPost),
       ),
     );
   }
@@ -108,7 +109,11 @@ class _YourPostsListState extends State<YourPostsList> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, color: AppColor.alertRed, size: 48),
+                const Icon(
+                  Icons.error_outline,
+                  color: AppColor.alertRed,
+                  size: 48,
+                ),
                 const SizedBox(height: 12),
                 Text(
                   state.errorMessage ?? 'Something went wrong.',
@@ -116,8 +121,9 @@ class _YourPostsListState extends State<YourPostsList> {
                 ),
                 const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () =>
-                      context.read<YourPostsBloc>().add(const YourPostsRefreshed()),
+                  onPressed: () => context.read<YourPostsBloc>().add(
+                    const YourPostsRefreshed(),
+                  ),
                   child: const Text('Thử lại'),
                 ),
               ],
@@ -148,7 +154,8 @@ class _YourPostsListState extends State<YourPostsList> {
         }
 
         final itemCount =
-            state.filtered.length + (state.hasMore || state.isLoadingMore ? 1 : 0);
+            state.filtered.length +
+            (state.hasMore || state.isLoadingMore ? 1 : 0);
 
         return RefreshIndicator(
           color: AppColor.primaryBlue,
@@ -175,10 +182,9 @@ class _YourPostsListState extends State<YourPostsList> {
                 post: post,
                 onEdit: () => _onEdit(post),
                 onDelete: () => _onDelete(post),
-                onLikeTap: () =>
-                    context.read<YourPostsBloc>().add(
-                          YourPostsPostLiked(postId: post.id),
-                        ),
+                onLikeTap: () => context.read<YourPostsBloc>().add(
+                  YourPostsPostLiked(postId: post.id),
+                ),
                 onCommentTap: () => _openPostDetail(post),
                 onTap: () => _openPostDetail(post),
               );
@@ -218,12 +224,14 @@ extension ProfilePostToSocialPost on PostEntity {
           : null,
       contentSnippet: content,
       medias: medias
-          .map((m) => PostMediaEntity(
-                type: m.type == MediaType.image
-                    ? PostMediaType.image
-                    : PostMediaType.video,
-                url: m.url,
-              ))
+          .map(
+            (m) => PostMediaEntity(
+              type: m.type == MediaType.image
+                  ? PostMediaType.image
+                  : PostMediaType.video,
+              url: m.url,
+            ),
+          )
           .toList(),
       createdAt: createdAt,
       likeCount: likeCount,

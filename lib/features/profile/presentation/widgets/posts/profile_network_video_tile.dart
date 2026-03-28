@@ -7,11 +7,7 @@ class ProfileNetworkVideoTile extends StatefulWidget {
   final String url;
   final VoidCallback? onTap;
 
-  const ProfileNetworkVideoTile({
-    super.key,
-    required this.url,
-    this.onTap,
-  });
+  const ProfileNetworkVideoTile({super.key, required this.url, this.onTap});
 
   @override
   State<ProfileNetworkVideoTile> createState() =>
@@ -26,13 +22,16 @@ class _ProfileNetworkVideoTileState extends State<ProfileNetworkVideoTile> {
   void initState() {
     super.initState();
     _player = CachedVideoPlayerPlus.networkUrl(Uri.parse(widget.url));
-    _player.initialize().then((_) {
-      if (!mounted) return;
-      _player.controller.seekTo(const Duration(milliseconds: 500));
-      setState(() => _thumbnailReady = true);
-    }).catchError((_) {
-      if (mounted) setState(() => _thumbnailReady = true);
-    });
+    _player
+        .initialize()
+        .then((_) {
+          if (!mounted) return;
+          _player.controller.seekTo(const Duration(milliseconds: 500));
+          setState(() => _thumbnailReady = true);
+        })
+        .catchError((_) {
+          if (mounted) setState(() => _thumbnailReady = true);
+        });
   }
 
   @override

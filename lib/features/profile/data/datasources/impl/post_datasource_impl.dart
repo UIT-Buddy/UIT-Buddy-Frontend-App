@@ -4,13 +4,18 @@ import 'package:uit_buddy_mobile/features/profile/data/datasources/post_datasour
 import 'package:uit_buddy_mobile/features/profile/data/models/your_post_model.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/your_posts_paging_mixin.dart';
 
-class ProfilePostDatasourceImpl with YourPostsPagingMixin implements ProfilePostDatasourceInterface {
+class ProfilePostDatasourceImpl
+    with YourPostsPagingMixin
+    implements ProfilePostDatasourceInterface {
   ProfilePostDatasourceImpl({required Dio dio}) : _dio = dio;
 
   final Dio _dio;
 
   @override
-  Future<PagedResult<YourPostModel>> getPosts({String? cursor, int limit = 10}) async {
+  Future<PagedResult<YourPostModel>> getPosts({
+    String? cursor,
+    int limit = 10,
+  }) async {
     final queryParams = <String, dynamic>{'limit': limit};
     if (cursor != null) queryParams['cursor'] = cursor;
 
@@ -41,4 +46,3 @@ class ProfilePostDatasourceImpl with YourPostsPagingMixin implements ProfilePost
     await _dio.post<void>('/api/reactions/posts/$postId/like');
   }
 }
-

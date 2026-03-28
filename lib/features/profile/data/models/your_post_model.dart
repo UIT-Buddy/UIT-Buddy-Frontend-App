@@ -18,7 +18,7 @@ abstract class YourPostModel with _$YourPostModel {
     required int shareCount,
     @Default(false) bool isLiked,
     @Default(false) bool isShared,
-    required DateTime createdAt
+    required DateTime createdAt,
   }) = _YourPostModel;
 
   factory YourPostModel.fromJson(Map<String, dynamic> json) =>
