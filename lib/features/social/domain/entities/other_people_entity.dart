@@ -21,6 +21,28 @@ class OtherPeopleEntity {
     this.friendStatus = FriendStatus.none,
   });
 
+  OtherPeopleEntity copyWith({
+    String? mssv,
+    String? fullName,
+    String? email,
+    String? bio,
+    String? avatarUrl,
+    String? homeClassCode,
+    String? cometUid,
+    FriendStatus? friendStatus,
+  }) {
+    return OtherPeopleEntity(
+      mssv: mssv ?? this.mssv,
+      fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
+      bio: bio ?? this.bio,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      homeClassCode: homeClassCode ?? this.homeClassCode,
+      cometUid: cometUid ?? this.cometUid,
+      friendStatus: friendStatus ?? this.friendStatus,
+    );
+  }
+
   String get userLetterAvatar => fullName.trim().isNotEmpty
       ? fullName.trim().split(' ').last[0].toUpperCase()
       : '?';

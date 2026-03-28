@@ -24,6 +24,7 @@ void main() {
     accessToken: 'access_token',
     refreshToken: 'refresh_token',
     user: tUser,
+    cometAuthToken: 'comet_auth_token',
   );
 
   setUp(() {

@@ -8,6 +8,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/user_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/create_post_bar.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/message_tab.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_header.dart';
@@ -25,7 +26,7 @@ class NewFeedScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => serviceLocator<NewFeedBloc>()..add(const NewFeedStarted()),
+      create: (_) => serviceLocator<NewFeedBloc>(),
       child: const _NewFeedView(),
     );
   }
@@ -46,6 +47,7 @@ class _NewFeedViewState extends State<_NewFeedView> {
     super.initState();
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
+    context.read<NewFeedBloc>().add(const NewFeedStarted());
   }
 
   @override
@@ -76,12 +78,30 @@ class _NewFeedViewState extends State<_NewFeedView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.pureWhite,
-      body: SafeArea(
-        child: BlocBuilder<NewFeedBloc, NewFeedState>(
-          builder: (context, state) {
-            return Column(
+    return BlocBuilder<NewFeedBloc, NewFeedState>(
+      // Rebuild for feed state changes too (loading/loaded/posts/load-more),
+      // otherwise first fetch won't appear until another UI-triggered rebuild.
+      buildWhen: (prev, curr) =>
+          prev.selectedTab != curr.selectedTab ||
+          prev.status != curr.status ||
+          prev.posts != curr.posts ||
+          prev.isLoadingMore != curr.isLoadingMore ||
+          prev.hasMore != curr.hasMore ||
+          prev.errorMessage != curr.errorMessage,
+      builder: (context, state) {
+        final isMessageTab = state.selectedTab == NewFeedTab.message;
+        return Scaffold(
+          backgroundColor: AppColor.pureWhite,
+          floatingActionButton: isMessageTab
+              ? FloatingActionButton(
+                  onPressed: () => _openUserSearch(context),
+                  backgroundColor: AppColor.primaryBlue,
+                  shape: const CircleBorder(),
+                  child: const Icon(Icons.edit_outlined, color: Colors.white),
+                )
+              : null,
+          body: SafeArea(
+            child: Column(
               children: [
                 NewFeedHeader(
                   selectedTabIndex: state.selectedTab == NewFeedTab.feed
@@ -95,14 +115,43 @@ class _NewFeedViewState extends State<_NewFeedView> {
                   },
                 ),
                 Expanded(
-                  child: state.selectedTab == NewFeedTab.feed
-                      ? _buildFeedTab(context, state)
-                      : _buildMessageTab(),
+                  child: IndexedStack(
+                    index: state.selectedTab == NewFeedTab.feed ? 0 : 1,
+                    children: [
+                      _buildFeedTab(context, state),
+                      _buildMessageTab(),
+                    ],
+                  ),
                 ),
               ],
-            );
-          },
-        ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _openUserSearch(BuildContext context) {
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const UserSearchScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          );
+          return SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0, 1),
+              end: Offset.zero,
+            ).animate(curved),
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 280),
+        reverseTransitionDuration: const Duration(milliseconds: 240),
       ),
     );
   }
