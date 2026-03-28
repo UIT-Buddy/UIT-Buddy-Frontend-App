@@ -33,7 +33,11 @@ import 'package:uit_buddy_mobile/features/notification/data/datasources/impl/not
 import 'package:uit_buddy_mobile/features/notification/data/datasources/notification_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/notification/data/repositories/notification_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/notification/domain/repositories/notification_repository.dart';
-import 'package:uit_buddy_mobile/features/notification/domain/usecases/notification_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/get_notification_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/mark_notification_read_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/mark_all_notifications_read_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/get_unread_count_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/delete_notification_usecase.dart';
 import 'package:uit_buddy_mobile/features/notification/presentation/bloc/notification_screen/notification_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -92,6 +96,7 @@ import 'package:uit_buddy_mobile/features/profile/presentation/bloc/academic_det
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_screen/semester_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/create_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_account_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_groups_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_posts_usecase.dart';
@@ -100,6 +105,7 @@ import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_tasks_usec
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_your_info_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/mark_task_completed_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/sign_out_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_your_info_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/group_screen/group_bloc.dart';
@@ -577,7 +583,9 @@ Future<void> _initProfileDependencies() async {
     ),
   );
   serviceLocator.registerLazySingleton<ProfilePostDatasourceInterface>(
-    () => ProfilePostDatasourceImpl(),
+    () => ProfilePostDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio')
+    ),
   );
   serviceLocator.registerLazySingleton<SignOutDatasource>(
     () => SignOutDatasourceImpl(
@@ -640,6 +648,12 @@ Future<void> _initProfileDependencies() async {
     () => GetPostsUsecase(postRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
+    () => DeleteYourPostUsecase(postRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => TogglePostLikeUsecase(postRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
     () => SignOutUsecase(signOutRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
@@ -672,7 +686,11 @@ Future<void> _initProfileDependencies() async {
     ),
   );
   serviceLocator.registerFactory(
-    () => YourPostsBloc(getPostsUsecase: serviceLocator()),
+    () => YourPostsBloc(
+      getPostsUsecase: serviceLocator(),
+      deletePostUsecase: serviceLocator(),
+      togglePostLikeUsecase: serviceLocator(),
+    ),
   );
   serviceLocator.registerFactory(
     () => AcademicDetailBloc(getAcademicDetailsUsecase: serviceLocator()),
@@ -685,7 +703,9 @@ Future<void> _initProfileDependencies() async {
 Future<void> _initNotificationDependencies() async {
   // Datasource
   serviceLocator.registerLazySingleton<NotificationDatasourceInterface>(
-    () => NotificationDatasourceImpl(),
+    () => NotificationDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio')
+    ),
   );
 
   // Repository
@@ -699,10 +719,27 @@ Future<void> _initNotificationDependencies() async {
   serviceLocator.registerLazySingleton(
     () => GetNotificationUsecase(notificationRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => MarkNotificationReadUsecase(notificationRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => MarkAllNotificationsReadUsecase(notificationRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetUnreadCountUsecase(notificationRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DeleteNotificationUsecase(notificationRepository: serviceLocator()),
+  );
 
   // Blocs
   serviceLocator.registerFactory(
-    () => NotificationBloc(getNotificationUsecase: serviceLocator()),
+    () => NotificationBloc(
+      getNotificationUsecase: serviceLocator(),
+      markNotificationReadUsecase: serviceLocator(),
+      getUnreadCountUsecase: serviceLocator(),
+      deleteNotificationUsecase: serviceLocator(),
+    ),
   );
 }
 

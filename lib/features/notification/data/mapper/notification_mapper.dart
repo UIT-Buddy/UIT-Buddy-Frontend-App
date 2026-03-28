@@ -3,33 +3,39 @@ import 'package:uit_buddy_mobile/features/notification/data/models/notification_
 import 'package:uit_buddy_mobile/features/notification/domain/entities/notification_entity.dart'
     as entity;
 
-extension CalendarDeadlineItemMapper on model.NotificationItemModel {
-  entity.NotificationItemEntity toEntity() => entity.NotificationItemEntity(
+extension NotificationMapper on model.NotificationModel {
+  entity.NotificationEntity toEntity() => entity.NotificationEntity(
     id: id,
     title: title,
-    content: content,
+    content: content ?? '',
     isRead: isRead,
     type: _mapType(type),
-    redirectUrl: redirectUrl,
+    dataId: dataId,
+    createdAt: createdAt
   );
 
   entity.NotificationType _mapType(String type) {
     switch (type.toUpperCase()) {
       case 'SYSTEM':
         return entity.NotificationType.system;
+      case 'POST_LIKE':
+        return entity.NotificationType.postLike;
+      case 'POST_COMMENT':
+        return entity.NotificationType.postComment;
+      case 'POST_SHARE':
+        return entity.NotificationType.postShare;
+      case 'COMMENT_LIKE':
+        return entity.NotificationType.commentLike;
+      case 'FRIEND_REQUEST_RECEIVED':
+        return entity.NotificationType.friendRequestReceived;
+      case 'FRIEND_REQUEST_ACCEPTED':
+        return entity.NotificationType.friendRequestAccepted;
       case 'ACADEMIC':
         return entity.NotificationType.academic;
       case 'REMINDER':
         return entity.NotificationType.reminder;
-      case 'SOCIAL':
-        return entity.NotificationType.social;
       default:
         return entity.NotificationType.system;
     }
   }
-}
-
-extension NotificationMapper on model.NotificationModel {
-  entity.NotificationEntity toEntity() =>
-      entity.NotificationEntity(items: items.map((e) => e.toEntity()).toList());
 }
