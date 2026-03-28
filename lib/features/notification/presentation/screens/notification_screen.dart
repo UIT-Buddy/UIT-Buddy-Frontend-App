@@ -15,7 +15,7 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) =>
-          serviceLocator<NotificationBloc>()..add(const NotificationStarted()),
+          serviceLocator<NotificationBloc>()..add(const NotificationsLoaded()),
       child: Scaffold(
         backgroundColor: AppColor.pureWhite,
         body: SafeArea(
@@ -68,7 +68,7 @@ class NotificationScreen extends StatelessWidget {
                       );
                     }
 
-                    final items = state.notificationEntity?.items ?? const [];
+                    final items = state.notifs;
 
                     if (items.isEmpty) {
                       return Center(
@@ -89,10 +89,23 @@ class NotificationScreen extends StatelessWidget {
                         color: AppColor.dividerGrey,
                       ),
                       itemBuilder: (context, index) {
+                        final notification = items[index];
                         return NotificationItemWidget(
-                          item: items[index],
-                          onMarkAsRead: () {},
-                          onDelete: () {},
+                          item: notification,
+                          onMarkAsRead: () {
+                            context.read<NotificationBloc>().add(
+                              NotificationMarkAsRead(
+                                notificationId: notification.id,
+                              ),
+                            );
+                          },
+                          onDelete: () {
+                            context.read<NotificationBloc>().add(
+                              NotificationDeleted(
+                                notificationId: notification.id,
+                              ),
+                            );
+                          },
                         );
                       },
                     );

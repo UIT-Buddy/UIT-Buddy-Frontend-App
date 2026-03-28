@@ -1,6 +1,10 @@
-import 'package:uit_buddy_mobile/core/network/api/api_response.dart';
-import 'package:uit_buddy_mobile/features/profile/data/models/post_model.dart';
+import 'package:uit_buddy_mobile/core/common/paged_result.dart';
+import 'package:uit_buddy_mobile/features/profile/data/models/your_post_model.dart';
 
 abstract interface class ProfilePostDatasourceInterface {
-  Future<ApiResponse<List<PostModel>>> getPosts();
+  Future<PagedResult<YourPostModel>> getPosts({String? cursor, int limit = 10});
+
+  Future<void> deletePost(String postId);
+
+  Future<void> togglePostLike(String postId);
 }
