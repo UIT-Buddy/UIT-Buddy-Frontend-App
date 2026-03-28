@@ -146,6 +146,7 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_friend_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/reset_comet_cache_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/respond_friend_request_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_comet_user_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_posts_usecase.dart';
@@ -672,6 +673,9 @@ void _initSocialDependencies() {
       markMessageAsReadUsecase: serviceLocator(),
     ),
   );
+  serviceLocator.registerLazySingleton(
+    () => ResetCometCacheUsecase(repository: serviceLocator()),
+  );
 }
 
 Future<void> _initProfileDependencies() async {
@@ -767,6 +771,7 @@ Future<void> _initProfileDependencies() async {
     () => ProfileBloc(
       getProfileUsecase: serviceLocator(),
       signOutUsecase: serviceLocator(),
+      resetCometCacheUsecase: serviceLocator(),
     ),
   );
   serviceLocator.registerFactory(

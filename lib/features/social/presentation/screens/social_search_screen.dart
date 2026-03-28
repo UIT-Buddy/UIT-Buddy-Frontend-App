@@ -6,6 +6,7 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/social_search/social_search_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/social_search/social_search_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/social_search/social_search_state.dart';
@@ -118,6 +119,10 @@ class _SocialSearchViewState extends State<_SocialSearchView>
 
   @override
   Widget build(BuildContext context) {
+    final currentUserMssv = context.select(
+      (SessionBloc bloc) => bloc.state.user?.mssv.trim(),
+    );
+
     return Scaffold(
       backgroundColor: AppColor.pureWhite,
       appBar: AppBar(
@@ -155,11 +160,18 @@ class _SocialSearchViewState extends State<_SocialSearchView>
             Expanded(
               child: BlocBuilder<SocialSearchBloc, SocialSearchState>(
                 builder: (context, state) {
+                  final visibleUsers = _filterOutCurrentUser(
+                    state.users,
+                    currentUserMssv,
+                  );
+                  final hasAnyVisibleResults =
+                      visibleUsers.isNotEmpty || state.posts.isNotEmpty;
+
                   return TabBarView(
                     controller: _tabController,
                     children: [
-                      _buildAllTab(state),
-                      _buildUsersTab(state),
+                      _buildAllTab(state, visibleUsers, hasAnyVisibleResults),
+                      _buildUsersTab(state, visibleUsers),
                       _buildPostsTab(state),
                     ],
                   );
@@ -257,7 +269,11 @@ class _SocialSearchViewState extends State<_SocialSearchView>
     );
   }
 
-  Widget _buildAllTab(SocialSearchState state) {
+  Widget _buildAllTab(
+    SocialSearchState state,
+    List<SearchUserEntity> visibleUsers,
+    bool hasAnyVisibleResults,
+  ) {
     if (!state.isLoading && state.query.isEmpty) {
       return const _InitialSearchPrompt();
     }
@@ -278,7 +294,10 @@ class _SocialSearchViewState extends State<_SocialSearchView>
       );
     }
 
-    if (state.hasGlobalError) {
+    if (!state.isLoading &&
+        !hasAnyVisibleResults &&
+        state.usersError != null &&
+        state.postsError != null) {
       return _ErrorState(
         message:
             state.usersError ?? state.postsError ?? SocialText.genericError,
@@ -287,19 +306,19 @@ class _SocialSearchViewState extends State<_SocialSearchView>
       );
     }
 
-    if (!state.isLoading && !state.hasAnyResults) {
+    if (!state.isLoading && !hasAnyVisibleResults) {
       return _EmptyState(query: state.query);
     }
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
       children: [
-        if (state.users.isNotEmpty) ...[
+        if (visibleUsers.isNotEmpty) ...[
           _SearchSectionHeader(
             title: SocialText.searchTabUsers,
-            count: state.users.length,
+            count: visibleUsers.length,
           ),
-          ...state.users.map(
+          ...visibleUsers.map(
             (user) => Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: SocialSearchUserCard(
@@ -340,12 +359,15 @@ class _SocialSearchViewState extends State<_SocialSearchView>
     );
   }
 
-  Widget _buildUsersTab(SocialSearchState state) {
+  Widget _buildUsersTab(
+    SocialSearchState state,
+    List<SearchUserEntity> visibleUsers,
+  ) {
     if (!state.isLoading && state.query.isEmpty) {
       return const _InitialSearchPrompt();
     }
 
-    if (state.isLoading && state.users.isEmpty && state.usersError == null) {
+    if (state.isLoading && visibleUsers.isEmpty && state.usersError == null) {
       return ListView(
         padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
         children: const [
@@ -358,7 +380,7 @@ class _SocialSearchViewState extends State<_SocialSearchView>
       );
     }
 
-    if (!state.isLoading && state.users.isEmpty && state.usersError != null) {
+    if (!state.isLoading && visibleUsers.isEmpty && state.usersError != null) {
       return _ErrorState(
         message: state.usersError!,
         onRetry: () =>
@@ -366,23 +388,38 @@ class _SocialSearchViewState extends State<_SocialSearchView>
       );
     }
 
-    if (!state.isLoading && state.users.isEmpty) {
+    if (!state.isLoading && visibleUsers.isEmpty) {
       return _EmptyState(query: state.query, label: SocialText.searchNoUsers);
     }
 
     return ListView.separated(
       controller: _usersScrollController,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      itemCount: state.users.length + (state.isLoadingMoreUsers ? 1 : 0),
+      itemCount: visibleUsers.length + (state.isLoadingMoreUsers ? 1 : 0),
       separatorBuilder: (_, _) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        if (index == state.users.length) return const _BottomLoader();
+        if (index == visibleUsers.length) return const _BottomLoader();
         return SocialSearchUserCard(
-          user: state.users[index],
-          onTap: () => _openUserProfile(state.users[index].mssv),
+          user: visibleUsers[index],
+          onTap: () => _openUserProfile(visibleUsers[index].mssv),
         );
       },
     );
+  }
+
+  List<SearchUserEntity> _filterOutCurrentUser(
+    List<SearchUserEntity> users,
+    String? currentUserMssv,
+  ) {
+    final normalizedCurrentUserMssv = currentUserMssv?.trim();
+    if (normalizedCurrentUserMssv == null ||
+        normalizedCurrentUserMssv.isEmpty) {
+      return users;
+    }
+
+    return users
+        .where((user) => user.mssv.trim() != normalizedCurrentUserMssv)
+        .toList(growable: false);
   }
 
   Widget _buildPostsTab(SocialSearchState state) {
