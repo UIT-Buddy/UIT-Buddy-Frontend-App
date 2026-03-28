@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:uit_buddy_mobile/core/network/api/api_response.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/user_profile_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/models/friend_list_item_model.dart';
 import 'package:uit_buddy_mobile/features/social/data/models/other_people_model.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/user_profile_repository.dart';
 
@@ -13,6 +14,20 @@ class UserProfileDatasourceImpl implements UserProfileDatasourceInterface {
   Future<ApiResponse<OtherPeopleModel>> getUserProfile(String mssv) async {
     final response = await _dio.get<Map<String, dynamic>>('/api/user/$mssv');
     return apiResponseObjectFromJson(response.data!, OtherPeopleModel.fromJson);
+  }
+
+  @override
+  Future<ApiResponse<List<FriendListItemModel>>> getFriends({
+    int limit = 100,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/friends',
+      queryParameters: {'limit': limit},
+    );
+    return apiResponseListFromJson(
+      response.data!,
+      FriendListItemModel.fromJson,
+    );
   }
 
   @override

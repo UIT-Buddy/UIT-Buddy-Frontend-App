@@ -128,7 +128,7 @@ class _UserSearchViewState extends State<_UserSearchView> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Nhập tên để tìm kiếm bạn bè',
+            'Nhập tên hoặc MSSV để tìm kiếm bạn bè',
             style: AppTextStyle.bodyMedium.copyWith(
               color: AppColor.secondaryText,
             ),

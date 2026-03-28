@@ -13,6 +13,7 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     on<ConversationStarted>(_onStarted);
     on<ConversationRefreshed>(_onRefreshed);
     on<ConversationSearchChanged>(_onSearchChanged);
+    on<ConversationOpened>(_onOpened);
   }
 
   final GetConversationsUsecase _getConversationsUsecase;
@@ -48,6 +49,26 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
 
     emit(
       state.copyWith(searchQuery: event.query, filteredConversations: filtered),
+    );
+  }
+
+  void _onOpened(ConversationOpened event, Emitter<ConversationState> emit) {
+    final updatedConversations = state.conversations
+        .map(
+          (conversation) => conversation.id == event.conversationId
+              ? conversation.copyWith(unreadCount: 0)
+              : conversation,
+        )
+        .toList();
+
+    emit(
+      state.copyWith(
+        conversations: updatedConversations,
+        filteredConversations: _applySearch(
+          updatedConversations,
+          state.searchQuery,
+        ),
+      ),
     );
   }
 

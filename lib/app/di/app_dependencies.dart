@@ -143,8 +143,10 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_comment_rep
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_comments_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_friend_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/reset_comet_cache_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/respond_friend_request_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_comet_user_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_posts_usecase.dart';
@@ -164,6 +166,7 @@ import 'package:uit_buddy_mobile/features/social/domain/repositories/chat_reposi
 import 'package:uit_buddy_mobile/features/social/domain/repositories/conversation_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_conversations_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/mark_message_as_read_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/send_text_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/edit_text_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_message_usecase.dart';
@@ -499,6 +502,7 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton<UserSearchRepository>(
     () => UserSearchRepositoryImpl(
       datasource: serviceLocator(),
+      userProfileDatasource: serviceLocator(),
       chatDatasource: serviceLocator(),
     ),
   );
@@ -629,7 +633,10 @@ void _initSocialDependencies() {
   );
 
   serviceLocator.registerFactory(
-    () => UserSearchBloc(searchCometUsersUsecase: serviceLocator()),
+    () => UserSearchBloc(getFriendUsersUsecase: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => GetFriendUsersUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerFactory(
     () => SearchCometUserUsecase(repository: serviceLocator()),
@@ -654,13 +661,20 @@ void _initSocialDependencies() {
   serviceLocator.registerLazySingleton(
     () => DeleteMessageUsecase(repository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => MarkMessageAsReadUsecase(repository: serviceLocator()),
+  );
   serviceLocator.registerFactory(
     () => ChatBloc(
       getMessagesUsecase: serviceLocator(),
       sendTextMessageUsecase: serviceLocator(),
       editTextMessageUsecase: serviceLocator(),
       deleteMessageUsecase: serviceLocator(),
+      markMessageAsReadUsecase: serviceLocator(),
     ),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ResetCometCacheUsecase(repository: serviceLocator()),
   );
 }
 
@@ -757,6 +771,7 @@ Future<void> _initProfileDependencies() async {
     () => ProfileBloc(
       getProfileUsecase: serviceLocator(),
       signOutUsecase: serviceLocator(),
+      resetCometCacheUsecase: serviceLocator(),
     ),
   );
   serviceLocator.registerFactory(
