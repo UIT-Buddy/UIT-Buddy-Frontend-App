@@ -34,6 +34,30 @@ class PostRepositoryImpl implements PostRepository {
   }
 
   @override
+  Future<Either<Failure, PagedResult<PostEntity>>> getPostsByUser({
+    required String mssv,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final result = await _datasource.getPostsByUser(
+        mssv: mssv,
+        page: page,
+        limit: limit,
+      );
+      return Right(
+        PagedResult<PostEntity>(
+          items: result.items.map((m) => m.toEntity()).toList(),
+          nextCursor: result.nextCursor,
+          hasMore: result.hasMore,
+        ),
+      );
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
   Future<Either<Failure, PagedResult<PostEntity>>> searchPosts({
     required String keyword,
     int page = 1,

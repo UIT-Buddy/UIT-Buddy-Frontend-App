@@ -151,6 +151,7 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_commen
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_friend_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_profile_usecase.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_posts_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reset_comet_cache_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/respond_friend_request_usecase.dart';
@@ -539,6 +540,9 @@ void _initSocialDependencies() {
     () => GetUserProfileUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
+    () => GetUserPostsUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
     () => ToggleFriendRequestUsecase(repository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
@@ -609,9 +613,12 @@ void _initSocialDependencies() {
   serviceLocator.registerFactory(
     () => UserProfileBloc(
       getUserProfileUsecase: serviceLocator(),
+      getUserPostsUsecase: serviceLocator(),
       toggleFriendRequestUsecase: serviceLocator(),
       respondFriendRequestUsecase: serviceLocator(),
       unfriendUsecase: serviceLocator(),
+      toggleLikeUsecase: serviceLocator(),
+      deletePostUsecase: serviceLocator(),
     ),
   );
   serviceLocator.registerFactory(() => ChatSettingsBloc());

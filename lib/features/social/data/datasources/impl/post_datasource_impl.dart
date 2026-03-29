@@ -39,6 +39,30 @@ class PostDatasourceImpl
   }
 
   @override
+  Future<PagedResult<PostModel>> getPostsByUser({
+    required String mssv,
+    int page = 1,
+    int limit = 10,
+  }) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/posts/user/$mssv',
+      queryParameters: {'page': page, 'limit': limit},
+    );
+
+    final body = response.data!;
+    final dataList = (body['data'] as List<dynamic>? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map(PostModel.fromJson)
+        .toList();
+
+    return PagedResult<PostModel>(
+      items: dataList,
+      nextCursor: extractNextCursor(body),
+      hasMore: extractHasMore(body, dataList.length, limit),
+    );
+  }
+
+  @override
   Future<PagedResult<SearchPostModel>> searchPosts({
     required String keyword,
     int page = 1,

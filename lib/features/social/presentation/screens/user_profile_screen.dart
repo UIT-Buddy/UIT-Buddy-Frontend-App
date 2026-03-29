@@ -4,13 +4,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/other_people_entity.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_screen.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_screen.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
 
 class UserProfileScreen extends StatelessWidget {
   const UserProfileScreen({super.key, required this.mssv});
@@ -28,8 +34,55 @@ class UserProfileScreen extends StatelessWidget {
   }
 }
 
-class _UserProfileView extends StatelessWidget {
+class _UserProfileView extends StatefulWidget {
   const _UserProfileView();
+
+  @override
+  State<_UserProfileView> createState() => _UserProfileViewState();
+}
+
+class _UserProfileViewState extends State<_UserProfileView> {
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()..addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      context.read<UserProfileBloc>().add(const UserProfilePostsLoadMore());
+    }
+  }
+
+  Future<void> _navigateToEdit(BuildContext context, PostEntity post) async {
+    final bloc = context.read<UserProfileBloc>();
+    final updated = await Navigator.of(context).push<PostEntity>(
+      MaterialPageRoute(builder: (_) => EditPostScreen(post: post)),
+    );
+    if (updated != null && context.mounted) {
+      bloc.add(UserProfilePostUpdated(updatedPost: updated));
+    }
+  }
+
+  Future<void> _openPostDetail(BuildContext context, PostEntity post) async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => PostDetailScreen(postId: post.id, initialPost: post),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -101,24 +154,123 @@ class _UserProfileView extends StatelessWidget {
               if (user == null) {
                 return const _ErrorState(message: 'User not found.');
               }
-              return _ProfileContent(user: user, state: state);
+              return RefreshIndicator(
+                color: AppColor.primaryBlue,
+                onRefresh: () async {
+                  context.read<UserProfileBloc>().add(
+                    const UserProfilePostsRefreshed(),
+                  );
+                  await context.read<UserProfileBloc>().stream.firstWhere(
+                    (nextState) =>
+                        nextState.postsStatus !=
+                            UserProfilePostsStatus.loading &&
+                        !nextState.isLoadingMorePosts,
+                  );
+                },
+                child: ListView.builder(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 28),
+                  itemCount: _itemCountFor(state),
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return _ProfileHeaderContent(user: user, state: state);
+                    }
+                    return _buildPostsItem(
+                      context,
+                      state,
+                      index - 1,
+                      context.read<SessionBloc>().state.user?.mssv,
+                    );
+                  },
+                ),
+              );
           }
         },
       ),
     );
   }
+
+  int _itemCountFor(UserProfileState state) {
+    if (state.postsStatus == UserProfilePostsStatus.loading &&
+        state.posts.isEmpty) {
+      return 4;
+    }
+
+    if (state.posts.isEmpty) {
+      return 2;
+    }
+
+    var count = 1 + state.posts.length;
+    if (state.isLoadingMorePosts ||
+        (state.postsErrorMessage != null &&
+            state.postsStatus == UserProfilePostsStatus.loaded)) {
+      count += 1;
+    }
+    return count;
+  }
+
+  Widget _buildPostsItem(
+    BuildContext context,
+    UserProfileState state,
+    int index,
+    String? currentUserMssv,
+  ) {
+    if (state.postsStatus == UserProfilePostsStatus.loading &&
+        state.posts.isEmpty) {
+      return PostCardSkeleton(showImage: index == 1);
+    }
+
+    if (state.posts.isEmpty) {
+      if (state.postsStatus == UserProfilePostsStatus.error) {
+        return _PostsErrorState(
+          message: state.postsErrorMessage,
+          onRetry: () => context.read<UserProfileBloc>().add(
+            const UserProfilePostsRefreshed(),
+          ),
+        );
+      }
+      return const _PostsEmptyState();
+    }
+
+    if (index >= state.posts.length) {
+      return _PostsFooter(
+        isLoading: state.isLoadingMorePosts,
+        errorMessage: state.postsErrorMessage,
+        onRetry: () => context.read<UserProfileBloc>().add(
+          const UserProfilePostsLoadMore(),
+        ),
+      );
+    }
+
+    final post = state.posts[index];
+    return PostCard(
+      key: ValueKey('profile-${post.id}'),
+      post: post,
+      currentUserMssv: currentUserMssv,
+      onLikeTap: () => context.read<UserProfileBloc>().add(
+        UserProfilePostLiked(postId: post.id),
+      ),
+      onDeleteTap: () => context.read<UserProfileBloc>().add(
+        UserProfilePostDeleted(postId: post.id),
+      ),
+      onEditTap: () => _navigateToEdit(context, post),
+      onTap: () => _openPostDetail(context, post),
+      onCommentTap: () => _openPostDetail(context, post),
+    );
+  }
 }
 
-class _ProfileContent extends StatelessWidget {
-  const _ProfileContent({required this.user, required this.state});
+class _ProfileHeaderContent extends StatelessWidget {
+  const _ProfileHeaderContent({required this.user, required this.state});
 
   final OtherPeopleEntity user;
   final UserProfileState state;
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -194,6 +346,13 @@ class _ProfileContent extends StatelessWidget {
                   const SizedBox(height: 14),
                   _InfoSection(title: 'Comet UID', value: user.cometUid!),
                 ],
+                const SizedBox(height: 24),
+                Text(
+                  'Bài viết',
+                  style: AppTextStyle.h4.copyWith(
+                    fontWeight: AppTextStyle.bold,
+                  ),
+                ),
               ],
             ),
           ),
@@ -251,6 +410,124 @@ class _ProfileContent extends StatelessWidget {
       child: Text(
         user.userLetterAvatar,
         style: AppTextStyle.h2White.copyWith(fontWeight: AppTextStyle.bold),
+      ),
+    );
+  }
+}
+
+class _PostsFooter extends StatelessWidget {
+  const _PostsFooter({
+    required this.isLoading,
+    required this.errorMessage,
+    required this.onRetry,
+  });
+
+  final bool isLoading;
+  final String? errorMessage;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2.5,
+            color: AppColor.primaryBlue,
+          ),
+        ),
+      );
+    }
+
+    if (errorMessage == null || errorMessage!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: AppColor.veryLightGrey,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Column(
+          children: [
+            Text(
+              errorMessage!,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.bodySmall,
+            ),
+            const SizedBox(height: 12),
+            TextButton(onPressed: onRetry, child: const Text('Thử lại')),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PostsEmptyState extends StatelessWidget {
+  const _PostsEmptyState();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppColor.veryLightGrey,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Text(
+          'Người dùng chưa có bài viết nào.',
+          textAlign: TextAlign.center,
+          style: AppTextStyle.bodyMedium.copyWith(
+            color: AppColor.secondaryText,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PostsErrorState extends StatelessWidget {
+  const _PostsErrorState({required this.message, required this.onRetry});
+
+  final String? message;
+  final VoidCallback onRetry;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppColor.veryLightGrey,
+          borderRadius: BorderRadius.circular(18),
+        ),
+        child: Column(
+          children: [
+            const Icon(
+              Icons.article_outlined,
+              color: AppColor.alertRed,
+              size: 30,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              message ?? 'Failed to load posts.',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.bodyMedium,
+            ),
+            const SizedBox(height: 12),
+            TextButton(onPressed: onRetry, child: const Text('Thử lại')),
+          ],
+        ),
       ),
     );
   }

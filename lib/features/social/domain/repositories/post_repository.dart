@@ -10,6 +10,12 @@ abstract interface class PostRepository {
     int limit = 10,
   });
 
+  Future<Either<Failure, PagedResult<PostEntity>>> getPostsByUser({
+    required String mssv,
+    int page = 1,
+    int limit = 10,
+  });
+
   Future<Either<Failure, PagedResult<PostEntity>>> searchPosts({
     required String keyword,
     int page = 1,
