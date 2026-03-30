@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
-import 'package:uit_buddy_mobile/features/storage/domain/entities/document_entity.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/entities/file_entity.dart';
 
-enum _FileMenuAction { changeAccess, share, delete }
+enum _FileMenuAction { download, share, delete }
 
 class StorageFileWidget extends StatelessWidget {
   const StorageFileWidget({
@@ -13,13 +13,17 @@ class StorageFileWidget extends StatelessWidget {
     this.onChangeAccess,
     this.onShare,
     this.onDelete,
+    this.onDownload,
+    this.onTap,
   });
 
-  final DocumentEntity file;
+  final FileEntity file;
   final bool isGrid;
   final VoidCallback? onChangeAccess;
   final VoidCallback? onShare;
   final VoidCallback? onDelete;
+  final VoidCallback? onDownload;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -29,12 +33,16 @@ class StorageFileWidget extends StatelessWidget {
             onChangeAccess: onChangeAccess,
             onShare: onShare,
             onDelete: onDelete,
+            onDownload: onDownload,
+            onTap: onTap,
           )
         : _ListTile(
             file: file,
             onChangeAccess: onChangeAccess,
             onShare: onShare,
             onDelete: onDelete,
+            onDownload: onDownload,
+            onTap: onTap,
           );
   }
 }
@@ -61,6 +69,21 @@ _FileTypeConfig _getConfig(String fileName) {
         icon: Icons.description_outlined,
         color: AppColor.primaryBlue,
       );
+    case 'jpg':
+    case 'jpeg':
+    case 'png':
+    case 'gif':
+      return _FileTypeConfig(
+        icon: Icons.image_outlined,
+        color: const Color(0xFF9C27B0),
+      );
+    case 'mp4':
+    case 'avi':
+    case 'mkv':
+      return _FileTypeConfig(
+        icon: Icons.videocam_outlined,
+        color: const Color(0xFFFF9800),
+      );
     case 'txt':
       return _FileTypeConfig(
         icon: Icons.text_snippet_outlined,
@@ -75,7 +98,7 @@ _FileTypeConfig _getConfig(String fileName) {
 }
 
 Widget _buildMenu({
-  required VoidCallback? onChangeAccess,
+  required VoidCallback? onDownload,
   required VoidCallback? onShare,
   required VoidCallback? onDelete,
 }) {
@@ -86,8 +109,8 @@ Widget _buildMenu({
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
     onSelected: (action) {
       switch (action) {
-        case _FileMenuAction.changeAccess:
-          onChangeAccess?.call();
+        case _FileMenuAction.download:
+          onDownload?.call();
         case _FileMenuAction.share:
           onShare?.call();
         case _FileMenuAction.delete:
@@ -96,16 +119,16 @@ Widget _buildMenu({
     },
     itemBuilder: (_) => [
       PopupMenuItem(
-        value: _FileMenuAction.changeAccess,
+        value: _FileMenuAction.download,
         child: Row(
           children: [
             const Icon(
-              Icons.lock_outline,
+              Icons.download_outlined,
               size: 18,
-              color: AppColor.warningOrange,
+              color: AppColor.primaryBlue,
             ),
             const SizedBox(width: 8),
-            Text('Change access level', style: AppTextStyle.bodySmall),
+            Text('Download', style: AppTextStyle.bodySmall),
           ],
         ),
       ),
@@ -152,65 +175,84 @@ class _GridCard extends StatelessWidget {
     this.onChangeAccess,
     this.onShare,
     this.onDelete,
+    this.onDownload,
+    this.onTap,
   });
 
-  final DocumentEntity file;
+  final FileEntity file;
   final VoidCallback? onChangeAccess;
   final VoidCallback? onShare;
   final VoidCallback? onDelete;
+  final VoidCallback? onDownload;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final config = _getConfig(file.fileName);
-    return Container(
-      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
-      decoration: BoxDecoration(
-        color: AppColor.pureWhite,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColor.shadowColor,
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: config.color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(config.icon, color: config.color, size: 22),
-              ),
-              const Spacer(),
-              _buildMenu(
-                onChangeAccess: onChangeAccess,
-                onShare: onShare,
-                onDelete: onDelete,
-              ),
-            ],
-          ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.only(right: 8),
-            child: Text(
-              file.fileName,
-              style: AppTextStyle.bodySmall.copyWith(
-                fontWeight: AppTextStyle.medium,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
+    final config = _getConfig(file.name);
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+        decoration: BoxDecoration(
+          color: AppColor.pureWhite,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: const [
+            BoxShadow(
+              color: AppColor.shadowColor,
+              blurRadius: 8,
+              offset: Offset(0, 2),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: config.color.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(config.icon, color: config.color, size: 22),
+                ),
+                const Spacer(),
+                _buildMenu(
+                  onDownload: onDownload,
+                  onShare: onShare,
+                  onDelete: onDelete,
+                ),
+              ],
+            ),
+            const Spacer(),
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    file.name,
+                    style: AppTextStyle.bodySmall.copyWith(
+                      fontWeight: AppTextStyle.medium,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '${file.size} ${file.sizeUnit}',
+                    style: AppTextStyle.captionSmall.copyWith(
+                      color: AppColor.secondaryText,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -224,48 +266,61 @@ class _ListTile extends StatelessWidget {
     this.onChangeAccess,
     this.onShare,
     this.onDelete,
+    this.onDownload,
+    this.onTap,
   });
 
-  final DocumentEntity file;
+  final FileEntity file;
   final VoidCallback? onChangeAccess;
   final VoidCallback? onShare;
   final VoidCallback? onDelete;
+  final VoidCallback? onDownload;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    final config = _getConfig(file.fileName);
-    return ListTile(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      leading: Container(
-        width: 40,
-        height: 40,
-        decoration: BoxDecoration(
-          color: config.color.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(10),
+    final config = _getConfig(file.name);
+    return GestureDetector(
+      onTap: onTap,
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: config.color.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Icon(config.icon, color: config.color, size: 22),
         ),
-        child: Icon(config.icon, color: config.color, size: 22),
-      ),
-      title: Text(
-        file.fileName,
-        style: AppTextStyle.bodySmall.copyWith(fontWeight: AppTextStyle.medium),
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      ),
-      subtitle: Text(file.classCode, style: AppTextStyle.captionMedium),
-      trailing: _buildMenu(
-        onChangeAccess: onChangeAccess,
-        onShare: onShare,
-        onDelete: onDelete,
+        title: Text(
+          file.name,
+          style: AppTextStyle.bodySmall.copyWith(
+            fontWeight: AppTextStyle.medium,
+          ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
+        subtitle: Text(
+          '${file.size} ${file.sizeUnit}',
+          style: AppTextStyle.captionSmall.copyWith(
+            color: AppColor.secondaryText,
+          ),
+        ),
+        trailing: _buildMenu(
+          onDownload: onDownload,
+          onShare: onShare,
+          onDelete: onDelete,
+        ),
+        onTap: onDownload,
       ),
     );
   }
 }
 
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 class _FileTypeConfig {
-  const _FileTypeConfig({required this.icon, required this.color});
-
   final IconData icon;
   final Color color;
+
+  _FileTypeConfig({required this.icon, required this.color});
 }

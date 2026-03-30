@@ -34,11 +34,11 @@ import 'package:uit_buddy_mobile/features/notification/data/datasources/impl/not
 import 'package:uit_buddy_mobile/features/notification/data/datasources/notification_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/notification/data/repositories/notification_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/notification/domain/repositories/notification_repository.dart';
-import 'package:uit_buddy_mobile/features/notification/domain/usecases/get_notification_usecase.dart';
-import 'package:uit_buddy_mobile/features/notification/domain/usecases/mark_notification_read_usecase.dart';
-import 'package:uit_buddy_mobile/features/notification/domain/usecases/mark_all_notifications_read_usecase.dart';
-import 'package:uit_buddy_mobile/features/notification/domain/usecases/get_unread_count_usecase.dart';
 import 'package:uit_buddy_mobile/features/notification/domain/usecases/delete_notification_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/get_notification_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/get_unread_count_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/mark_all_notifications_read_usecase.dart';
+import 'package:uit_buddy_mobile/features/notification/domain/usecases/mark_notification_read_usecase.dart';
 import 'package:uit_buddy_mobile/features/notification/presentation/bloc/notification_screen/notification_bloc.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -91,13 +91,14 @@ import 'package:uit_buddy_mobile/features/profile/domain/repositories/academic_d
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/semester_detail_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/academic_detail_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/semester_detail_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_academic_detail_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_semester_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/academic_detail_screen/academic_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_screen/semester_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/create_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_account_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_groups_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_posts_usecase.dart';
@@ -106,7 +107,6 @@ import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_tasks_usec
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_your_info_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/mark_task_completed_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/sign_out_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/toggle_post_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_your_info_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/group_screen/group_bloc.dart';
@@ -186,15 +186,18 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/p
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/social_search/social_search_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_bloc.dart';
-import 'package:uit_buddy_mobile/features/storage/data/datasources/document_datasource_interface.dart';
-import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/document_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/storage_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/storage_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/subject_class_datasource_interface.dart';
-import 'package:uit_buddy_mobile/features/storage/data/repositories/document_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/repositories/storage_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/repositories/subject_class_repository_impl.dart';
-import 'package:uit_buddy_mobile/features/storage/domain/repositories/document_repository.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/repositories/storage_repository.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/repositories/subject_class_repository.dart';
-import 'package:uit_buddy_mobile/features/storage/domain/usecases/document_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/create_files_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/create_folder_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_download_url_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_folder_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/subject_class_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc.dart';
 import 'package:uit_buddy_mobile/core/config/parameter.dart';
@@ -805,9 +808,9 @@ Future<void> _initProfileDependencies() async {
   );
   serviceLocator.registerFactory(
     () => YourPostsBloc(
-      getPostsUsecase: serviceLocator(),
       deletePostUsecase: serviceLocator(),
       togglePostLikeUsecase: serviceLocator(),
+      getPostsUsecase: serviceLocator(),
     ),
   );
   serviceLocator.registerFactory(
@@ -868,8 +871,10 @@ Future<void> _initStorageDependencies() async {
   serviceLocator.registerLazySingleton<SubjectClassDatasourceInterface>(
     () => SubjectClassDatasourceImpl(),
   );
-  serviceLocator.registerLazySingleton<DocumentDatasourceInterface>(
-    () => DocumentDatasourceImpl(),
+  serviceLocator.registerLazySingleton<StorageDatasourceInterface>(
+    () => StorageDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
   );
 
   // Repositories
@@ -878,8 +883,8 @@ Future<void> _initStorageDependencies() async {
       subjectClassDatasourceInterface: serviceLocator(),
     ),
   );
-  serviceLocator.registerLazySingleton<DocumentRepository>(
-    () => DocumentRepositoryImpl(documentDatasourceInterface: serviceLocator()),
+  serviceLocator.registerLazySingleton<StorageRepository>(
+    () => StorageRepositoryImpl(storageDatasourceInterface: serviceLocator()),
   );
 
   // Usecases
@@ -887,14 +892,25 @@ Future<void> _initStorageDependencies() async {
     () => SubjectClassUsecase(subjectClassRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => DocumentUsecase(documentRepository: serviceLocator()),
+    () => CreateFilesUsecase(storageRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => CreateFolderUsecase(storageRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetDownloadUrlUsecase(storageRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetFolderUsecase(storageRepository: serviceLocator()),
   );
 
   // Blocs
   serviceLocator.registerFactory(
     () => StorageBloc(
-      subjectClassUsecase: serviceLocator(),
-      documentUsecase: serviceLocator(),
+      getFolderUsecase: serviceLocator(),
+      getDownloadUrlUsecase: serviceLocator(),
+      createFolderUsecase: serviceLocator(),
+      createFilesUsecase: serviceLocator(),
     ),
   );
 }
