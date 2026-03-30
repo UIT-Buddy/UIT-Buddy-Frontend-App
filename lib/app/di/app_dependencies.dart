@@ -22,9 +22,8 @@ import 'package:uit_buddy_mobile/features/calendar/domain/repositories/calendar_
 import 'package:uit_buddy_mobile/features/calendar/domain/repositories/course_repository.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_deadline_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadline_usecase.dart';
-import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_mode_usecase.dart';
-import 'package:uit_buddy_mobile/features/calendar/domain/usecases/search_courses_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_studying_class_codes_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/upload_schedule_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
@@ -441,9 +440,8 @@ Future<void> _initCalendarDependencies() async {
     () => GetDeadlineUsecase(calendarRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => GetCoursesUsecase(courseRepository: serviceLocator()),
+    () => GetStudyingClassCodesUsecase(calendarRepository: serviceLocator()),
   );
-  serviceLocator.registerLazySingleton(() => SearchCoursesUsecase());
   serviceLocator.registerLazySingleton(
     () => CreateDeadlineUsecase(calendarRepository: serviceLocator()),
   );
@@ -467,8 +465,7 @@ Future<void> _initCalendarDependencies() async {
   );
   serviceLocator.registerFactory(
     () => AddDeadlineBloc(
-      getCoursesUsecase: serviceLocator(),
-      searchCoursesUsecase: serviceLocator(),
+      getStudyingClassCodesUsecase: serviceLocator(),
       createDeadlineUsecase: serviceLocator(),
     ),
   );

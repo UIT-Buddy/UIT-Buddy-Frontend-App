@@ -15,7 +15,7 @@ class CreateDeadlineUsecase implements UseCase<Unit, CreateDeadlineParams> {
   Future<Either<Failure, Unit>> call(CreateDeadlineParams params) =>
       _calendarRepository.createDeadline(
         name: params.name,
-        courseId: params.courseId,
+        classCode: params.classCode,
         deadline: params.deadline,
       );
 }
@@ -24,14 +24,14 @@ class CreateDeadlineUsecase implements UseCase<Unit, CreateDeadlineParams> {
 class CreateDeadlineParams extends Equatable {
   const CreateDeadlineParams({
     required this.name,
-    required this.courseId,
+    this.classCode,
     required this.deadline,
   });
 
   final String name;
-  final String courseId;
+  final String? classCode;
   final DateTime deadline;
 
   @override
-  List<Object?> get props => [name, courseId, deadline];
+  List<Object?> get props => [name, classCode, deadline];
 }
