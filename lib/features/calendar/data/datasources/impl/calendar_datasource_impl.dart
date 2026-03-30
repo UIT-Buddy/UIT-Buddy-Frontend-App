@@ -73,18 +73,33 @@ class CalendarDatasourceImpl implements CalendarDatasourceInterface {
   }
 
   @override
+  Future<ApiResponse<List<String>>> getStudyingClassCodes() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/schedule/deadline/class-codes/studying',
+    );
+    final json = response.data!;
+    final dataList = json['data'] as List<dynamic>;
+    final classCodes = dataList.map((e) => e as String).toList();
+    return ApiResponse<List<String>>(
+      statusCode: json['statusCode'] as int,
+      message: json['message'] as String,
+      data: classCodes,
+    );
+  }
+
+  @override
   Future<void> createDeadline({
     required String name,
-    required String courseId,
+    String? classCode,
     required DateTime deadline,
   }) async {
-    await _dio.post<void>(
-      '/api/schedule/deadline',
-      data: {
-        'name': name,
-        'courseId': courseId,
-        'deadline': deadline.toIso8601String(),
-      },
-    );
+    final Map<String, dynamic> data = {
+      'exerciseName': name,
+      'dueDate': deadline.toIso8601String(),
+    };
+    if (classCode != null && classCode.isNotEmpty) {
+      data['classCode'] = classCode;
+    }
+    await _dio.post<void>('/api/schedule/deadline', data: data);
   }
 }

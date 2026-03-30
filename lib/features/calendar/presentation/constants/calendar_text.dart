@@ -41,8 +41,10 @@ class CalendarText {
   static const String addDeadlineTitle = 'New Deadline';
   static const String fieldDeadlineName = 'DEADLINE NAME';
   static const String hintDeadlineName = 'e.g. Lab Report, Assignment 3...';
-  static const String fieldCourse = 'COURSE / CLASS';
-  static const String hintCourseSearch = 'Search by course code or name...';
+  static const String fieldClassCode = 'CLASS CODE';
+  static const String fieldClassCodeOptional = 'Optional';
+  static const String hintClassCodeSearch =
+      'Search by class code (e.g. IS216.Q23)...';
   static const String fieldDueDate = 'DUE DATE';
   static const String placeholderSelectDate = 'Select date';
   static const String fieldDueTime = 'DUE TIME';

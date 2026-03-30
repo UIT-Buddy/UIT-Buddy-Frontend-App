@@ -34,15 +34,29 @@ class CalendarRepositoryImpl implements CalendarRepository {
   }
 
   @override
+  Future<Either<Failure, List<String>>> getStudyingClassCodes() async {
+    try {
+      final apiResponse = await _calendarDatasourceInterface
+          .getStudyingClassCodes();
+      if (apiResponse.data == null) {
+        return Left(Failure(apiResponse.message));
+      }
+      return Right(apiResponse.data!);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
   Future<Either<Failure, Unit>> createDeadline({
     required String name,
-    required String courseId,
+    String? classCode,
     required DateTime deadline,
   }) async {
     try {
       await _calendarDatasourceInterface.createDeadline(
         name: name,
-        courseId: courseId,
+        classCode: classCode,
         deadline: deadline,
       );
       return Right(unit);

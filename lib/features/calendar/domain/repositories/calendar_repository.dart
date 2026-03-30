@@ -8,9 +8,11 @@ abstract interface class CalendarRepository {
     required int year,
   });
 
+  Future<Either<Failure, List<String>>> getStudyingClassCodes();
+
   Future<Either<Failure, Unit>> createDeadline({
     required String name,
-    required String courseId,
+    String? classCode,
     required DateTime deadline,
   });
 }
