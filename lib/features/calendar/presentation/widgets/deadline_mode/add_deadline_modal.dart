@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
-import 'package:uit_buddy_mobile/features/calendar/domain/entities/course_entity.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_state.dart';
@@ -12,7 +11,7 @@ import 'package:uit_buddy_mobile/features/calendar/presentation/constants/calend
 import 'package:uit_buddy_mobile/features/shared/button.dart';
 import 'package:uit_buddy_mobile/features/shared/input_text.dart';
 
-void showAddDeadlineModal(BuildContext context) {
+void showAddDeadlineModal(BuildContext context, {VoidCallback? onCreated}) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
@@ -20,7 +19,7 @@ void showAddDeadlineModal(BuildContext context) {
     backgroundColor: Colors.transparent,
     builder: (_) => BlocProvider(
       create: (_) => serviceLocator<AddDeadlineBloc>(),
-      child: const _AddDeadlineModal(),
+      child: _AddDeadlineModal(onCreated: onCreated),
     ),
   );
 }
@@ -30,7 +29,9 @@ void showAddDeadlineModal(BuildContext context) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class _AddDeadlineModal extends StatefulWidget {
-  const _AddDeadlineModal();
+  const _AddDeadlineModal({this.onCreated});
+
+  final VoidCallback? onCreated;
 
   @override
   State<_AddDeadlineModal> createState() => _AddDeadlineModalState();
@@ -38,26 +39,26 @@ class _AddDeadlineModal extends StatefulWidget {
 
 class _AddDeadlineModalState extends State<_AddDeadlineModal> {
   final _nameController = TextEditingController();
-  final _courseController = TextEditingController();
-  final _courseFocusNode = FocusNode();
+  final _classCodeController = TextEditingController();
+  final _classCodeFocusNode = FocusNode();
 
-  CourseEntity? _selectedCourse;
+  String? _selectedClassCode;
   DateTime? _selectedDate;
   int _selectedHour = 0;
   int _selectedMinute = 0;
-  bool _suppressCourseListener = false;
+  bool _suppressClassCodeListener = false;
 
   // Per-field validation errors
   String? _nameError;
-  String? _courseError;
+  String? _classCodeError;
   String? _dateError;
 
   @override
   void initState() {
     super.initState();
     context.read<AddDeadlineBloc>().add(const AddDeadlineStarted());
-    _courseController.addListener(_onCourseChanged);
-    _courseFocusNode.addListener(_onCourseFocusChanged);
+    _classCodeController.addListener(_onClassCodeChanged);
+    _classCodeFocusNode.addListener(_onClassCodeFocusChanged);
     _nameController.addListener(_onNameChanged);
   }
 
@@ -72,51 +73,59 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
     _nameController
       ..removeListener(_onNameChanged)
       ..dispose();
-    _courseController
-      ..removeListener(_onCourseChanged)
+    _classCodeController
+      ..removeListener(_onClassCodeChanged)
       ..dispose();
-    _courseFocusNode
-      ..removeListener(_onCourseFocusChanged)
+    _classCodeFocusNode
+      ..removeListener(_onClassCodeFocusChanged)
       ..dispose();
     super.dispose();
   }
 
-  void _onCourseChanged() {
+  void _onClassCodeChanged() {
     // Ignore programmatic text changes (e.g. from _selectSuggestion)
-    if (_suppressCourseListener) return;
-    _selectedCourse = null;
+    if (_suppressClassCodeListener) return;
+    _selectedClassCode = null;
     context.read<AddDeadlineBloc>().add(
-      AddDeadlineSearchCoursesRequested(_courseController.text),
+      AddDeadlineSearchClassCodesRequested(_classCodeController.text),
     );
   }
 
-  void _onCourseFocusChanged() {
-    if (!_courseFocusNode.hasFocus) {
+  void _onClassCodeFocusChanged() {
+    if (!_classCodeFocusNode.hasFocus) {
       // Small delay so a suggestion tap registers before dismissal
       Future.delayed(const Duration(milliseconds: 150), () {
         if (mounted) {
           context.read<AddDeadlineBloc>().add(
-            const AddDeadlineSearchCoursesRequested(''),
+            const AddDeadlineSearchClassCodesRequested(''),
           );
         }
       });
     }
   }
 
-  void _selectSuggestion(CourseEntity course) {
-    _suppressCourseListener = true;
+  void _selectSuggestion(String classCode) {
+    _suppressClassCodeListener = true;
     setState(() {
-      _selectedCourse = course;
-      _courseError = null;
+      _selectedClassCode = classCode;
+      _classCodeError = null;
     });
-    _courseController
-      ..text = course.displayName
-      ..selection = TextSelection.collapsed(offset: course.displayName.length);
-    _suppressCourseListener = false;
-    _courseFocusNode.unfocus();
+    _classCodeController
+      ..text = classCode
+      ..selection = TextSelection.collapsed(offset: classCode.length);
+    _suppressClassCodeListener = false;
+    _classCodeFocusNode.unfocus();
     context.read<AddDeadlineBloc>().add(
-      const AddDeadlineSearchCoursesRequested(''),
+      const AddDeadlineSearchClassCodesRequested(''),
     );
+  }
+
+  void _clearClassCode() {
+    setState(() {
+      _selectedClassCode = null;
+      _classCodeError = null;
+    });
+    _classCodeController.clear();
   }
 
   Future<void> _pickDate() async {
@@ -148,18 +157,15 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
 
   void _onCreatePressed() {
     final name = _nameController.text.trim();
-    final course = _selectedCourse;
     final date = _selectedDate;
 
-    // Validate all fields and collect errors
+    // Validate required fields
     final nameErr = name.isEmpty ? 'Deadline name is required.' : null;
-    final courseErr = course == null ? 'Please select a course.' : null;
     final dateErr = date == null ? 'Please select a due date.' : null;
 
-    if (nameErr != null || courseErr != null || dateErr != null) {
+    if (nameErr != null || dateErr != null) {
       setState(() {
         _nameError = nameErr;
-        _courseError = courseErr;
         _dateError = dateErr;
       });
       return;
@@ -176,7 +182,7 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
     context.read<AddDeadlineBloc>().add(
       AddDeadlineCreateRequested(
         name: name,
-        courseId: course!.courseId,
+        classCode: _selectedClassCode,
         deadline: deadline,
       ),
     );
@@ -189,8 +195,8 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
     return BlocListener<AddDeadlineBloc, AddDeadlineState>(
       listenWhen: (prev, curr) => curr.status == AddDeadlineStatus.created,
       listener: (context, state) {
-        // Capture messenger before pop so it outlives the modal's context.
         final messenger = ScaffoldMessenger.of(context);
+        widget.onCreated?.call();
         Navigator.of(context).pop();
         messenger.showSnackBar(
           SnackBar(
@@ -273,21 +279,31 @@ class _AddDeadlineModalState extends State<_AddDeadlineModal> {
               if (_nameError != null) _FieldErrorText(message: _nameError!),
               const SizedBox(height: 20),
 
-              // ── Course / Class ────────────────────────────────────────
-              const _FieldLabel(label: CalendarText.fieldCourse),
-              const SizedBox(height: 8),
-              BlocBuilder<AddDeadlineBloc, AddDeadlineState>(
-                builder: (context, state) => _CoursePicker(
-                  controller: _courseController,
-                  focusNode: _courseFocusNode,
-                  suggestions: state.suggestions,
-                  onSuggestionSelected: _selectSuggestion,
+              // ── Class Code (optional) ────────────────────────────────
+              const _FieldLabel(label: CalendarText.fieldClassCode),
+              const SizedBox(height: 4),
+              Text(
+                CalendarText.fieldClassCodeOptional,
+                style: AppTextStyle.captionSmall.copyWith(
+                  color: AppColor.secondaryText,
                 ),
               ),
-              if (_courseError != null) _FieldErrorText(message: _courseError!),
+              const SizedBox(height: 8),
+              BlocBuilder<AddDeadlineBloc, AddDeadlineState>(
+                builder: (context, state) => _ClassCodePicker(
+                  controller: _classCodeController,
+                  focusNode: _classCodeFocusNode,
+                  suggestions: state.suggestions,
+                  selectedClassCode: _selectedClassCode,
+                  onSuggestionSelected: _selectSuggestion,
+                  onClear: _clearClassCode,
+                ),
+              ),
+              if (_classCodeError != null)
+                _FieldErrorText(message: _classCodeError!),
               const SizedBox(height: 20),
 
-              // ── Due Date & Due Time ───────────────────────────────────
+              // ── Due Date & Due Time ────────────────────────────────────
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -398,19 +414,23 @@ class _FieldErrorText extends StatelessWidget {
   }
 }
 
-/// Styled text field with a live-filtered suggestions dropdown.
-class _CoursePicker extends StatelessWidget {
-  const _CoursePicker({
+/// Styled text field with a live-filtered class-code suggestions dropdown.
+class _ClassCodePicker extends StatelessWidget {
+  const _ClassCodePicker({
     required this.controller,
     required this.focusNode,
     required this.suggestions,
+    required this.selectedClassCode,
     required this.onSuggestionSelected,
+    required this.onClear,
   });
 
   final TextEditingController controller;
   final FocusNode focusNode;
-  final List<CourseEntity> suggestions;
-  final ValueChanged<CourseEntity> onSuggestionSelected;
+  final List<String> suggestions;
+  final String? selectedClassCode;
+  final ValueChanged<String> onSuggestionSelected;
+  final VoidCallback onClear;
 
   @override
   Widget build(BuildContext context) {
@@ -418,6 +438,8 @@ class _CoursePicker extends StatelessWidget {
       animation: focusNode,
       builder: (context, _) {
         final isFocused = focusNode.hasFocus;
+        final hasValue = selectedClassCode != null;
+
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -426,7 +448,7 @@ class _CoursePicker extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: isFocused
+                boxShadow: isFocused || hasValue
                     ? [
                         BoxShadow(
                           color: AppColor.primaryBlue.withValues(alpha: 0.18),
@@ -444,10 +466,12 @@ class _CoursePicker extends StatelessWidget {
                   color: AppColor.primaryText,
                 ),
                 decoration: InputDecoration(
-                  hintText: CalendarText.hintCourseSearch,
+                  hintText: CalendarText.hintClassCodeSearch,
                   hintStyle: const TextStyle(color: AppColor.secondaryText),
                   filled: true,
-                  fillColor: isFocused
+                  fillColor: hasValue
+                      ? AppColor.primaryBlue10
+                      : isFocused
                       ? AppColor.primaryBlue10
                       : AppColor.veryLightGrey,
                   contentPadding: const EdgeInsets.symmetric(
@@ -470,11 +494,21 @@ class _CoursePicker extends StatelessWidget {
                     ),
                   ),
                   prefixIcon: Icon(
-                    Icons.search,
-                    color: isFocused
+                    Icons.school_outlined,
+                    color: isFocused || hasValue
                         ? AppColor.primaryBlue
                         : AppColor.secondaryText,
                   ),
+                  suffixIcon: hasValue
+                      ? IconButton(
+                          icon: const Icon(
+                            Icons.clear_rounded,
+                            color: AppColor.secondaryText,
+                            size: 18,
+                          ),
+                          onPressed: onClear,
+                        )
+                      : null,
                 ),
               ),
             ),
@@ -505,8 +539,8 @@ class _CoursePicker extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: suggestions.asMap().entries.map((entry) {
                       final isLast = entry.key == suggestions.length - 1;
-                      return _SuggestionItem(
-                        course: entry.value,
+                      return _ClassCodeSuggestionItem(
+                        classCode: entry.value,
                         showDivider: !isLast,
                         onTap: () => onSuggestionSelected(entry.value),
                       );
@@ -522,22 +556,19 @@ class _CoursePicker extends StatelessWidget {
   }
 }
 
-class _SuggestionItem extends StatelessWidget {
-  const _SuggestionItem({
-    required this.course,
+class _ClassCodeSuggestionItem extends StatelessWidget {
+  const _ClassCodeSuggestionItem({
+    required this.classCode,
     required this.showDivider,
     required this.onTap,
   });
 
-  final CourseEntity course;
+  final String classCode;
   final bool showDivider;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
-    final code = course.courseId;
-    final name = course.courseName;
-
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -550,7 +581,7 @@ class _SuggestionItem extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 11),
               child: Row(
                 children: [
-                  // Course code badge
+                  // Class code badge
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -561,7 +592,7 @@ class _SuggestionItem extends StatelessWidget {
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
-                      code,
+                      classCode,
                       style: AppTextStyle.captionMedium.copyWith(
                         color: AppColor.primaryBlue,
                         fontWeight: FontWeight.w600,
@@ -569,10 +600,9 @@ class _SuggestionItem extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  // Course name
                   Expanded(
                     child: Text(
-                      name,
+                      classCode,
                       style: AppTextStyle.bodySmall,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -689,7 +719,6 @@ class _DateTimeTile extends StatelessWidget {
 }
 
 /// Inline HH : MM input for selecting a time without a dialog.
-/// Drum-roll scroll picker for hour and minute.
 class _TimeInput extends StatelessWidget {
   const _TimeInput({
     required this.hour,

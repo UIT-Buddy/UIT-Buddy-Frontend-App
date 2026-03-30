@@ -12,6 +12,7 @@ import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mo
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_state.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/calendar_screen_header.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/courses_mode/courses_calendar_widget.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/add_deadline_modal.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_calendar_widget.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_detail_section.dart';
 
@@ -92,6 +93,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                         year: deadlineState
                                             .calendarDeadlineEntity
                                             ?.year,
+                                        onAddDeadline: () {
+                                          final deadlineBloc = context
+                                              .read<DeadlineBloc>();
+                                          showAddDeadlineModal(
+                                            context,
+                                            onCreated: () {
+                                              deadlineBloc.add(
+                                                const DeadlineStarted(),
+                                              );
+                                            },
+                                          );
+                                        },
                                       ),
                                     ),
                                   ],

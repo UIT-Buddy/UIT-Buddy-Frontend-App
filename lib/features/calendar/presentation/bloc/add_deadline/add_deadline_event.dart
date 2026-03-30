@@ -11,8 +11,8 @@ class AddDeadlineStarted extends AddDeadlineEvent {
   const AddDeadlineStarted();
 }
 
-class AddDeadlineSearchCoursesRequested extends AddDeadlineEvent {
-  const AddDeadlineSearchCoursesRequested(this.query);
+class AddDeadlineSearchClassCodesRequested extends AddDeadlineEvent {
+  const AddDeadlineSearchClassCodesRequested(this.query);
 
   final String query;
 
@@ -23,14 +23,14 @@ class AddDeadlineSearchCoursesRequested extends AddDeadlineEvent {
 class AddDeadlineCreateRequested extends AddDeadlineEvent {
   const AddDeadlineCreateRequested({
     required this.name,
-    required this.courseId,
+    this.classCode,
     required this.deadline,
   });
 
   final String name;
-  final String courseId;
+  final String? classCode;
   final DateTime deadline;
 
   @override
-  List<Object?> get props => [name, courseId, deadline];
+  List<Object?> get props => [name, classCode, deadline];
 }

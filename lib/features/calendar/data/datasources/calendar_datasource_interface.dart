@@ -7,9 +7,11 @@ abstract interface class CalendarDatasourceInterface {
     required int year,
   });
 
+  Future<ApiResponse<List<String>>> getStudyingClassCodes();
+
   Future<void> createDeadline({
     required String name,
-    required String courseId,
+    String? classCode,
     required DateTime deadline,
   });
 }

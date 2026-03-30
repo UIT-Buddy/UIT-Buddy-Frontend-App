@@ -4,7 +4,6 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/entities/calendar_deadline_entity.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/constants/calendar_text.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/add_deadline_modal.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_detail_item.dart';
 
 class DeadlineDetailSection extends StatelessWidget {
@@ -14,12 +13,14 @@ class DeadlineDetailSection extends StatelessWidget {
     this.selectedDay,
     this.month,
     this.year,
+    this.onAddDeadline,
   });
 
   final List<DeadlineDetailEntity> deadlineDetails;
   final int? selectedDay;
   final int? month;
   final int? year;
+  final VoidCallback? onAddDeadline;
 
   String _dateLabel() {
     if (selectedDay == null || month == null || year == null) return 'Tasks';
@@ -44,7 +45,7 @@ class DeadlineDetailSection extends StatelessWidget {
         _SectionHeader(
           dateLabel: label,
           count: deadlineDetails.length,
-          onAddPressed: () => showAddDeadlineModal(context),
+          onAddPressed: onAddDeadline,
         ),
         const SizedBox(height: 8),
         Expanded(
