@@ -204,7 +204,9 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
           postsStatus: UserProfilePostsStatus.loaded,
           posts: [...state.posts, ...paged.items],
           isLoadingMorePosts: false,
-          nextPostsPage: paged.items.isEmpty ? null : _parseNextPage(paged.nextCursor),
+          nextPostsPage: paged.items.isEmpty
+              ? null
+              : _parseNextPage(paged.nextCursor),
           hasMorePosts: paged.items.isEmpty ? false : paged.hasMore,
           postsErrorMessage: null,
         ),
@@ -296,7 +298,9 @@ class UserProfileBloc extends Bloc<UserProfileEvent, UserProfileState> {
           postsStatus: UserProfilePostsStatus.loaded,
           posts: paged.items,
           postsErrorMessage: null,
-          nextPostsPage: paged.items.isEmpty ? null : _parseNextPage(paged.nextCursor),
+          nextPostsPage: paged.items.isEmpty
+              ? null
+              : _parseNextPage(paged.nextCursor),
           hasMorePosts: paged.items.isEmpty ? false : paged.hasMore,
           isLoadingMorePosts: false,
         ),
