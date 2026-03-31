@@ -99,8 +99,10 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   // ─── Event Handlers ────────────────────────────────────────────────────────
 
   Future<void> _onInitiate(CallInitiate event, Emitter<CallState> emit) async {
+    // Emit pending state immediately — sessionId will be set when the call is initiated
     emit(
       CallState.outgoing(
+        sessionId: '',
         receiverId: event.receiverId,
         receiverName: event.receiverName,
       ),
@@ -117,7 +119,15 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         emit(const CallState.idle());
       },
       (call) async {
-        // Call was accepted — transition to connecting
+        // Call was initiated successfully — capture sessionId so Cancel can end it
+        emit(
+          CallState.outgoing(
+            sessionId: call.sessionId,
+            receiverId: event.receiverId,
+            receiverName: event.receiverName,
+          ),
+        );
+        // Transition to connecting and start session
         emit(
           CallState.connecting(
             receiverId: event.receiverId,
@@ -171,21 +181,26 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
   Future<void> _onEnd(CallEnd event, Emitter<CallState> emit) async {
     final current = state;
-    String? sessionId;
 
     if (current is CallOutgoing) {
-      // Cancel the outgoing call by rejecting it
-      sessionId = null; // No session yet
-    } else if (current is CallConnecting) {
-      sessionId = null;
-    } else if (current is CallActive) {
-      sessionId = current.sessionId;
+      // Cancel the outgoing call — rejectCall with CANCELLED tells the server to cancel
+      await _callDatasource.cancelOutgoingCall();
+      emit(const CallState.idle());
+      return;
     }
 
-    if (sessionId != null) {
+    if (current is CallConnecting) {
+      // Accept succeeded but session hasn't started yet — nothing to cancel on server
+      emit(const CallState.idle());
+      return;
+    }
+
+    if (current is CallActive) {
       _callDatasource.clearActiveCall();
       await _callDatasource.endCallSession();
-      await _endCallUsecase(EndCallParams(sessionId: sessionId));
+      await _endCallUsecase(EndCallParams(sessionId: current.sessionId));
+      emit(const CallState.idle());
+      return;
     }
 
     emit(const CallState.idle());

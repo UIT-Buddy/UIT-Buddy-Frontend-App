@@ -6,6 +6,7 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
+import 'package:uit_buddy_mobile/features/social/domain/entities/call_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_state.dart';
@@ -15,20 +16,14 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_sta
 import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_settings_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/incoming_call_overlay.dart';
 
-class ChatScreen extends StatefulWidget {
-  final ConversationEntity conversation;
-
+class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key, required this.conversation});
 
-  @override
-  State<ChatScreen> createState() => _ChatScreenState();
-}
+  final ConversationEntity conversation;
 
-class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
-    final receiverId =
-        widget.conversation.conversationWith ?? widget.conversation.id;
+    final receiverId = conversation.conversationWith ?? conversation.id;
 
     return MultiBlocProvider(
       providers: [
@@ -37,40 +32,21 @@ class _ChatScreenState extends State<ChatScreen> {
             ..add(
               ChatStarted(
                 receiverId: receiverId,
-                isGroup: widget.conversation.isGroup,
+                isGroup: conversation.isGroup,
               ),
             ),
         ),
-        // CallBloc is a singleton — shared across all navigation
         BlocProvider<CallBloc>.value(value: serviceLocator<CallBloc>()),
       ],
-      child: BlocListener<CallBloc, CallState>(
-        listener: (context, state) {
-          if (state is CallIncoming) {
-            // Show incoming call overlay on top of the chat
-            showDialog<void>(
-              context: context,
-              barrierDismissible: false,
-              builder: (_) => BlocProvider<CallBloc>.value(
-                value: context.read<CallBloc>(),
-                child: const IncomingCallOverlay(),
-              ),
-            );
-          } else {
-            // Dismiss any open dialog when not incoming
-            Navigator.of(context, rootNavigator: true).maybePop();
-          }
-        },
-        child: _ChatView(conversation: widget.conversation),
-      ),
+      child: _ChatView(conversation: conversation),
     );
   }
 }
 
 class _ChatView extends StatefulWidget {
-  final ConversationEntity conversation;
-
   const _ChatView({required this.conversation});
+
+  final ConversationEntity conversation;
 
   @override
   State<_ChatView> createState() => _ChatViewState();
@@ -81,6 +57,9 @@ class _ChatViewState extends State<_ChatView> {
   final _scrollController = ScrollController();
   final _focusNode = FocusNode();
   bool _hasText = false;
+
+  /// Tracks whether the "Calling..." dialog is currently shown.
+  bool _isShowingCallDialog = false;
 
   @override
   void initState() {
@@ -99,13 +78,14 @@ class _ChatViewState extends State<_ChatView> {
       ..removeListener(_onScroll)
       ..dispose();
     _focusNode.dispose();
+    if (_isShowingCallDialog) {
+      Navigator.of(context, rootNavigator: true).maybePop();
+    }
     super.dispose();
   }
 
   void _onScroll() {
     if (!_scrollController.hasClients) return;
-    // ListView with reverse: true — scroll position 0 is the bottom.
-    // Near maxScrollExtent means user scrolled towards the top (older messages).
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent - 200) {
       context.read<ChatBloc>().add(const ChatLoadMore());
@@ -144,27 +124,127 @@ class _ChatViewState extends State<_ChatView> {
     );
   }
 
+  void _showCallingDialog(String receiverName) {
+    if (_isShowingCallDialog) return;
+    _isShowingCallDialog = true;
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => AlertDialog(
+        backgroundColor: AppColor.pureWhite,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 8),
+            _CallingAvatar(name: receiverName),
+            const SizedBox(height: 20),
+            Text(
+              'Calling $receiverName...',
+              style: AppTextStyle.bodyMedium.copyWith(
+                fontWeight: FontWeight.w600,
+                color: AppColor.primaryText,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Audio call',
+              style: AppTextStyle.bodySmall.copyWith(
+                color: AppColor.secondaryText,
+              ),
+            ),
+            const SizedBox(height: 24),
+            GestureDetector(
+              onTap: () {
+                Navigator.of(dialogContext).pop();
+                context.read<CallBloc>().add(const CallEnd());
+              },
+              child: Container(
+                width: 56,
+                height: 56,
+                decoration: const BoxDecoration(
+                  color: AppColor.alertRed,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.call_end,
+                  color: AppColor.pureWhite,
+                  size: 26,
+                ),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Cancel',
+              style: AppTextStyle.captionExtraSmall.copyWith(
+                color: AppColor.secondaryText,
+              ),
+            ),
+          ],
+        ),
+      ),
+    ).whenComplete(() {
+      if (mounted) setState(() => _isShowingCallDialog = false);
+    });
+  }
+
+  void _showIncomingCallOverlay(CallEntity call) {
+    if (_isShowingCallDialog) {
+      Navigator.of(context, rootNavigator: true).maybePop();
+      _isShowingCallDialog = false;
+    }
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (overlayContext) => BlocProvider<CallBloc>.value(
+        value: context.read<CallBloc>(),
+        child: const IncomingCallOverlay(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ChatBloc, ChatState>(
-      listenWhen: (prev, curr) => prev.editingMessage != curr.editingMessage,
+    return BlocListener<CallBloc, CallState>(
+      // BlocListener fires on every state change — handle all call states
+      listenWhen: (prev, curr) => true,
       listener: (context, state) {
-        if (state.editingMessage != null) {
-          _messageController.text = state.editingMessage!.content;
-          _focusNode.requestFocus();
-        } else {
-          _messageController.clear();
-          _focusNode.unfocus();
+        if (state is CallOutgoing) {
+          _showCallingDialog(state.receiverName);
+        } else if (state is CallIncoming) {
+          _showIncomingCallOverlay(state.incomingCall);
+        } else if (state is CallActive) {
+          // SDK call UI is rendered by the SDK itself — dismiss our overlay
+          if (_isShowingCallDialog) {
+            Navigator.of(context, rootNavigator: true).maybePop();
+          }
+        } else if (state is CallIdle || state is CallEnded) {
+          if (_isShowingCallDialog) {
+            Navigator.of(context, rootNavigator: true).maybePop();
+          }
         }
+        // CallConnecting / CallError: keep dialog open, update content
       },
-      child: Scaffold(
-        backgroundColor: AppColor.pureWhite,
-        appBar: _buildAppBar(),
-        body: Column(
-          children: [
-            Expanded(child: _buildMessageList()),
-            _buildInputBar(),
-          ],
+      child: BlocListener<ChatBloc, ChatState>(
+        listenWhen: (prev, curr) => prev.editingMessage != curr.editingMessage,
+        listener: (context, state) {
+          if (state.editingMessage != null) {
+            _messageController.text = state.editingMessage!.content;
+            _focusNode.requestFocus();
+          } else {
+            _messageController.clear();
+            _focusNode.unfocus();
+          }
+        },
+        child: Scaffold(
+          backgroundColor: AppColor.pureWhite,
+          appBar: _buildAppBar(),
+          body: Column(
+            children: [
+              Expanded(child: _buildMessageList()),
+              _buildInputBar(),
+            ],
+          ),
         ),
       ),
     );
@@ -239,7 +319,7 @@ class _ChatViewState extends State<_ChatView> {
                   Text(
                     widget.conversation.name,
                     style: AppTextStyle.h4.copyWith(
-                      fontWeight: AppTextStyle.bold,
+                      fontWeight: FontWeight.w600,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -341,8 +421,6 @@ class _ChatViewState extends State<_ChatView> {
           );
         }
 
-        // messages are stored oldest-first; reverse:true shows newest at bottom
-        // and allows scroll-up to load older messages.
         return GestureDetector(
           onTap: () => _focusNode.unfocus(),
           child: Column(
@@ -371,7 +449,6 @@ class _ChatViewState extends State<_ChatView> {
                   ),
                   itemCount: state.messages.length,
                   itemBuilder: (context, index) {
-                    // reverse:true means index 0 = last message (newest).
                     final reversedIndex = state.messages.length - 1 - index;
                     final msg = state.messages[reversedIndex];
                     final prevMsg = reversedIndex > 0
@@ -398,7 +475,6 @@ class _ChatViewState extends State<_ChatView> {
     );
   }
 
-  /// Returns gap in minutes between two messages using sentAtRaw.
   int _minutesBetween(DateTime? earlier, DateTime? later) {
     if (earlier == null || later == null) return 0;
     final diff = later.difference(earlier).inMinutes;
@@ -445,7 +521,7 @@ class _ChatViewState extends State<_ChatView> {
                                 'Edit message',
                                 style: AppTextStyle.captionExtraSmall.copyWith(
                                   color: AppColor.primaryBlue,
-                                  fontWeight: AppTextStyle.bold,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                               Text(
@@ -613,16 +689,75 @@ class _ChatViewState extends State<_ChatView> {
   }
 }
 
-class _MessageBubble extends StatefulWidget {
-  final MessageEntity message;
-  final bool showTimestamp;
-  final MessageEntity? nextMessage;
+/// Animated pulsing avatar shown in the "Calling..." dialog.
+class _CallingAvatar extends StatefulWidget {
+  const _CallingAvatar({required this.name});
 
+  final String name;
+
+  @override
+  State<_CallingAvatar> createState() => _CallingAvatarState();
+}
+
+class _CallingAvatarState extends State<_CallingAvatar>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 1200),
+      vsync: this,
+    )..repeat(reverse: true);
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.08,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ScaleTransition(
+      scale: _scaleAnimation,
+      child: Container(
+        width: 80,
+        height: 80,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: AppColor.primaryBlue.withValues(alpha: 0.15),
+        ),
+        child: Center(
+          child: Text(
+            widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
+            style: AppTextStyle.h2.copyWith(
+              color: AppColor.primaryBlue,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MessageBubble extends StatefulWidget {
   const _MessageBubble({
     required this.message,
     required this.showTimestamp,
     this.nextMessage,
   });
+
+  final MessageEntity message;
+  final bool showTimestamp;
+  final MessageEntity? nextMessage;
 
   @override
   State<_MessageBubble> createState() => _MessageBubbleState();
@@ -728,7 +863,6 @@ class _MessageBubbleState extends State<_MessageBubble> {
 
   @override
   Widget build(BuildContext context) {
-    debugPrint("message: ${widget.message}");
     final isMine = widget.message.isMine;
     final isLastInGroup =
         widget.nextMessage == null ||

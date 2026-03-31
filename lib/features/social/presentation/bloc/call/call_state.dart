@@ -12,6 +12,7 @@ abstract class CallState with _$CallState {
 
   /// Outgoing call initiated — waiting for the receiver to accept.
   const factory CallState.outgoing({
+    required String sessionId,
     required String receiverId,
     required String receiverName,
   }) = CallOutgoing;
@@ -33,8 +34,6 @@ abstract class CallState with _$CallState {
     required String receiverName,
     required List<String> participantNames,
     required bool isMuted,
-    // The widget returned by CometChatCalls.startSession — rendered by the UI
-    // as an overlay. Null until the session starts.
     required bool sessionWidgetReady,
   }) = CallActive;
 

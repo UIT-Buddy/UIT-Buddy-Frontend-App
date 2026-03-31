@@ -18,6 +18,10 @@ abstract interface class CallDatasourceInterface {
   /// End an active call.
   Future<void> endCall(String sessionId);
 
+  /// Cancel the most recent pending outgoing call.
+  /// Uses [pendingSessionId] internally.
+  Future<void> cancelOutgoingCall();
+
   /// Clear the active call from local state.
   void clearActiveCall();
 
@@ -48,4 +52,8 @@ abstract interface class CallDatasourceInterface {
 
   /// Remove a CometChatCalls event listener.
   void removeCallsEventListener(String listenerId);
+
+  /// Returns the most recently initiated call's sessionId,
+  /// or empty string if none. Used by the bloc to cancel a pending outgoing call.
+  String get pendingSessionId;
 }

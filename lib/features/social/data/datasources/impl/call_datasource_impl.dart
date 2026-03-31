@@ -37,10 +37,15 @@ class CallDatasourceImpl implements CallDatasourceInterface {
       StreamController<CallSessionEvent>.broadcast();
   Stream<CallSessionEvent> get sessionEvents => _sessionEventController.stream;
 
-  // Completer for the initiateCall Future — resolved when the call is accepted
-  final _acceptCompleter = Completer<domain.CallEntity>();
   final _rejectCompleter = Completer<void>();
   final _endCallCompleter = Completer<void>();
+
+  /// The sessionId returned by the native CometChat SDK on call initiation.
+  /// This is captured from the native callback result, not from the Dart Call object
+  /// (which has a null sessionId in this SDK version).
+  String _pendingSessionId = '';
+  @override
+  String get pendingSessionId => _pendingSessionId;
 
   // ─── CometChat (cometchat_sdk) ────────────────────────────────────────────
 
@@ -49,36 +54,35 @@ class CallDatasourceImpl implements CallDatasourceInterface {
     required String receiverId,
     required bool isGroup,
   }) async {
-    // Reset completers from any previous call attempt
-    if (!_acceptCompleter.isCompleted) {
-      _acceptCompleter.completeError(
-        Exception('Previous call attempt not completed'),
-      );
-    }
-
-    final freshAcceptCompleter = Completer<domain.CallEntity>();
-    final freshRejectCompleter = Completer<void>();
-
-    // Register a one-time listener to handle call acceptance / rejection / cancel
-    void listener(cc.Call? call) {
-      if (call == null) return;
-      final status = call.callStatus ?? '';
-      if (status == cc.CometChatCallStatus.ongoing ||
-          status == cc.CometChatCallStatus.initiated) {
-        if (!freshAcceptCompleter.isCompleted) {
-          freshAcceptCompleter.complete(_mapToEntity(call));
-        }
-      } else if (status == cc.CometChatCallStatus.rejected ||
-          status == cc.CometChatCallStatus.cancelled ||
-          status == cc.CometChatCallStatus.busy) {
-        if (!freshRejectCompleter.isCompleted) {
-          freshRejectCompleter.complete();
-        }
-      }
-    }
-
+    final completer = Completer<domain.CallEntity>();
     const listenerId = '__call_initiate_listener__';
-    cc.CometChat.addCallListener(listenerId, _OneShotCallListener(listener));
+
+    // Register a persistent listener to watch for call acceptance / rejection
+    final listener = _OutgoingCallListener(
+      onOutgoingAccepted: (call) {
+        // Capture sessionId from the accepted call (may differ from initiation sessionId)
+        if (call.sessionId != null && call.sessionId!.isNotEmpty) {
+          _pendingSessionId = call.sessionId!;
+        }
+        if (!completer.isCompleted) {
+          completer.complete(_mapToEntity(call));
+        }
+        cc.CometChat.removeCallListener(listenerId);
+      },
+      onOutgoingRejected: (call) {
+        if (!completer.isCompleted) {
+          completer.completeError(Exception('Call was rejected'));
+        }
+        cc.CometChat.removeCallListener(listenerId);
+      },
+      onIncomingCancelled: (call) {
+        if (!completer.isCompleted) {
+          completer.completeError(Exception('Call was cancelled'));
+        }
+        cc.CometChat.removeCallListener(listenerId);
+      },
+    );
+    cc.CometChat.addCallListener(listenerId, listener);
 
     final call = cc.Call(
       receiverUid: receiverId,
@@ -94,26 +98,37 @@ class CallDatasourceImpl implements CallDatasourceInterface {
         debugPrint(
           '[CallDatasource] initiateCall success: ${initiatedCall.sessionId}',
         );
-        // If immediately accepted (local test scenario)
-        if (initiatedCall.callStatus == cc.CometChatCallStatus.ongoing) {
-          if (!freshAcceptCompleter.isCompleted) {
-            freshAcceptCompleter.complete(_mapToEntity(initiatedCall));
-          }
+        // Capture the sessionId from the Call object returned by the native SDK.
+        // This is the value needed to cancel the call later.
+        // Also capture it from the listener's accepted callback as a backup.
+        if (initiatedCall.sessionId != null &&
+            initiatedCall.sessionId!.isNotEmpty) {
+          _pendingSessionId = initiatedCall.sessionId!;
         }
+        // If already in "ongoing" state (immediate acceptance), complete now
+        if (initiatedCall.callStatus == cc.CometChatCallStatus.ongoing) {
+          if (!completer.isCompleted) {
+            completer.complete(_mapToEntity(initiatedCall));
+          }
+          cc.CometChat.removeCallListener(listenerId);
+        }
+        // Otherwise the listener will handle onOutgoingAccepted when it arrives
       },
       onError: (cc.CometChatException e) {
         debugPrint('[CallDatasource] initiateCall error: ${e.message}');
-        if (!freshAcceptCompleter.isCompleted) {
-          freshAcceptCompleter.completeError(e);
-        }
-        if (!freshRejectCompleter.isCompleted) {
-          freshRejectCompleter.completeError(e);
+        // ERROR_CALL_IN_PROGRESS means a call is already active — don't
+        // complete with error; the listener will handle it when the existing
+        // call ends and a new one is accepted.
+        if (e.code != 'ERROR_CALL_IN_PROGRESS') {
+          if (!completer.isCompleted) {
+            completer.completeError(e);
+          }
+          cc.CometChat.removeCallListener(listenerId);
         }
       },
     );
 
-    // Return the call entity once it's accepted
-    return freshAcceptCompleter.future;
+    return completer.future;
   }
 
   @override
@@ -180,6 +195,34 @@ class CallDatasourceImpl implements CallDatasourceInterface {
     );
 
     return _endCallCompleter.future;
+  }
+
+  @override
+  Future<void> cancelOutgoingCall() async {
+    // Cancel the most recent pending outgoing call
+    // Use the sessionId captured from the native CometChat SDK response
+    final sessionId = _pendingSessionId;
+    if (sessionId.isEmpty) return;
+
+    final completer = Completer<void>();
+
+    cc.CometChat.rejectCall(
+      sessionId,
+      cc.CometChatCallStatus.cancelled,
+      onSuccess: (cc.Call call) {
+        debugPrint('[CallDatasource] cancelOutgoingCall success');
+        _pendingSessionId = '';
+        completer.complete();
+      },
+      onError: (cc.CometChatException e) {
+        debugPrint('[CallDatasource] cancelOutgoingCall error: ${e.message}');
+        // Even if it fails, clear pendingSessionId so next call can proceed
+        _pendingSessionId = '';
+        completer.complete();
+      },
+    );
+
+    return completer.future;
   }
 
   @override
@@ -361,40 +404,38 @@ class _IncomingCallListener with cc.CallListener {
   void onCallEndedMessageReceived(cc.Call call) {}
 }
 
-/// A one-shot [cc.CallListener] that fires its callback once then removes itself.
-class _OneShotCallListener with cc.CallListener {
-  _OneShotCallListener(this._onEvent);
+/// Listens for outgoing call events and resolves the [Completer].
+class _OutgoingCallListener with cc.CallListener {
+  _OutgoingCallListener({
+    required this.onOutgoingAccepted,
+    required this.onOutgoingRejected,
+    required this.onIncomingCancelled,
+  });
 
-  final void Function(cc.Call?) _onEvent;
+  final void Function(cc.Call) onOutgoingAccepted;
+  final void Function(cc.Call) onOutgoingRejected;
+  final void Function(cc.Call) onIncomingCancelled;
 
   @override
-  void onIncomingCallReceived(cc.Call call) {
-    _onEvent(call);
-    cc.CometChat.removeCallListener('__call_initiate_listener__');
-  }
+  void onIncomingCallReceived(cc.Call call) {}
 
   @override
   void onOutgoingCallAccepted(cc.Call call) {
-    _onEvent(call);
-    cc.CometChat.removeCallListener('__call_initiate_listener__');
+    onOutgoingAccepted(call);
   }
 
   @override
   void onOutgoingCallRejected(cc.Call call) {
-    _onEvent(call);
-    cc.CometChat.removeCallListener('__call_initiate_listener__');
+    onOutgoingRejected(call);
   }
 
   @override
   void onIncomingCallCancelled(cc.Call call) {
-    _onEvent(call);
-    cc.CometChat.removeCallListener('__call_initiate_listener__');
+    onIncomingCancelled(call);
   }
 
   @override
-  void onCallEndedMessageReceived(cc.Call call) {
-    _onEvent(call);
-  }
+  void onCallEndedMessageReceived(cc.Call call) {}
 }
 
 /// Internal session events emitted via [CallDatasourceImpl.sessionEvents].
