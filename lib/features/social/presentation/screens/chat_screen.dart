@@ -6,26 +6,63 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_event.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_settings_screen.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/incoming_call_overlay.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   final ConversationEntity conversation;
 
   const ChatScreen({super.key, required this.conversation});
 
   @override
-  Widget build(BuildContext context) {
-    final receiverId = conversation.conversationWith ?? conversation.id;
+  State<ChatScreen> createState() => _ChatScreenState();
+}
 
-    return BlocProvider(
-      create: (_) => serviceLocator<ChatBloc>()
-        ..add(
-          ChatStarted(receiverId: receiverId, isGroup: conversation.isGroup),
+class _ChatScreenState extends State<ChatScreen> {
+  @override
+  Widget build(BuildContext context) {
+    final receiverId =
+        widget.conversation.conversationWith ?? widget.conversation.id;
+
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ChatBloc>(
+          create: (_) => serviceLocator<ChatBloc>()
+            ..add(
+              ChatStarted(
+                receiverId: receiverId,
+                isGroup: widget.conversation.isGroup,
+              ),
+            ),
         ),
-      child: _ChatView(conversation: conversation),
+        // CallBloc is a singleton — shared across all navigation
+        BlocProvider<CallBloc>.value(value: serviceLocator<CallBloc>()),
+      ],
+      child: BlocListener<CallBloc, CallState>(
+        listener: (context, state) {
+          if (state is CallIncoming) {
+            // Show incoming call overlay on top of the chat
+            showDialog<void>(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => BlocProvider<CallBloc>.value(
+                value: context.read<CallBloc>(),
+                child: const IncomingCallOverlay(),
+              ),
+            );
+          } else {
+            // Dismiss any open dialog when not incoming
+            Navigator.of(context, rootNavigator: true).maybePop();
+          }
+        },
+        child: _ChatView(conversation: widget.conversation),
+      ),
     );
   }
 }
@@ -228,7 +265,17 @@ class _ChatViewState extends State<_ChatView> {
             color: AppColor.primaryText,
             size: 22,
           ),
-          onPressed: () {},
+          onPressed: () {
+            final receiverId =
+                widget.conversation.conversationWith ?? widget.conversation.id;
+            context.read<CallBloc>().add(
+              CallInitiate(
+                receiverId: receiverId,
+                isGroup: widget.conversation.isGroup,
+                receiverName: widget.conversation.name,
+              ),
+            );
+          },
         ),
         IconButton(
           icon: const Icon(
