@@ -6,6 +6,12 @@ import 'package:uit_buddy_mobile/features/social/data/models/search_post_model.d
 abstract interface class PostDatasourceInterface {
   Future<PagedResult<PostModel>> getPosts({String? cursor, int limit = 10});
 
+  Future<PagedResult<PostModel>> getPostsByUser({
+    required String mssv,
+    int page = 1,
+    int limit = 10,
+  });
+
   Future<PagedResult<SearchPostModel>> searchPosts({
     required String keyword,
     int page = 1,
