@@ -144,7 +144,7 @@ class _YourInfoBody extends StatelessWidget {
                                 value: state.yourInfo!.bio,
                               ),
                               _AvatarInfoField(
-                                label: 'AVATAR URL',
+                                label: 'AVATAR',
                                 avatarUrl: state.yourInfo!.avatarUrl,
                               ),
                             ],

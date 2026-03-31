@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:uit_buddy_mobile/features/storage/domain/entities/document_entity.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/entities/folder_entity.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/entities/subject_class_entity.dart';
 
 enum StorageViewMode { topLevel, folder }
@@ -11,42 +11,46 @@ class StorageState extends Equatable {
     this.viewMode = StorageViewMode.topLevel,
     this.viewType = StorageViewType.grid,
     this.isClassesLoading = false,
-    this.isDocumentsLoading = false,
+    this.isFolderLoading = false,
+    this.isCreating = false,
     this.classes = const [],
     this.currentFolder,
-    this.documents,
+    this.folderStack = const [],
     this.errorMessage,
   });
 
   final StorageViewMode viewMode;
   final StorageViewType viewType;
   final bool isClassesLoading;
-  final bool isDocumentsLoading;
+  final bool isFolderLoading;
+  final bool isCreating;
   final List<SubjectClassEntity> classes;
-  final SubjectClassEntity? currentFolder;
-  final DocumentListEntity? documents;
+  final FolderEntity? currentFolder;
+  final List<FolderEntity> folderStack;
   final String? errorMessage;
 
   StorageState copyWith({
     StorageViewMode? viewMode,
     StorageViewType? viewType,
     bool? isClassesLoading,
-    bool? isDocumentsLoading,
+    bool? isFolderLoading,
+    bool? isCreating,
     List<SubjectClassEntity>? classes,
-    SubjectClassEntity? Function()? currentFolder,
-    DocumentListEntity? Function()? documents,
+    FolderEntity? Function()? currentFolder,
+    List<FolderEntity>? folderStack,
     String? Function()? errorMessage,
   }) {
     return StorageState(
       viewMode: viewMode ?? this.viewMode,
       viewType: viewType ?? this.viewType,
       isClassesLoading: isClassesLoading ?? this.isClassesLoading,
-      isDocumentsLoading: isDocumentsLoading ?? this.isDocumentsLoading,
+      isFolderLoading: isFolderLoading ?? this.isFolderLoading,
+      isCreating: isCreating ?? this.isCreating,
       classes: classes ?? this.classes,
       currentFolder: currentFolder != null
           ? currentFolder()
           : this.currentFolder,
-      documents: documents != null ? documents() : this.documents,
+      folderStack: folderStack ?? this.folderStack,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
   }
@@ -56,10 +60,11 @@ class StorageState extends Equatable {
     viewMode,
     viewType,
     isClassesLoading,
-    isDocumentsLoading,
+    isFolderLoading,
+    isCreating,
     classes,
     currentFolder,
-    documents,
+    folderStack,
     errorMessage,
   ];
 }

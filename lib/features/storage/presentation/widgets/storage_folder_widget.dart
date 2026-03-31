@@ -1,36 +1,53 @@
 import 'package:flutter/material.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/entities/folder_entity.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/entities/subject_class_entity.dart';
 
 class StorageFolderWidget extends StatelessWidget {
   const StorageFolderWidget({
     super.key,
-    required this.folder,
+    this.classFolder,
+    this.subFolder,
     required this.isGrid,
     required this.onTap,
-  });
+  }) : assert(classFolder != null || subFolder != null);
 
-  final SubjectClassEntity folder;
+  final SubjectClassEntity? classFolder;
+  final SubFolderEntity? subFolder;
   final bool isGrid;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return isGrid
-        ? _GridCard(folder: folder, onTap: onTap)
-        : _ListTile(folder: folder, onTap: onTap);
+        ? _GridCard(
+            classFolder: classFolder,
+            subFolder: subFolder,
+            onTap: onTap,
+          )
+        : _ListTile(
+            classFolder: classFolder,
+            subFolder: subFolder,
+            onTap: onTap,
+          );
   }
 }
 
 class _GridCard extends StatelessWidget {
-  const _GridCard({required this.folder, required this.onTap});
+  const _GridCard({this.classFolder, this.subFolder, required this.onTap});
 
-  final SubjectClassEntity folder;
+  final SubjectClassEntity? classFolder;
+  final SubFolderEntity? subFolder;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final isClassFolder = classFolder != null;
+    final title = isClassFolder
+        ? '${classFolder!.classCode} - ${classFolder!.course.courseName}'
+        : '${subFolder!.name} (${subFolder!.itemCount})';
+
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -64,7 +81,7 @@ class _GridCard extends StatelessWidget {
             ),
             const Spacer(),
             Text(
-              '${folder.classCode} - ${folder.course.courseName}',
+              title,
               style: AppTextStyle.bodySmall.copyWith(
                 fontWeight: AppTextStyle.medium,
               ),
@@ -79,13 +96,20 @@ class _GridCard extends StatelessWidget {
 }
 
 class _ListTile extends StatelessWidget {
-  const _ListTile({required this.folder, required this.onTap});
+  const _ListTile({this.classFolder, this.subFolder, required this.onTap});
 
-  final SubjectClassEntity folder;
+  final SubjectClassEntity? classFolder;
+  final SubFolderEntity? subFolder;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
+    final isClassFolder = classFolder != null;
+    final title = isClassFolder
+        ? '${classFolder!.classCode} - ${classFolder!.course.courseName}'
+        : subFolder!.name;
+    final subtitle = isClassFolder ? null : '${subFolder!.itemCount} items';
+
     return ListTile(
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -103,16 +127,14 @@ class _ListTile extends StatelessWidget {
         ),
       ),
       title: Text(
-        folder.classCode,
+        title,
         style: AppTextStyle.bodySmall.copyWith(fontWeight: AppTextStyle.medium),
-      ),
-      subtitle: Text(
-        folder.course.courseName,
-        style: AppTextStyle.captionMedium,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
-      trailing: const Icon(Icons.chevron_right, color: AppColor.secondaryText),
+      subtitle: subtitle != null
+          ? Text(subtitle, style: AppTextStyle.captionMedium)
+          : null,
     );
   }
 }
