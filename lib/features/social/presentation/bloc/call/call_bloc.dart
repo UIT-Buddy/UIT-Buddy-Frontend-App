@@ -107,6 +107,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         sessionId: '',
         receiverId: event.receiverId,
         receiverName: event.receiverName,
+        receiverAvatar: event.receiverAvatar,
       ),
     );
 
@@ -127,6 +128,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
             sessionId: call.sessionId,
             receiverId: event.receiverId,
             receiverName: event.receiverName,
+            receiverAvatar: event.receiverAvatar,
           ),
         );
         // Transition to connecting and start session
@@ -134,6 +136,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
           CallState.connecting(
             receiverId: event.receiverId,
             receiverName: event.receiverName,
+            receiverAvatar: event.receiverAvatar,
           ),
         );
         await _startSession(call);
@@ -237,6 +240,7 @@ class CallBloc extends Bloc<CallEvent, CallState> {
         receiverName: current.receiverName,
         durationSeconds: duration,
         receiverId: current.receiverId,
+        receiverAvatar: current.receiverAvatar,
       ),
     );
 

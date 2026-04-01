@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -16,14 +17,35 @@ class CallEndedOverlay extends StatefulWidget {
     required this.receiverName,
     required this.durationSeconds,
     required this.receiverId,
+    required this.receiverAvatar,
   });
 
   final String receiverName;
   final int durationSeconds;
   final String receiverId;
+  final String receiverAvatar;
 
   @override
   State<CallEndedOverlay> createState() => _CallEndedOverlayState();
+}
+
+class _AvatarInitial extends StatelessWidget {
+  const _AvatarInitial({required this.initial});
+
+  final String initial;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        initial,
+        style: AppTextStyle.h2.copyWith(
+          color: AppColor.primaryText,
+          fontWeight: AppTextStyle.bold,
+        ),
+      ),
+    );
+  }
 }
 
 class _CallEndedOverlayState extends State<CallEndedOverlay>
@@ -72,6 +94,36 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
         receiverId: widget.receiverId,
         isGroup: false,
         receiverName: widget.receiverName,
+        receiverAvatar: widget.receiverAvatar,
+      ),
+    );
+  }
+
+  Widget _buildAvatar() {
+    final avatarUrl = widget.receiverAvatar;
+    final initial = widget.receiverName.isNotEmpty
+        ? widget.receiverName[0].toUpperCase()
+        : '?';
+    const size = 80.0;
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(color: AppColor.primaryBlue, width: 3),
+        color: AppColor.veryLightGrey,
+      ),
+      child: ClipOval(
+        child: avatarUrl.isNotEmpty
+            ? CachedNetworkImage(
+                imageUrl: avatarUrl,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => _AvatarInitial(initial: initial),
+                errorWidget: (context, url, error) =>
+                    _AvatarInitial(initial: initial),
+              )
+            : _AvatarInitial(initial: initial),
       ),
     );
   }
@@ -87,23 +139,8 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
           children: [
             const Spacer(flex: 2),
 
-            // Call end icon with fade-in
-            FadeTransition(
-              opacity: _iconFadeAnimation,
-              child: Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: AppColor.alertRed.withValues(alpha: 0.1),
-                ),
-                child: const Icon(
-                  Icons.call_end,
-                  color: AppColor.alertRed,
-                  size: 40,
-                ),
-              ),
-            ),
+            // Avatar with fade-in
+            FadeTransition(opacity: _iconFadeAnimation, child: _buildAvatar()),
 
             const SizedBox(height: 24),
 

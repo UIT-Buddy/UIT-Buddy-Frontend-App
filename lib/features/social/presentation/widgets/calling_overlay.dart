@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
@@ -23,12 +24,15 @@ class _CallingOverlayState extends State<CallingOverlay> {
     final state = context.read<CallBloc>().state;
 
     String receiverName = '';
+    String receiverAvatar = '';
     bool isConnecting = false;
 
     if (state is CallOutgoing) {
       receiverName = state.receiverName;
+      receiverAvatar = state.receiverAvatar;
     } else if (state is CallConnecting) {
       receiverName = state.receiverName;
+      receiverAvatar = state.receiverAvatar;
       isConnecting = true;
     }
 
@@ -59,14 +63,17 @@ class _CallingOverlayState extends State<CallingOverlay> {
                   color: AppColor.veryLightGrey,
                   border: Border.all(color: AppColor.primaryBlue, width: 3),
                 ),
-                child: Center(
-                  child: Text(
-                    initial,
-                    style: AppTextStyle.h1.copyWith(
-                      color: AppColor.primaryText,
-                      fontWeight: AppTextStyle.bold,
-                    ),
-                  ),
+                child: ClipOval(
+                  child: receiverAvatar.isNotEmpty
+                      ? CachedNetworkImage(
+                          imageUrl: receiverAvatar,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) =>
+                              _AvatarInitial(initial: initial),
+                          errorWidget: (context, url, error) =>
+                              _AvatarInitial(initial: initial),
+                        )
+                      : _AvatarInitial(initial: initial),
                 ),
               ),
             ),
@@ -108,6 +115,25 @@ class _CallingOverlayState extends State<CallingOverlay> {
 
             const SizedBox(height: 64),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _AvatarInitial extends StatelessWidget {
+  const _AvatarInitial({required this.initial});
+
+  final String initial;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        initial,
+        style: AppTextStyle.h1.copyWith(
+          color: AppColor.primaryText,
+          fontWeight: AppTextStyle.bold,
         ),
       ),
     );

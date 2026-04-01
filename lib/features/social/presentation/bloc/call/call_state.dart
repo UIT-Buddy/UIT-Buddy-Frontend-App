@@ -15,6 +15,7 @@ abstract class CallState with _$CallState {
     required String sessionId,
     required String receiverId,
     required String receiverName,
+    @Default('') String receiverAvatar,
   }) = CallOutgoing;
 
   /// Incoming call received — display accept/reject UI.
@@ -25,6 +26,7 @@ abstract class CallState with _$CallState {
   const factory CallState.connecting({
     required String receiverId,
     required String receiverName,
+    @Default('') String receiverAvatar,
   }) = CallConnecting;
 
   /// Active call session in progress.
@@ -32,6 +34,7 @@ abstract class CallState with _$CallState {
     required String sessionId,
     required String receiverId,
     required String receiverName,
+    @Default('') String receiverAvatar,
     required List<String> participantNames,
     required bool isMuted,
     required bool sessionWidgetReady,
@@ -42,6 +45,7 @@ abstract class CallState with _$CallState {
     required String receiverName,
     required int durationSeconds,
     required String receiverId,
+    @Default('') String receiverAvatar,
   }) = CallEnded;
 
   /// An error occurred.

@@ -62,6 +62,7 @@ class AppOverlay {
     required String receiverName,
     required int durationSeconds,
     required String receiverId,
+    required String receiverAvatar,
   }) {
     if (_callEndedEntry != null) return;
 
@@ -70,6 +71,7 @@ class AppOverlay {
         receiverName: receiverName,
         durationSeconds: durationSeconds,
         receiverId: receiverId,
+        receiverAvatar: receiverAvatar,
       ),
     );
     _callEndedEntry = entry;
@@ -139,6 +141,7 @@ class _AppOverlayManagerState extends State<AppOverlayManager> {
             receiverName: state.receiverName,
             durationSeconds: state.durationSeconds,
             receiverId: state.receiverId,
+            receiverAvatar: state.receiverAvatar,
           );
         } else {
           AppOverlay.I.hideCallEnded();

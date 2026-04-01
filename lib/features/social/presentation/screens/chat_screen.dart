@@ -243,6 +243,7 @@ class _ChatViewState extends State<_ChatView> {
                 receiverId: receiverId,
                 isGroup: widget.conversation.isGroup,
                 receiverName: widget.conversation.name,
+                receiverAvatar: widget.conversation.avatarUrl,
               ),
             );
           },

@@ -23,15 +23,22 @@ class CallInitiate extends CallEvent {
   final String receiverId;
   final bool isGroup;
   final String receiverName;
+  final String receiverAvatar;
 
   const CallInitiate({
     required this.receiverId,
     required this.isGroup,
     required this.receiverName,
+    this.receiverAvatar = '',
   });
 
   @override
-  List<Object?> get props => [receiverId, isGroup, receiverName];
+  List<Object?> get props => [
+    receiverId,
+    isGroup,
+    receiverName,
+    receiverAvatar,
+  ];
 }
 
 /// User accepted the incoming call.
