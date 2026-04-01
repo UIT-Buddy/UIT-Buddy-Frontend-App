@@ -1,3 +1,4 @@
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
@@ -72,9 +73,14 @@ class _AppCallOverlayState extends State<_AppCallOverlay> {
       debugPrint('[AppOverlay] already showing, skip');
       return;
     }
-    _overlayEntry = OverlayEntry(builder: (_) => const IncomingCallOverlay());
-    Overlay.of(context).insert(_overlayEntry!);
-    debugPrint('[AppOverlay] overlay inserted');
+    final entry = OverlayEntry(builder: (_) => const IncomingCallOverlay());
+    // Defer insert to next frame so MaterialApp is in the tree first
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      Overlay.of(context).insert(entry);
+      debugPrint('[AppOverlay] overlay inserted');
+    });
+    _overlayEntry = entry;
   }
 
   void _removeOverlay() {
