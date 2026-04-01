@@ -6,7 +6,6 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
-import 'package:uit_buddy_mobile/features/social/domain/entities/call_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_state.dart';
@@ -14,7 +13,6 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_blo
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_settings_screen.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/widgets/incoming_call_overlay.dart';
 
 class ChatScreen extends StatelessWidget {
   const ChatScreen({super.key, required this.conversation});
@@ -187,21 +185,6 @@ class _ChatViewState extends State<_ChatView> {
     });
   }
 
-  void _showIncomingCallOverlay(CallEntity call) {
-    if (_isShowingCallDialog) {
-      Navigator.of(context, rootNavigator: true).maybePop();
-      _isShowingCallDialog = false;
-    }
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (overlayContext) => BlocProvider<CallBloc>.value(
-        value: context.read<CallBloc>(),
-        child: const IncomingCallOverlay(),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocListener<CallBloc, CallState>(
@@ -210,8 +193,6 @@ class _ChatViewState extends State<_ChatView> {
       listener: (context, state) {
         if (state is CallOutgoing) {
           _showCallingDialog(state.receiverName);
-        } else if (state is CallIncoming) {
-          _showIncomingCallOverlay(state.incomingCall);
         } else if (state is CallActive) {
           // SDK call UI is rendered by the SDK itself — dismiss our overlay
           if (_isShowingCallDialog) {

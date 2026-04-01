@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/app/router/transitions/slide_transition.dart';
+import 'package:uit_buddy_mobile/core/overlay/app_overlay.dart';
 import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
@@ -31,6 +32,7 @@ import 'package:uit_buddy_mobile/features/home/presentation/screens/weather_scre
 import 'package:uit_buddy_mobile/features/root/screens/wrapper_screen.dart';
 
 final goRouter = GoRouter(
+  navigatorKey: rootNavigatorKey,
   initialLocation: RouteName.welcome,
   redirect: (context, state) {
     final tokenStore = serviceLocator<TokenStore>();
