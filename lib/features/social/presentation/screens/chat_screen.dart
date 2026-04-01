@@ -36,7 +36,6 @@ class ChatScreen extends StatelessWidget {
               ),
             ),
         ),
-        BlocProvider<CallBloc>.value(value: serviceLocator<CallBloc>()),
       ],
       child: _ChatView(conversation: conversation),
     );
