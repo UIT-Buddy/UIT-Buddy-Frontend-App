@@ -67,7 +67,7 @@ class _CallingOverlayState extends State<CallingOverlay> {
                     initial,
                     style: AppTextStyle.h2.copyWith(
                       color: AppColor.primaryBlue,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: AppTextStyle.bold,
                     ),
                   ),
                 ),
@@ -81,19 +81,14 @@ class _CallingOverlayState extends State<CallingOverlay> {
               text: isConnecting ? 'Connecting' : 'Calling $receiverName',
               style: AppTextStyle.bodyLarge.copyWith(
                 color: AppColor.pureWhite,
-                fontWeight: FontWeight.w500,
+                fontWeight: AppTextStyle.medium,
                 fontSize: 20,
               ),
             ),
 
             const SizedBox(height: 8),
 
-            Text(
-              'Audio call',
-              style: AppTextStyle.bodySmall.copyWith(
-                color: AppColor.pureWhite.withValues(alpha: 0.6),
-              ),
-            ),
+            Text('Audio call', style: AppTextStyle.captionSmallWhite),
 
             const Spacer(flex: 3),
 
@@ -104,7 +99,7 @@ class _CallingOverlayState extends State<CallingOverlay> {
               iconColor: AppColor.pureWhite,
               size: 72,
               label: 'Cancel',
-              labelColor: AppColor.pureWhite.withValues(alpha: 0.7),
+              labelColor: AppColor.pureWhite,
               onTap: () {
                 context.read<CallBloc>().add(const CallEnd());
               },

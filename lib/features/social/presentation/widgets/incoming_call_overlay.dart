@@ -85,7 +85,7 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
               call.senderName.isNotEmpty ? call.senderName : 'Unknown',
               style: AppTextStyle.h3.copyWith(
                 color: AppColor.pureWhite,
-                fontWeight: FontWeight.w600,
+                fontWeight: AppTextStyle.bold,
               ),
               textAlign: TextAlign.center,
             ),
@@ -175,7 +175,7 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
                       initial,
                       style: AppTextStyle.h3.copyWith(
                         color: AppColor.pureWhite,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: AppTextStyle.bold,
                       ),
                     )
                   : null,
@@ -232,9 +232,7 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
         const SizedBox(width: 6),
         Text(
           isVideo ? 'Incoming video call' : 'Incoming audio call',
-          style: AppTextStyle.bodySmall.copyWith(
-            color: AppColor.pureWhite.withValues(alpha: 0.8),
-          ),
+          style: AppTextStyle.captionSmallWhite,
         ),
       ],
     );
@@ -331,12 +329,7 @@ class _AnimatedActionButtonState extends State<_AnimatedActionButton>
           ),
         ),
         const SizedBox(height: 10),
-        Text(
-          widget.label,
-          style: AppTextStyle.captionExtraSmall.copyWith(
-            color: AppColor.pureWhite.withValues(alpha: 0.8),
-          ),
-        ),
+        Text(widget.label, style: AppTextStyle.captionSmallWhite),
       ],
     );
   }

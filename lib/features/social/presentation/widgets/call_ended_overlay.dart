@@ -107,22 +107,15 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
 
             const SizedBox(height: 24),
 
-            Text(
-              'Call Ended',
-              style: AppTextStyle.h2.copyWith(
-                color: AppColor.pureWhite,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
+            Text('Call Ended', style: AppTextStyle.h2White),
 
             const SizedBox(height: 8),
 
             // Duration
             Text(
               duration,
-              style: AppTextStyle.heroNumber.copyWith(
-                color: AppColor.primaryBlue,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyle.heroNumberWhite.copyWith(
+                fontWeight: AppTextStyle.bold,
                 fontSize: 48,
               ),
             ),
@@ -153,13 +146,7 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
                   minimumSize: const Size(double.infinity, 52),
                 ),
                 icon: const Icon(Icons.call, size: 20),
-                label: Text(
-                  'Redial',
-                  style: AppTextStyle.buttonPrimary.copyWith(
-                    color: AppColor.pureWhite,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
+                label: Text('Redial', style: AppTextStyle.captionSmallWhite),
               ),
             ),
 
