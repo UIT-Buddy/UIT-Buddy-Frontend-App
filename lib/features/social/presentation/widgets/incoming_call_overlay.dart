@@ -9,8 +9,35 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_eve
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_state.dart';
 
 /// Full-screen overlay shown when an incoming call is received.
-class IncomingCallOverlay extends StatelessWidget {
+class IncomingCallOverlay extends StatefulWidget {
   const IncomingCallOverlay({super.key});
+
+  @override
+  State<IncomingCallOverlay> createState() => _IncomingCallOverlayState();
+}
+
+class _IncomingCallOverlayState extends State<IncomingCallOverlay> {
+  bool _isBusy = false;
+
+  void _cancel() {
+    if (_isBusy) return;
+    setState(() => _isBusy = true);
+    context.read<CallBloc>()
+      ..add(const CallReject(busy: true))
+      ..add(const CallEnd());
+  }
+
+  void _decline() {
+    if (_isBusy) return;
+    setState(() => _isBusy = true);
+    context.read<CallBloc>().add(const CallReject(busy: false));
+  }
+
+  void _accept() {
+    if (_isBusy) return;
+    setState(() => _isBusy = true);
+    context.read<CallBloc>().add(const CallAccept());
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,19 +81,27 @@ class IncomingCallOverlay extends StatelessWidget {
             const Spacer(flex: 3),
             // Action buttons
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 48),
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Reject
+                  // Cancel (hang up / busy)
                   _ActionButton(
                     icon: Icons.call_end,
                     iconColor: AppColor.pureWhite,
                     backgroundColor: AppColor.alertRed,
+                    label: 'Cancel',
+                    onTap: _cancel,
+                    isLoading: _isBusy,
+                  ),
+                  // Decline (reject)
+                  _ActionButton(
+                    icon: Icons.not_interested,
+                    iconColor: AppColor.pureWhite,
+                    backgroundColor: AppColor.secondaryText,
                     label: 'Decline',
-                    onTap: () {
-                      context.read<CallBloc>().add(const CallReject());
-                    },
+                    onTap: _decline,
+                    isLoading: _isBusy,
                   ),
                   // Accept
                   _ActionButton(
@@ -74,9 +109,8 @@ class IncomingCallOverlay extends StatelessWidget {
                     iconColor: AppColor.pureWhite,
                     backgroundColor: AppColor.successGreen,
                     label: 'Accept',
-                    onTap: () {
-                      context.read<CallBloc>().add(const CallAccept());
-                    },
+                    onTap: _accept,
+                    isLoading: _isBusy,
                   ),
                 ],
               ),
@@ -133,6 +167,7 @@ class _ActionButton extends StatelessWidget {
     required this.backgroundColor,
     required this.label,
     required this.onTap,
+    this.isLoading = false,
   });
 
   final IconData icon;
@@ -140,6 +175,7 @@ class _ActionButton extends StatelessWidget {
   final Color backgroundColor;
   final String label;
   final VoidCallback onTap;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +183,7 @@ class _ActionButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onTap: onTap,
+          onTap: isLoading ? null : onTap,
           child: Container(
             width: 64,
             height: 64,
@@ -162,7 +198,15 @@ class _ActionButton extends StatelessWidget {
                 ),
               ],
             ),
-            child: Icon(icon, color: iconColor, size: 28),
+            child: isLoading
+                ? const Padding(
+                    padding: EdgeInsets.all(18),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2.5,
+                      color: Colors.white,
+                    ),
+                  )
+                : Icon(icon, color: iconColor, size: 28),
           ),
         ),
         const SizedBox(height: 10),

@@ -182,6 +182,16 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   Future<void> _onEnd(CallEnd event, Emitter<CallState> emit) async {
     final current = state;
 
+    if (current is CallIncoming) {
+      // Receiver cancels the incoming call — treat as rejected
+      final sessionId = current.incomingCall.sessionId;
+      await _rejectCallUsecase(
+        RejectCallParams(sessionId: sessionId, busy: false),
+      );
+      emit(const CallState.idle());
+      return;
+    }
+
     if (current is CallOutgoing) {
       // Cancel the outgoing call — rejectCall with CANCELLED tells the server to cancel
       await _callDatasource.cancelOutgoingCall();
