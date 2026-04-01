@@ -54,9 +54,12 @@ class _AppCallOverlayState extends State<_AppCallOverlay> {
   Widget build(BuildContext context) {
     return BlocListener<CallBloc, CallState>(
       listener: (context, state) {
+        debugPrint('[AppOverlay] state changed: $state');
         if (state is CallIncoming) {
-          _insertOverlay(state);
+          debugPrint('[AppOverlay] → inserting overlay');
+          _insertOverlay();
         } else {
+          debugPrint('[AppOverlay] → removing overlay');
           _removeOverlay();
         }
       },
@@ -64,15 +67,14 @@ class _AppCallOverlayState extends State<_AppCallOverlay> {
     );
   }
 
-  void _insertOverlay(CallIncoming state) {
-    if (_overlayEntry != null) return;
-    _overlayEntry = OverlayEntry(
-      builder: (_) => BlocProvider<CallBloc>.value(
-        value: context.read<CallBloc>(),
-        child: const IncomingCallOverlay(),
-      ),
-    );
+  void _insertOverlay() {
+    if (_overlayEntry != null) {
+      debugPrint('[AppOverlay] already showing, skip');
+      return;
+    }
+    _overlayEntry = OverlayEntry(builder: (_) => const IncomingCallOverlay());
     Overlay.of(context).insert(_overlayEntry!);
+    debugPrint('[AppOverlay] overlay inserted');
   }
 
   void _removeOverlay() {
