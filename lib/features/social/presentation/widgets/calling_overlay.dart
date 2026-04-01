@@ -37,7 +37,7 @@ class _CallingOverlayState extends State<CallingOverlay> {
         : '?';
 
     return Container(
-      color: Colors.black,
+      color: AppColor.pureWhite,
       child: SafeArea(
         child: Column(
           children: [
@@ -56,17 +56,14 @@ class _CallingOverlayState extends State<CallingOverlay> {
                 height: 88,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColor.primaryBlue.withValues(alpha: 0.15),
-                  border: Border.all(
-                    color: AppColor.primaryBlue.withValues(alpha: 0.3),
-                    width: 3,
-                  ),
+                  color: AppColor.veryLightGrey,
+                  border: Border.all(color: AppColor.primaryBlue, width: 3),
                 ),
                 child: Center(
                   child: Text(
                     initial,
-                    style: AppTextStyle.h2.copyWith(
-                      color: AppColor.primaryBlue,
+                    style: AppTextStyle.h1.copyWith(
+                      color: AppColor.primaryText,
                       fontWeight: AppTextStyle.bold,
                     ),
                   ),
@@ -79,16 +76,20 @@ class _CallingOverlayState extends State<CallingOverlay> {
             // Animated "Calling..." / "Connecting..." text
             AnimatedDots(
               text: isConnecting ? 'Connecting' : 'Calling $receiverName',
-              style: AppTextStyle.bodyLarge.copyWith(
-                color: AppColor.pureWhite,
-                fontWeight: AppTextStyle.medium,
-                fontSize: 20,
+              style: AppTextStyle.h3.copyWith(
+                color: AppColor.primaryText,
+                fontWeight: AppTextStyle.bold,
               ),
             ),
 
             const SizedBox(height: 8),
 
-            Text('Audio call', style: AppTextStyle.captionSmallWhite),
+            Text(
+              'Audio call',
+              style: AppTextStyle.bodyMedium.copyWith(
+                color: AppColor.secondaryText,
+              ),
+            ),
 
             const Spacer(flex: 3),
 
@@ -99,7 +100,7 @@ class _CallingOverlayState extends State<CallingOverlay> {
               iconColor: AppColor.pureWhite,
               size: 72,
               label: 'Cancel',
-              labelColor: AppColor.pureWhite,
+              labelColor: AppColor.secondaryText,
               onTap: () {
                 context.read<CallBloc>().add(const CallEnd());
               },
@@ -197,9 +198,7 @@ class _AnimatedCallButtonState extends State<_AnimatedCallButton>
         const SizedBox(height: 10),
         Text(
           widget.label,
-          style: AppTextStyle.captionExtraSmall.copyWith(
-            color: widget.labelColor,
-          ),
+          style: AppTextStyle.captionMedium.copyWith(color: widget.labelColor),
         ),
       ],
     );

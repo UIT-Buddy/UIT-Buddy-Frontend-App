@@ -45,7 +45,7 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
     );
     _iconAnimController.forward();
 
-    // Auto-dismiss after 4 seconds — use Timer to avoid Duration? closure warning
+    // Auto-dismiss after 4 seconds
     _autoDismissTimer = Timer(const Duration(seconds: 4), () {
       if (mounted) AppOverlay.I.hideCallEnded();
     });
@@ -81,7 +81,7 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
     final duration = _formatDuration(widget.durationSeconds);
 
     return Container(
-      color: Colors.black,
+      color: AppColor.pureWhite,
       child: SafeArea(
         child: Column(
           children: [
@@ -95,11 +95,11 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
                 height: 80,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColor.secondaryText.withValues(alpha: 0.2),
+                  color: AppColor.alertRed.withValues(alpha: 0.1),
                 ),
                 child: const Icon(
                   Icons.call_end,
-                  color: AppColor.secondaryText,
+                  color: AppColor.alertRed,
                   size: 40,
                 ),
               ),
@@ -107,14 +107,18 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
 
             const SizedBox(height: 24),
 
-            Text('Call Ended', style: AppTextStyle.h2White),
+            Text(
+              'Call Ended',
+              style: AppTextStyle.h2.copyWith(color: AppColor.primaryText),
+            ),
 
             const SizedBox(height: 8),
 
             // Duration
             Text(
               duration,
-              style: AppTextStyle.heroNumberWhite.copyWith(
+              style: AppTextStyle.heroNumber.copyWith(
+                color: AppColor.primaryBlue,
                 fontWeight: AppTextStyle.bold,
                 fontSize: 48,
               ),
@@ -122,10 +126,16 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
 
             const SizedBox(height: 8),
 
-            Text(
-              'with ${widget.receiverName}',
-              style: AppTextStyle.bodySmall.copyWith(
-                color: AppColor.pureWhite.withValues(alpha: 0.6),
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                'with ${widget.receiverName}',
+                style: AppTextStyle.bodyMedium.copyWith(
+                  color: AppColor.secondaryText,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
 
@@ -137,8 +147,11 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
               child: OutlinedButton.icon(
                 onPressed: _redial,
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColor.pureWhite,
-                  side: const BorderSide(color: AppColor.pureWhite, width: 1.5),
+                  foregroundColor: AppColor.primaryBlue,
+                  side: const BorderSide(
+                    color: AppColor.primaryBlue,
+                    width: 1.5,
+                  ),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
@@ -146,7 +159,13 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
                   minimumSize: const Size(double.infinity, 52),
                 ),
                 icon: const Icon(Icons.call, size: 20),
-                label: Text('Redial', style: AppTextStyle.captionSmallWhite),
+                label: Text(
+                  'Redial',
+                  style: AppTextStyle.bodyMedium.copyWith(
+                    color: AppColor.primaryBlue,
+                    fontWeight: AppTextStyle.medium,
+                  ),
+                ),
               ),
             ),
 

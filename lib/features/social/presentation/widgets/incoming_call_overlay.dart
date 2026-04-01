@@ -69,7 +69,7 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
     final isVideo = call.callType == CallType.video;
 
     return Container(
-      color: Colors.black,
+      color: AppColor.pureWhite,
       child: SafeArea(
         child: Column(
           children: [
@@ -81,13 +81,18 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
             const SizedBox(height: 24),
 
             // Caller name
-            Text(
-              call.senderName.isNotEmpty ? call.senderName : 'Unknown',
-              style: AppTextStyle.h3.copyWith(
-                color: AppColor.pureWhite,
-                fontWeight: AppTextStyle.bold,
+            SizedBox(
+              width: double.infinity,
+              child: Text(
+                call.senderName.isNotEmpty ? call.senderName : 'Unknown',
+                style: AppTextStyle.h2.copyWith(
+                  color: AppColor.primaryText,
+                  fontWeight: AppTextStyle.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-              textAlign: TextAlign.center,
             ),
 
             const SizedBox(height: 8),
@@ -144,7 +149,7 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
 
     return RingingAvatar(
       size: 180,
-      color: AppColor.pureWhite,
+      color: AppColor.primaryBlue,
       startRadius: 52,
       maxRadiusExtension: 70,
       maxOpacity: 0.45,
@@ -159,22 +164,22 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: AppColor.pureWhite.withValues(alpha: 0.3),
+                color: AppColor.primaryBlue.withValues(alpha: 0.2),
                 width: 3,
               ),
             ),
             padding: const EdgeInsets.all(4),
             child: CircleAvatar(
               radius: avatarSize / 2 - 4,
-              backgroundColor: AppColor.primaryBlue.withValues(alpha: 0.3),
+              backgroundColor: AppColor.veryLightGrey,
               backgroundImage: avatarUrl.isNotEmpty
                   ? CachedNetworkImageProvider(avatarUrl)
                   : null,
               child: avatarUrl.isEmpty
                   ? Text(
                       initial,
-                      style: AppTextStyle.h3.copyWith(
-                        color: AppColor.pureWhite,
+                      style: AppTextStyle.h2.copyWith(
+                        color: AppColor.primaryText,
                         fontWeight: AppTextStyle.bold,
                       ),
                     )
@@ -225,14 +230,16 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
           position: _bounceAnimation,
           child: Icon(
             isVideo ? Icons.videocam : Icons.call,
-            color: AppColor.successGreen,
-            size: 16,
+            color: AppColor.primaryBlue,
+            size: 18,
           ),
         ),
-        const SizedBox(width: 6),
+        const SizedBox(width: 8),
         Text(
           isVideo ? 'Incoming video call' : 'Incoming audio call',
-          style: AppTextStyle.captionSmallWhite,
+          style: AppTextStyle.bodyMedium.copyWith(
+            color: AppColor.secondaryText,
+          ),
         ),
       ],
     );
@@ -329,7 +336,12 @@ class _AnimatedActionButtonState extends State<_AnimatedActionButton>
           ),
         ),
         const SizedBox(height: 10),
-        Text(widget.label, style: AppTextStyle.captionSmallWhite),
+        Text(
+          widget.label,
+          style: AppTextStyle.captionSmall.copyWith(
+            color: AppColor.secondaryText,
+          ),
+        ),
       ],
     );
   }
