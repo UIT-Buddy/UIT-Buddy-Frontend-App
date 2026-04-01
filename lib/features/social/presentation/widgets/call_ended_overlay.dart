@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/core/overlay/app_overlay.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_event.dart';
-import 'package:uit_buddy_mobile/core/overlay/app_overlay.dart';
 
 /// Full-screen overlay shown briefly when a call ends (CallEnded state).
 class CallEndedOverlay extends StatefulWidget {
@@ -28,6 +30,7 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
     with SingleTickerProviderStateMixin {
   late final AnimationController _iconAnimController;
   late final Animation<double> _iconFadeAnimation;
+  Timer? _autoDismissTimer;
 
   @override
   void initState() {
@@ -42,14 +45,15 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
     );
     _iconAnimController.forward();
 
-    // Auto-dismiss after 4 seconds
-    Future.delayed(const Duration(seconds: 4), () {
+    // Auto-dismiss after 4 seconds — use Timer to avoid Duration? closure warning
+    _autoDismissTimer = Timer(const Duration(seconds: 4), () {
       if (mounted) AppOverlay.I.hideCallEnded();
     });
   }
 
   @override
   void dispose() {
+    _autoDismissTimer?.cancel();
     _iconAnimController.dispose();
     super.dispose();
   }
@@ -77,7 +81,7 @@ class _CallEndedOverlayState extends State<CallEndedOverlay>
     final duration = _formatDuration(widget.durationSeconds);
 
     return Container(
-      color: AppColor.primaryText.withValues(alpha: 0.95),
+      color: Colors.black,
       child: SafeArea(
         child: Column(
           children: [

@@ -37,7 +37,7 @@ class _CallingOverlayState extends State<CallingOverlay> {
         : '?';
 
     return Container(
-      color: AppColor.primaryText.withValues(alpha: 0.92),
+      color: Colors.black,
       child: SafeArea(
         child: Column(
           children: [

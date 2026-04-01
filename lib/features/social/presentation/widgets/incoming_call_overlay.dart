@@ -69,7 +69,7 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay>
     final isVideo = call.callType == CallType.video;
 
     return Container(
-      color: AppColor.primaryText.withValues(alpha: 0.88),
+      color: Colors.black,
       child: SafeArea(
         child: Column(
           children: [
