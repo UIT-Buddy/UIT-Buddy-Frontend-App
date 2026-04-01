@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uit_buddy_mobile/app/router/app_router.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
+import 'package:uit_buddy_mobile/core/realtime/chat_realtime_service.dart';
 import 'package:uit_buddy_mobile/core/common/token/refresh_token_datasource.dart';
 import 'package:uit_buddy_mobile/core/common/token/refresh_token_datasource_impl.dart';
 import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
@@ -247,6 +248,11 @@ Future<void> initDependencies() async {
     onSuccess: (successMessage) => debugPrint(successMessage),
     onError: (error) => debugPrint(error.message),
   );
+
+  // Initialize real-time message listener (after CometChat is ready)
+  // This registers addMessageListener once and broadcasts to all subscribers.
+  // ignore: unused_local_variable — intentional side-effect init
+  final realtimeService = ChatRealtimeService.instance..init();
 
   // ─── CometChat Calls ────────────────────────────────────────────────────
   CallAppSettings callAppSettings =

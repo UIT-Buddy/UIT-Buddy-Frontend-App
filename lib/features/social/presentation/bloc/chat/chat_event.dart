@@ -65,3 +65,13 @@ class ChatToggleEdit extends ChatEvent {
   @override
   List<Object?> get props => [message];
 }
+
+/// A new real-time message arrived from [ChatRealtimeService].
+class ChatNewMessageReceived extends ChatEvent {
+  const ChatNewMessageReceived(this.message);
+
+  final MessageEntity message;
+
+  @override
+  List<Object?> get props => [message];
+}

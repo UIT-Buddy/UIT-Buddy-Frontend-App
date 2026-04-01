@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:uit_buddy_mobile/core/realtime/chat_realtime_service.dart';
 
 abstract class ConversationEvent extends Equatable {
   const ConversationEvent();
@@ -31,4 +32,14 @@ class ConversationOpened extends ConversationEvent {
 
   @override
   List<Object?> get props => [conversationId];
+}
+
+/// A new real-time message arrived from [ChatRealtimeService].
+class ConversationNewMessageReceived extends ConversationEvent {
+  const ConversationNewMessageReceived(this.info);
+
+  final IncomingMessageInfo info;
+
+  @override
+  List<Object?> get props => [info];
 }

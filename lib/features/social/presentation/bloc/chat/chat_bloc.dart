@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/core/realtime/chat_realtime_service.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/send_text_message_usecase.dart';
@@ -29,6 +30,12 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
     on<ChatEditMessage>(_onEditMessage);
     on<ChatDeleteMessage>(_onDeleteMessage);
     on<ChatToggleEdit>(_onToggleEdit);
+    on<ChatNewMessageReceived>(_onNewMessageReceived);
+
+    // Subscribe to real-time messages from ChatRealtimeService
+    _realtimeSubscription = ChatRealtimeService.instance.messageStream.listen(
+      (info) => add(ChatNewMessageReceived(info.message)),
+    );
   }
 
   final GetMessagesUsecase _getMessagesUsecase;
@@ -36,6 +43,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   final EditTextMessageUsecase _editTextMessageUsecase;
   final DeleteMessageUsecase _deleteMessageUsecase;
   final MarkMessageAsReadUsecase _markMessageAsReadUsecase;
+  StreamSubscription<IncomingMessageInfo>? _realtimeSubscription;
   ChatStarted? _lastStartedEvent;
 
   Future<void> _onStarted(ChatStarted event, Emitter<ChatState> emit) async {
@@ -178,6 +186,39 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   void _onToggleEdit(ChatToggleEdit event, Emitter<ChatState> emit) {
     emit(state.copyWith(editingMessage: event.message));
+  }
+
+  void _onNewMessageReceived(
+    ChatNewMessageReceived event,
+    Emitter<ChatState> emit,
+  ) {
+    final currentEvent = _lastStartedEvent;
+    if (currentEvent == null) return;
+
+    // Only append if the message is for the currently open conversation
+    final isForCurrentChat =
+        !currentEvent.isGroup &&
+            event.message.senderId == currentEvent.receiverId ||
+        currentEvent.isGroup &&
+            event.message.receiverId == currentEvent.receiverId;
+
+    if (!isForCurrentChat) return;
+
+    // Avoid duplicates
+    final alreadyHave = state.messages.any((m) => m.id == event.message.id);
+    if (alreadyHave) return;
+
+    final merged = [...state.messages, event.message];
+    emit(state.copyWith(messages: merged));
+
+    // Auto-mark as read
+    unawaited(_markMessageAsRead(event.message));
+  }
+
+  @override
+  Future<void> close() async {
+    await _realtimeSubscription?.cancel();
+    return super.close();
   }
 
   List<MessageEntity> _sortOldestFirst(List<MessageEntity> messages) {

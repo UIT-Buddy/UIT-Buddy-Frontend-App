@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/core/realtime/chat_realtime_service.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_conversations_usecase.dart';
@@ -14,9 +17,16 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     on<ConversationRefreshed>(_onRefreshed);
     on<ConversationSearchChanged>(_onSearchChanged);
     on<ConversationOpened>(_onOpened);
+    on<ConversationNewMessageReceived>(_onNewMessageReceived);
+
+    // Subscribe to real-time messages from ChatRealtimeService
+    _realtimeSubscription = ChatRealtimeService.instance.messageStream.listen(
+      (info) => add(ConversationNewMessageReceived(info)),
+    );
   }
 
   final GetConversationsUsecase _getConversationsUsecase;
+  StreamSubscription<IncomingMessageInfo>? _realtimeSubscription;
 
   Future<void> _onStarted(
     ConversationStarted event,
@@ -72,6 +82,46 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     );
   }
 
+  void _onNewMessageReceived(
+    ConversationNewMessageReceived event,
+    Emitter<ConversationState> emit,
+  ) {
+    final info = event.info;
+
+    // Find the conversation that received the message
+    final idx = state.conversations.indexWhere(
+      (c) =>
+          c.id == info.conversationId ||
+          c.conversationWith == info.conversationId,
+    );
+
+    if (idx == -1) {
+      // New conversation not in list — refresh the whole list
+      add(const ConversationRefreshed());
+      return;
+    }
+
+    // Update existing conversation in place
+    final updated = List<ConversationEntity>.from(state.conversations);
+    final conv = updated[idx];
+    updated[idx] = conv.copyWith(
+      lastMessage: info.message.content,
+      time: info.message.time,
+      unreadCount: conv.unreadCount + 1,
+    );
+
+    // Move to top of list
+    final item = updated.removeAt(idx);
+    updated.insert(0, item);
+
+    emit(
+      state.copyWith(
+        conversations: updated,
+        filteredConversations: _applySearch(updated, state.searchQuery),
+      ),
+    );
+  }
+
   Future<void> _fetchConversations(Emitter<ConversationState> emit) async {
     final result = await _getConversationsUsecase(const NoParams());
 
@@ -104,5 +154,11 @@ class ConversationBloc extends Bloc<ConversationEvent, ConversationState> {
     return conversations
         .where((c) => c.name.toLowerCase().contains(q))
         .toList();
+  }
+
+  @override
+  Future<void> close() async {
+    await _realtimeSubscription?.cancel();
+    return super.close();
   }
 }
