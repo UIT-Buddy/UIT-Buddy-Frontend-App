@@ -38,7 +38,11 @@ abstract class CallState with _$CallState {
   }) = CallActive;
 
   /// Call just ended — brief display state before returning to idle.
-  const factory CallState.ended({required String receiverName}) = CallEnded;
+  const factory CallState.ended({
+    required String receiverName,
+    required int durationSeconds,
+    required String receiverId,
+  }) = CallEnded;
 
   /// An error occurred.
   const factory CallState.error({required String message}) = CallError;

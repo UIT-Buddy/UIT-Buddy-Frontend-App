@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
@@ -7,6 +8,7 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/call_entity.dar
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_state.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/ringing_painter.dart';
 
 /// Full-screen overlay shown when an incoming call is received.
 class IncomingCallOverlay extends StatefulWidget {
@@ -16,25 +18,44 @@ class IncomingCallOverlay extends StatefulWidget {
   State<IncomingCallOverlay> createState() => _IncomingCallOverlayState();
 }
 
-class _IncomingCallOverlayState extends State<IncomingCallOverlay> {
+class _IncomingCallOverlayState extends State<IncomingCallOverlay>
+    with SingleTickerProviderStateMixin {
   bool _isBusy = false;
 
-  void _cancel() {
-    if (_isBusy) return;
-    setState(() => _isBusy = true);
-    context.read<CallBloc>()
-      ..add(const CallReject(busy: true))
-      ..add(const CallEnd());
+  // Bouncing phone icon animation
+  late final AnimationController _bounceController;
+  late final Animation<Offset> _bounceAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _bounceController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    )..repeat(reverse: true);
+
+    _bounceAnimation =
+        Tween<Offset>(begin: Offset.zero, end: const Offset(0, -6)).animate(
+          CurvedAnimation(parent: _bounceController, curve: Curves.easeInOut),
+        );
+  }
+
+  @override
+  void dispose() {
+    _bounceController.dispose();
+    super.dispose();
   }
 
   void _decline() {
     if (_isBusy) return;
+    HapticFeedback.mediumImpact();
     setState(() => _isBusy = true);
     context.read<CallBloc>().add(const CallReject(busy: false));
   }
 
   void _accept() {
     if (_isBusy) return;
+    HapticFeedback.mediumImpact();
     setState(() => _isBusy = true);
     context.read<CallBloc>().add(const CallAccept());
   }
@@ -45,15 +66,20 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay> {
     final call = state is CallIncoming ? state.incomingCall : null;
     if (call == null) return const SizedBox.shrink();
 
+    final isVideo = call.callType == CallType.video;
+
     return Container(
-      color: AppColor.primaryText.withValues(alpha: 0.85),
+      color: AppColor.primaryText.withValues(alpha: 0.88),
       child: SafeArea(
         child: Column(
           children: [
             const Spacer(flex: 2),
-            // Caller avatar
-            _buildAvatar(call),
+
+            // Avatar with animated rings + bouncing phone icon
+            _buildAvatar(call, isVideo),
+
             const SizedBox(height: 24),
+
             // Caller name
             Text(
               call.senderName.isNotEmpty ? call.senderName : 'Unknown',
@@ -63,119 +89,208 @@ class _IncomingCallOverlayState extends State<IncomingCallOverlay> {
               ),
               textAlign: TextAlign.center,
             ),
+
             const SizedBox(height: 8),
-            // Call type label
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.call, color: AppColor.successGreen, size: 16),
-                const SizedBox(width: 6),
-                Text(
-                  'Incoming audio call',
-                  style: AppTextStyle.bodySmall.copyWith(
-                    color: AppColor.pureWhite.withValues(alpha: 0.8),
-                  ),
-                ),
-              ],
-            ),
+
+            // Call type label with animated icon
+            _buildCallTypeLabel(isVideo),
+
             const Spacer(flex: 3),
-            // Action buttons
+
+            // Action buttons — 2-button layout (Decline + Accept)
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 48),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // Cancel (hang up / busy)
-                  _ActionButton(
+                  // Decline
+                  _AnimatedActionButton(
+                    backgroundColor: AppColor.alertRed,
                     icon: Icons.call_end,
                     iconColor: AppColor.pureWhite,
-                    backgroundColor: AppColor.alertRed,
-                    label: 'Cancel',
-                    onTap: _cancel,
-                    isLoading: _isBusy,
-                  ),
-                  // Decline (reject)
-                  _ActionButton(
-                    icon: Icons.not_interested,
-                    iconColor: AppColor.pureWhite,
-                    backgroundColor: AppColor.secondaryText,
                     label: 'Decline',
                     onTap: _decline,
                     isLoading: _isBusy,
+                    size: 72,
                   ),
+
                   // Accept
-                  _ActionButton(
-                    icon: Icons.call,
-                    iconColor: AppColor.pureWhite,
+                  _AnimatedActionButton(
                     backgroundColor: AppColor.successGreen,
+                    icon: isVideo ? Icons.videocam : Icons.call,
+                    iconColor: AppColor.pureWhite,
                     label: 'Accept',
                     onTap: _accept,
                     isLoading: _isBusy,
+                    size: 72,
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 64),
+
+            const SizedBox(height: 80),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildAvatar(CallEntity call) {
+  Widget _buildAvatar(CallEntity call, bool isVideo) {
     final avatarUrl = call.senderAvatar ?? '';
-    const size = 96.0;
+    const avatarSize = 96.0;
+    final initial = call.senderName.isNotEmpty
+        ? call.senderName[0].toUpperCase()
+        : '?';
 
-    return Container(
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColor.pureWhite.withValues(alpha: 0.3),
-          width: 3,
-        ),
-      ),
-      padding: const EdgeInsets.all(4),
-      child: CircleAvatar(
-        radius: size / 2,
-        backgroundColor: AppColor.primaryBlue.withValues(alpha: 0.3),
-        backgroundImage: avatarUrl.isNotEmpty
-            ? CachedNetworkImageProvider(avatarUrl)
-            : null,
-        child: avatarUrl.isEmpty
-            ? Text(
-                _initial(call.senderName),
-                style: AppTextStyle.h3.copyWith(
-                  color: AppColor.pureWhite,
-                  fontWeight: FontWeight.w600,
+    return RingingAvatar(
+      size: 180,
+      color: AppColor.pureWhite,
+      startRadius: 52,
+      maxRadiusExtension: 70,
+      maxOpacity: 0.45,
+      strokeWidth: 2.0,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Avatar circle
+          Container(
+            width: avatarSize,
+            height: avatarSize,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: AppColor.pureWhite.withValues(alpha: 0.3),
+                width: 3,
+              ),
+            ),
+            padding: const EdgeInsets.all(4),
+            child: CircleAvatar(
+              radius: avatarSize / 2 - 4,
+              backgroundColor: AppColor.primaryBlue.withValues(alpha: 0.3),
+              backgroundImage: avatarUrl.isNotEmpty
+                  ? CachedNetworkImageProvider(avatarUrl)
+                  : null,
+              child: avatarUrl.isEmpty
+                  ? Text(
+                      initial,
+                      style: AppTextStyle.h3.copyWith(
+                        color: AppColor.pureWhite,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    )
+                  : null,
+            ),
+          ),
+
+          // Bouncing phone icon overlaid at bottom-center of avatar
+          if (!isVideo)
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: SlideTransition(
+                position: _bounceAnimation,
+                child: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColor.successGreen,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColor.successGreen.withValues(alpha: 0.5),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: const Icon(
+                    Icons.call,
+                    color: AppColor.pureWhite,
+                    size: 18,
+                  ),
                 ),
-              )
-            : null,
+              ),
+            ),
+        ],
       ),
     );
   }
 
-  String _initial(String name) {
-    return name.isNotEmpty ? name[0].toUpperCase() : '?';
+  Widget _buildCallTypeLabel(bool isVideo) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        // Bouncing call icon
+        SlideTransition(
+          position: _bounceAnimation,
+          child: Icon(
+            isVideo ? Icons.videocam : Icons.call,
+            color: AppColor.successGreen,
+            size: 16,
+          ),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          isVideo ? 'Incoming video call' : 'Incoming audio call',
+          style: AppTextStyle.bodySmall.copyWith(
+            color: AppColor.pureWhite.withValues(alpha: 0.8),
+          ),
+        ),
+      ],
+    );
   }
 }
 
-/// Animated call action button.
-class _ActionButton extends StatelessWidget {
-  const _ActionButton({
+/// Animated call action button with scale-press feedback.
+class _AnimatedActionButton extends StatefulWidget {
+  const _AnimatedActionButton({
+    required this.backgroundColor,
     required this.icon,
     required this.iconColor,
-    required this.backgroundColor,
     required this.label,
     required this.onTap,
     this.isLoading = false,
+    this.size = 72,
   });
 
+  final Color backgroundColor;
   final IconData icon;
   final Color iconColor;
-  final Color backgroundColor;
   final String label;
   final VoidCallback onTap;
   final bool isLoading;
+  final double size;
+
+  @override
+  State<_AnimatedActionButton> createState() => _AnimatedActionButtonState();
+}
+
+class _AnimatedActionButtonState extends State<_AnimatedActionButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pressController;
+  late final Animation<double> _scaleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _pressController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 80),
+      reverseDuration: const Duration(milliseconds: 180),
+      lowerBound: 0.0,
+      upperBound: 1.0,
+    );
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 0.88,
+    ).animate(CurvedAnimation(parent: _pressController, curve: Curves.easeIn));
+  }
+
+  @override
+  void dispose() {
+    _pressController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -183,35 +298,41 @@ class _ActionButton extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         GestureDetector(
-          onTap: isLoading ? null : onTap,
-          child: Container(
-            width: 64,
-            height: 64,
-            decoration: BoxDecoration(
-              color: backgroundColor,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: backgroundColor.withValues(alpha: 0.4),
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+          onTapDown: (_) => _pressController.forward(),
+          onTapUp: (_) => _pressController.reverse(),
+          onTapCancel: () => _pressController.reverse(),
+          onTap: widget.isLoading ? null : widget.onTap,
+          child: ScaleTransition(
+            scale: _scaleAnimation,
+            child: Container(
+              width: widget.size,
+              height: widget.size,
+              decoration: BoxDecoration(
+                color: widget.backgroundColor,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: widget.backgroundColor.withValues(alpha: 0.4),
+                    blurRadius: 16,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: widget.isLoading
+                  ? const Padding(
+                      padding: EdgeInsets.all(20),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2.5,
+                        color: Colors.white,
+                      ),
+                    )
+                  : Icon(widget.icon, color: widget.iconColor, size: 30),
             ),
-            child: isLoading
-                ? const Padding(
-                    padding: EdgeInsets.all(18),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2.5,
-                      color: Colors.white,
-                    ),
-                  )
-                : Icon(icon, color: iconColor, size: 28),
           ),
         ),
         const SizedBox(height: 10),
         Text(
-          label,
+          widget.label,
           style: AppTextStyle.captionExtraSmall.copyWith(
             color: AppColor.pureWhite.withValues(alpha: 0.8),
           ),

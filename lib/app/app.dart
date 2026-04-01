@@ -13,25 +13,25 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
-        providers: [
-          BlocProvider<SessionBloc>(
-            create: (_) =>
-                serviceLocator<SessionBloc>()..add(SessionUserFetchRequested()),
-          ),
-          // CallBloc is a singleton — accessible from any screen for the
-          // incoming call overlay. Provided at root level here so
-          // AppOverlayManager can listen to it.
-          BlocProvider<CallBloc>.value(value: serviceLocator<CallBloc>()),
-        ],
-        child: AppOverlayManager(
-          child: MaterialApp.router(
-            title: 'UIT Buddy Mobile',
-            themeMode: ThemeMode.light,
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light(),
-            darkTheme: AppTheme.dark(),
-            routerConfig: goRouter,
-          ),
-        ),
-      );
+    providers: [
+      BlocProvider<SessionBloc>(
+        create: (_) =>
+            serviceLocator<SessionBloc>()..add(SessionUserFetchRequested()),
+      ),
+      // CallBloc is a singleton — accessible from any screen for the
+      // incoming call overlay. Provided at root level here so
+      // AppOverlayManager can listen to it.
+      BlocProvider<CallBloc>.value(value: serviceLocator<CallBloc>()),
+    ],
+    child: AppOverlayManager(
+      child: MaterialApp.router(
+        title: 'UIT Buddy Mobile',
+        themeMode: ThemeMode.light,
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        routerConfig: goRouter,
+      ),
+    ),
+  );
 }

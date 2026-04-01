@@ -3,6 +3,8 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_state.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/call_ended_overlay.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/widgets/calling_overlay.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/incoming_call_overlay.dart';
 
 /// Shared GlobalKey for the root Navigator.
@@ -10,7 +12,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/widgets/incoming_c
 /// from anywhere in the widget tree.
 final rootNavigatorKey = GlobalKey<NavigatorState>();
 
-/// Manages app-wide overlay entries (e.g. incoming call overlay).
+/// Manages app-wide overlay entries (incoming call, calling, call ended).
 ///
 /// This class stores a reference to the root [NavigatorState] so that overlays
 /// can be inserted even from widgets whose context does not have an Overlay
@@ -20,26 +22,78 @@ class AppOverlay {
   static final AppOverlay I = AppOverlay._();
 
   OverlayEntry? _incomingCallEntry;
+  OverlayEntry? _callingEntry;
+  OverlayEntry? _callEndedEntry;
 
   /// Insert the incoming call overlay if not already shown.
   void showIncomingCall() {
     if (_incomingCallEntry != null) return;
 
-    final entry = OverlayEntry(
-      builder: (_) => const IncomingCallOverlay(),
-    );
+    final entry = OverlayEntry(builder: (_) => const IncomingCallOverlay());
     _incomingCallEntry = entry;
 
-    // Defer to ensure the navigator is built before we insert into it.
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-      _insert(entry);
-    });
+    _deferInsert(entry);
   }
 
   /// Dismiss the incoming call overlay if shown.
   void hideIncomingCall() {
     _incomingCallEntry?.remove();
     _incomingCallEntry = null;
+  }
+
+  /// Insert the calling overlay (shown during CallOutgoing / CallConnecting).
+  void showCalling() {
+    if (_callingEntry != null) return;
+
+    final entry = OverlayEntry(builder: (_) => const CallingOverlay());
+    _callingEntry = entry;
+
+    _deferInsert(entry);
+  }
+
+  /// Dismiss the calling overlay.
+  void hideCalling() {
+    _callingEntry?.remove();
+    _callingEntry = null;
+  }
+
+  /// Insert the call-ended overlay.
+  void showCallEnded({
+    required String receiverName,
+    required int durationSeconds,
+    required String receiverId,
+  }) {
+    if (_callEndedEntry != null) return;
+
+    final entry = OverlayEntry(
+      builder: (_) => CallEndedOverlay(
+        receiverName: receiverName,
+        durationSeconds: durationSeconds,
+        receiverId: receiverId,
+      ),
+    );
+    _callEndedEntry = entry;
+
+    _deferInsert(entry);
+  }
+
+  /// Dismiss the call-ended overlay.
+  void hideCallEnded() {
+    _callEndedEntry?.remove();
+    _callEndedEntry = null;
+  }
+
+  /// Dismiss all call-related overlays.
+  void hideAll() {
+    hideIncomingCall();
+    hideCalling();
+    hideCallEnded();
+  }
+
+  void _deferInsert(OverlayEntry entry) {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      _insert(entry);
+    });
   }
 
   void _insert(OverlayEntry entry) {
@@ -50,7 +104,7 @@ class AppOverlay {
 }
 
 /// A [StatefulWidget] that listens to [CallBloc] state changes and shows /
-/// dismisses the incoming call overlay globally.
+/// dismisses call overlays globally.
 class AppOverlayManager extends StatefulWidget {
   const AppOverlayManager({super.key, required this.child});
 
@@ -65,10 +119,29 @@ class _AppOverlayManagerState extends State<AppOverlayManager> {
   Widget build(BuildContext context) {
     return BlocListener<CallBloc, CallState>(
       listener: (context, state) {
+        // ── Incoming call ──────────────────────────────────────────────
         if (state is CallIncoming) {
           AppOverlay.I.showIncomingCall();
         } else {
           AppOverlay.I.hideIncomingCall();
+        }
+
+        // ── Calling (outgoing / connecting) ────────────────────────────
+        if (state is CallOutgoing || state is CallConnecting) {
+          AppOverlay.I.showCalling();
+        } else {
+          AppOverlay.I.hideCalling();
+        }
+
+        // ── Call ended ─────────────────────────────────────────────────
+        if (state is CallEnded) {
+          AppOverlay.I.showCallEnded(
+            receiverName: state.receiverName,
+            durationSeconds: state.durationSeconds,
+            receiverId: state.receiverId,
+          );
+        } else {
+          AppOverlay.I.hideCallEnded();
         }
       },
       child: widget.child,

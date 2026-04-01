@@ -8,7 +8,6 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_en
 import 'package:uit_buddy_mobile/features/social/domain/entities/message_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_event.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_state.dart';
@@ -55,9 +54,6 @@ class _ChatViewState extends State<_ChatView> {
   final _focusNode = FocusNode();
   bool _hasText = false;
 
-  /// Tracks whether the "Calling..." dialog is currently shown.
-  bool _isShowingCallDialog = false;
-
   @override
   void initState() {
     super.initState();
@@ -75,9 +71,6 @@ class _ChatViewState extends State<_ChatView> {
       ..removeListener(_onScroll)
       ..dispose();
     _focusNode.dispose();
-    if (_isShowingCallDialog) {
-      Navigator.of(context, rootNavigator: true).maybePop();
-    }
     super.dispose();
   }
 
@@ -121,110 +114,27 @@ class _ChatViewState extends State<_ChatView> {
     );
   }
 
-  void _showCallingDialog(String receiverName) {
-    if (_isShowingCallDialog) return;
-    _isShowingCallDialog = true;
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (dialogContext) => AlertDialog(
-        backgroundColor: AppColor.pureWhite,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const SizedBox(height: 8),
-            _CallingAvatar(name: receiverName),
-            const SizedBox(height: 20),
-            Text(
-              'Calling $receiverName...',
-              style: AppTextStyle.bodyMedium.copyWith(
-                fontWeight: FontWeight.w600,
-                color: AppColor.primaryText,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Audio call',
-              style: AppTextStyle.bodySmall.copyWith(
-                color: AppColor.secondaryText,
-              ),
-            ),
-            const SizedBox(height: 24),
-            GestureDetector(
-              onTap: () {
-                Navigator.of(dialogContext).pop();
-                context.read<CallBloc>().add(const CallEnd());
-              },
-              child: Container(
-                width: 56,
-                height: 56,
-                decoration: const BoxDecoration(
-                  color: AppColor.alertRed,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  Icons.call_end,
-                  color: AppColor.pureWhite,
-                  size: 26,
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Cancel',
-              style: AppTextStyle.captionExtraSmall.copyWith(
-                color: AppColor.secondaryText,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).whenComplete(() {
-      if (mounted) setState(() => _isShowingCallDialog = false);
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
-    return BlocListener<CallBloc, CallState>(
-      // BlocListener fires on every state change — handle all call states
-      listenWhen: (prev, curr) => true,
+    return BlocListener<ChatBloc, ChatState>(
+      listenWhen: (prev, curr) => prev.editingMessage != curr.editingMessage,
       listener: (context, state) {
-        if (state is CallOutgoing) {
-          _showCallingDialog(state.receiverName);
-        } else if (state is CallActive) {
-          // SDK call UI is rendered by the SDK itself — dismiss our overlay
-          if (_isShowingCallDialog) {
-            Navigator.of(context, rootNavigator: true).maybePop();
-          }
-        } else if (state is CallIdle || state is CallEnded) {
-          if (_isShowingCallDialog) {
-            Navigator.of(context, rootNavigator: true).maybePop();
-          }
+        if (state.editingMessage != null) {
+          _messageController.text = state.editingMessage!.content;
+          _focusNode.requestFocus();
+        } else {
+          _messageController.clear();
+          _focusNode.unfocus();
         }
-        // CallConnecting / CallError: keep dialog open, update content
       },
-      child: BlocListener<ChatBloc, ChatState>(
-        listenWhen: (prev, curr) => prev.editingMessage != curr.editingMessage,
-        listener: (context, state) {
-          if (state.editingMessage != null) {
-            _messageController.text = state.editingMessage!.content;
-            _focusNode.requestFocus();
-          } else {
-            _messageController.clear();
-            _focusNode.unfocus();
-          }
-        },
-        child: Scaffold(
-          backgroundColor: AppColor.pureWhite,
-          appBar: _buildAppBar(),
-          body: Column(
-            children: [
-              Expanded(child: _buildMessageList()),
-              _buildInputBar(),
-            ],
-          ),
+      child: Scaffold(
+        backgroundColor: AppColor.pureWhite,
+        appBar: _buildAppBar(),
+        body: Column(
+          children: [
+            Expanded(child: _buildMessageList()),
+            _buildInputBar(),
+          ],
         ),
       ),
     );
@@ -666,65 +576,6 @@ class _ChatViewState extends State<_ChatView> {
     );
     _messageController.clear();
     _focusNode.unfocus();
-  }
-}
-
-/// Animated pulsing avatar shown in the "Calling..." dialog.
-class _CallingAvatar extends StatefulWidget {
-  const _CallingAvatar({required this.name});
-
-  final String name;
-
-  @override
-  State<_CallingAvatar> createState() => _CallingAvatarState();
-}
-
-class _CallingAvatarState extends State<_CallingAvatar>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scaleAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 1200),
-      vsync: this,
-    )..repeat(reverse: true);
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 1.08,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return ScaleTransition(
-      scale: _scaleAnimation,
-      child: Container(
-        width: 80,
-        height: 80,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: AppColor.primaryBlue.withValues(alpha: 0.15),
-        ),
-        child: Center(
-          child: Text(
-            widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
-            style: AppTextStyle.h2.copyWith(
-              color: AppColor.primaryBlue,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
-    );
   }
 }
 

@@ -83,6 +83,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
   static const _listenerId = '__call_bloc_listener__';
 
+  DateTime? _callStartedAt;
+
   StreamSubscription<CallSessionEvent>? _sessionSubscription;
   StreamSubscription<CallEntity>? _incomingSubscription;
 
@@ -226,8 +228,17 @@ class CallBloc extends Bloc<CallEvent, CallState> {
     _callDatasource.clearActiveCall();
     await _callDatasource.endCallSession();
     await _endCallUsecase(EndCallParams(sessionId: current.sessionId));
-
-    emit(CallState.ended(receiverName: current.receiverName));
+    final duration = _callStartedAt != null
+        ? DateTime.now().difference(_callStartedAt!).inSeconds
+        : 0;
+    _callStartedAt = null;
+    emit(
+      CallState.ended(
+        receiverName: current.receiverName,
+        durationSeconds: duration,
+        receiverId: current.receiverId,
+      ),
+    );
 
     await Future.delayed(const Duration(seconds: 2));
     emit(const CallState.idle());
@@ -245,8 +256,19 @@ class CallBloc extends Bloc<CallEvent, CallState> {
 
     _callDatasource.clearActiveCall();
     await _callDatasource.endCallSession();
-
-    emit(CallState.ended(receiverName: name));
+    final duration = _callStartedAt != null
+        ? DateTime.now().difference(_callStartedAt!).inSeconds
+        : 0;
+    _callStartedAt = null;
+    String receiverId = '';
+    if (current is CallActive) receiverId = current.receiverId;
+    emit(
+      CallState.ended(
+        receiverName: name,
+        durationSeconds: duration,
+        receiverId: receiverId,
+      ),
+    );
     await Future.delayed(const Duration(seconds: 2));
     emit(const CallState.idle());
   }
@@ -289,6 +311,8 @@ class CallBloc extends Bloc<CallEvent, CallState> {
   /// After the SDK returns the calling widget, it fires
   /// [CallSessionStarted] to let the UI know to render it.
   Future<void> _startSession(CallEntity call) async {
+    _callStartedAt = DateTime.now();
+
     // Get auth token
     final authResult = await _getCallAuthTokenUsecase(const NoParams());
     final authToken = authResult.fold((_) => '', (t) => t);
