@@ -147,7 +147,6 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_comment_rep
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_newfeed_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_comments_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_post_detail_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/get_friend_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_posts_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
@@ -162,13 +161,11 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_like_use
 import 'package:uit_buddy_mobile/features/social/domain/usecases/unfriend_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/update_post_usecase.dart';
 
-import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/edit_post/edit_post_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/social_search/social_search_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/storage_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/storage_datasource_impl.dart';
 
@@ -596,7 +593,6 @@ void _initSocialDependencies() {
       deletePostUsecase: serviceLocator(),
     ),
   );
-  serviceLocator.registerFactory(() => ContactPickerBloc());
 
   
  
@@ -608,13 +604,7 @@ void _initSocialDependencies() {
     ),
   );
 
-  serviceLocator.registerFactory(
-    () => UserSearchBloc(getFriendUsersUsecase: serviceLocator()),
-  );
-  serviceLocator.registerFactory(
-    () => GetFriendUsersUsecase(repository: serviceLocator()),
-  );
-
+  
  
 }
 

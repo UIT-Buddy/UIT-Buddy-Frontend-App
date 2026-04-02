@@ -4,7 +4,6 @@ import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/user_search_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/user_profile_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/mapper/search_user_mapper.dart';
-import 'package:uit_buddy_mobile/features/social/domain/entities/comet_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/user_search_repository.dart';
 
@@ -47,30 +46,6 @@ class UserSearchRepositoryImpl implements UserSearchRepository {
     }
   }
 
-  @override
-  Future<Either<Failure, List<CometUserEntity>>> getFriendUsers({
-    int limit = 100,
-  }) async {
-    try {
-      final response = await _userProfileDatasource.getFriends(limit: limit);
-      final users = (response.data ?? const []).map((item) {
-        final friend = item.friend;
-        final cometUid = friend.cometUid?.trim() ?? '';
-        final uid = cometUid.isNotEmpty ? cometUid : friend.mssv.trim();
-
-        return CometUserEntity(
-          uid: uid,
-          name: friend.fullName,
-          avatar: friend.avatarUrl,
-          status: 'offline',
-        );
-      }).toList();
-
-      return Right(users);
-    } on Exception catch (e) {
-      return Left(Failure.fromException(e));
-    }
-  }
 
   
 }

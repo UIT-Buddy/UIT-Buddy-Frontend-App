@@ -5,7 +5,6 @@ import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
-import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/other_people_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_entity.dart';
@@ -742,16 +741,7 @@ class _ProfileActionBar extends StatelessWidget {
       return;
     }
 
-    final conversation = ConversationEntity(
-      id: cometUid,
-      name: user.fullName,
-      avatarUrl: user.avatarUrl ?? '',
-      lastMessage: '',
-      time: '',
-      isGroup: false,
-      isOnline: false,
-      conversationType: 'user',
-    );
+   
 
     
   }
