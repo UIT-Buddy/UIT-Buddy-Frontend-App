@@ -1,3 +1,4 @@
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/signin_usecase.dart';
@@ -36,6 +37,7 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
       ),
       (data) async {
         emit(state.copyWith(status: SignInStatus.success));
+        await CometChat.loginWithAuthToken(data.cometAuthToken,onError: (excep) => {},onSuccess: (user) => {});
        
       },
     );

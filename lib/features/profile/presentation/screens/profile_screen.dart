@@ -115,7 +115,7 @@ class ProfileScreen extends StatelessWidget {
                     ),
 
                     const SizedBox(height: 20),
-
+                    OutlinedButton(onPressed: () => context.push(RouteName.chat), child: Text("Chat")),
                     // Log out
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),

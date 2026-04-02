@@ -14,7 +14,7 @@ class MainApp extends StatelessWidget {
     providers: [
       BlocProvider<SessionBloc>(
         create: (_) =>
-            serviceLocator<SessionBloc>()..add(SessionUserFetchRequested()),
+            serviceLocator<SessionBloc>(),
       ),
     ],
     child: MaterialApp.router(

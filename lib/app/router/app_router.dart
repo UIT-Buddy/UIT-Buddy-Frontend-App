@@ -30,6 +30,11 @@ import 'package:uit_buddy_mobile/features/home/presentation/screens/note_screen.
 import 'package:uit_buddy_mobile/features/home/presentation/screens/website_screen.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/weather_screen.dart';
 import 'package:uit_buddy_mobile/features/root/screens/wrapper_screen.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_list_screen.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_conversation_screen.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_search_screen.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_contacts_screen.dart';
+import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final goRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
@@ -253,6 +258,48 @@ final goRouter = GoRouter(
         context: context,
         state: state,
         child: const WeatherScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.chat,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const ChatListScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.chatConversation,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final user = extra?['user'] as User?;
+        final group = extra?['group'] as Group?;
+        final message = extra?['message'] as BaseMessage?;
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: ChatConversationScreen(
+            user: user,
+            group: group,
+            message: message,
+          ),
+        );
+      },
+    ),
+    GoRoute(
+      path: RouteName.chatSearch,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const ChatSearchScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.chatContacts,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const ChatContactsScreen(),
       ),
     ),
   ],

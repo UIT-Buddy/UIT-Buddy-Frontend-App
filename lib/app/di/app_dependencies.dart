@@ -182,6 +182,8 @@ import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_folder_use
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/subject_class_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc.dart';
 import 'package:uit_buddy_mobile/core/config/parameter.dart';
+import 'package:uit_buddy_mobile/features/chat/services/chat_service.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/blocs/chat_init/chat_init_bloc.dart';
 import 'package:uit_buddy_mobile/features/home/data/datasources/impl/weather_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/home/data/datasources/weather_datasource.dart';
 import 'package:uit_buddy_mobile/features/home/data/repositories/weather_repository_impl.dart';
@@ -204,6 +206,7 @@ Future<void> initDependencies() async {
   await _initSettingsDependencies();
   // await _initYourPostsDependencies();
   _initWeatherDependencies();
+  await _initChatDependencies();
 
  
 
@@ -917,7 +920,13 @@ void _initWeatherDependencies() {
   );
 }
 
-// Future<void> _initYourPostsDependencies() async {
+Future<void> _initChatDependencies() async {
+  final chatService = ChatService();
+  serviceLocator.registerLazySingleton<ChatService>(() => chatService);
+  serviceLocator.registerFactory(() => ChatInitBloc(chatService: serviceLocator()));
+  // Initialize CometChat early
+  await chatService.init();
+}
 //   // Datasource
 //   serviceLocator.registerLazySingleton<PostDatasourceInterface>(
 //     () => PostDatasourceImpl(),
