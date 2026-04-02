@@ -1,12 +1,9 @@
 import 'dart:developer';
 
-import 'package:cometchat_calls_sdk/cometchat_calls_sdk.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uit_buddy_mobile/app/router/app_router.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
-import 'package:uit_buddy_mobile/core/realtime/chat_realtime_service.dart';
 import 'package:uit_buddy_mobile/core/common/token/refresh_token_datasource.dart';
 import 'package:uit_buddy_mobile/core/common/token/refresh_token_datasource_impl.dart';
 import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
@@ -135,8 +132,8 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/user_profile_d
 import 'package:uit_buddy_mobile/features/social/data/repositories/comment_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/post_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/reaction_repository_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/repositories/user_search_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/user_profile_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/user_search_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/post_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/reaction_repository.dart';
@@ -154,9 +151,9 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/get_friend_user
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_profile_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/get_user_posts_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/reply_to_comment_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/reset_comet_cache_usecase.dart';
+
 import 'package:uit_buddy_mobile/features/social/domain/usecases/respond_friend_request_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/search_comet_user_usecase.dart';
+
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_posts_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/search_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_friend_request_usecase.dart';
@@ -164,24 +161,8 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_comment_
 import 'package:uit_buddy_mobile/features/social/domain/usecases/toggle_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/unfriend_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/update_post_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/chat_datasource_interface.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/conversation_datasource_interface.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/impl/chat_datasource_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/impl/conversation_datasource_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/repositories/chat_repository_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/repositories/conversation_repository_impl.dart';
-import 'package:uit_buddy_mobile/features/social/domain/repositories/chat_repository.dart';
-import 'package:uit_buddy_mobile/features/social/domain/repositories/conversation_repository.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/get_conversations_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/get_messages_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/mark_message_as_read_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/send_text_message_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/edit_text_message_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_message_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat/chat_bloc.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/bloc/chat_settings/chat_settings_bloc.dart';
+
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/contact_picker/contact_picker_bloc.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/bloc/conversation/conversation_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/edit_post/edit_post_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_bloc.dart';
@@ -190,16 +171,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/storage_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/storage_datasource_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/call_datasource_interface.dart';
-import 'package:uit_buddy_mobile/features/social/data/datasources/impl/call_datasource_impl.dart';
-import 'package:uit_buddy_mobile/features/social/data/repositories/call_repository_impl.dart';
-import 'package:uit_buddy_mobile/features/social/domain/repositories/call_repository.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/initiate_call_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/accept_call_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/reject_call_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/end_call_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/domain/usecases/get_call_auth_token_usecase.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
+
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/subject_class_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/repositories/storage_repository_impl.dart';
@@ -219,7 +191,6 @@ import 'package:uit_buddy_mobile/features/home/data/repositories/weather_reposit
 import 'package:uit_buddy_mobile/features/home/domain/repositories/weather_repository.dart';
 import 'package:uit_buddy_mobile/features/home/domain/usecases/get_weather_usecase.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/weather_bloc.dart';
-import 'package:cometchat_sdk/cometchat_sdk.dart';
 
 final serviceLocator = GetIt.instance;
 
@@ -237,34 +208,10 @@ Future<void> initDependencies() async {
   // await _initYourPostsDependencies();
   _initWeatherDependencies();
 
-  AppSettings appSettings =
-      (AppSettingsBuilder()
-            ..subscriptionType = CometChatSubscriptionType.friends
-            ..region = AppEnv.cometChatRegion)
-          .build();
-  await CometChat.init(
-    AppEnv.cometChatAppId,
-    appSettings,
-    onSuccess: (successMessage) => debugPrint(successMessage),
-    onError: (error) => debugPrint(error.message),
-  );
+ 
 
-  // Initialize real-time message listener (after CometChat is ready)
-  // This registers addMessageListener once and broadcasts to all subscribers.
-  // ignore: unused_local_variable — intentional side-effect init
-  final realtimeService = ChatRealtimeService.instance..init();
 
-  // ─── CometChat Calls ────────────────────────────────────────────────────
-  CallAppSettings callAppSettings =
-      (CallAppSettingBuilder()
-            ..appId = AppEnv.cometChatAppId
-            ..region = AppEnv.cometChatRegion)
-          .build();
-  CometChatCalls.init(
-    callAppSettings,
-    onSuccess: (msg) => debugPrint('CometChatCalls init: $msg'),
-    onError: (e) => debugPrint('CometChatCalls init error: ${e.message}'),
-  );
+  
 }
 
 Future<void> _initAuthDependencies() async {
@@ -539,7 +486,6 @@ void _initSocialDependencies() {
     () => UserSearchRepositoryImpl(
       datasource: serviceLocator(),
       userProfileDatasource: serviceLocator(),
-      chatDatasource: serviceLocator(),
     ),
   );
   serviceLocator.registerLazySingleton<UserProfileRepository>(
@@ -650,22 +596,10 @@ void _initSocialDependencies() {
       deletePostUsecase: serviceLocator(),
     ),
   );
-  serviceLocator.registerFactory(() => ChatSettingsBloc());
   serviceLocator.registerFactory(() => ContactPickerBloc());
 
-  // Conversation (CometChat)
-  serviceLocator.registerLazySingleton<ConversationDatasourceInterface>(
-    () => ConversationDatasourceImpl(),
-  );
-  serviceLocator.registerLazySingleton<ConversationRepository>(
-    () => ConversationRepositoryImpl(datasource: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => GetConversationsUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerFactory(
-    () => ConversationBloc(getConversationsUsecase: serviceLocator()),
-  );
+  
+ 
 
   // User Search (CometChat)
   serviceLocator.registerLazySingleton<UserSearchDatasourceInterface>(
@@ -680,79 +614,8 @@ void _initSocialDependencies() {
   serviceLocator.registerFactory(
     () => GetFriendUsersUsecase(repository: serviceLocator()),
   );
-  serviceLocator.registerFactory(
-    () => SearchCometUserUsecase(repository: serviceLocator()),
-  );
 
-  // Chat Messages (CometChat)
-  serviceLocator.registerLazySingleton<ChatDatasourceInterface>(
-    () => ChatDatasourceImpl(),
-  );
-  serviceLocator.registerLazySingleton<ChatRepository>(
-    () => ChatRepositoryImpl(datasource: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => GetMessagesUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => SendTextMessageUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => EditTextMessageUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => DeleteMessageUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => MarkMessageAsReadUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerFactory(
-    () => ChatBloc(
-      getMessagesUsecase: serviceLocator(),
-      sendTextMessageUsecase: serviceLocator(),
-      editTextMessageUsecase: serviceLocator(),
-      deleteMessageUsecase: serviceLocator(),
-      markMessageAsReadUsecase: serviceLocator(),
-    ),
-  );
-  serviceLocator.registerLazySingleton(
-    () => ResetCometCacheUsecase(repository: serviceLocator()),
-  );
-
-  // ─── Audio Calling (CometChat Calls SDK) ─────────────────────────────────
-  serviceLocator.registerLazySingleton<CallDatasourceInterface>(
-    () => CallDatasourceImpl(),
-  );
-  serviceLocator.registerLazySingleton<CallRepository>(
-    () => CallRepositoryImpl(datasource: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => InitiateCallUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => AcceptCallUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => RejectCallUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => EndCallUsecase(repository: serviceLocator()),
-  );
-  serviceLocator.registerLazySingleton(
-    () => GetCallAuthTokenUsecase(repository: serviceLocator()),
-  );
-  // CallBloc is a singleton so call state persists across navigation
-  serviceLocator.registerLazySingleton(
-    () => CallBloc(
-      initiateCallUsecase: serviceLocator(),
-      acceptCallUsecase: serviceLocator(),
-      rejectCallUsecase: serviceLocator(),
-      endCallUsecase: serviceLocator(),
-      getCallAuthTokenUsecase: serviceLocator(),
-      callDatasource:
-          serviceLocator<CallDatasourceInterface>() as CallDatasourceImpl,
-    ),
-  );
+ 
 }
 
 Future<void> _initProfileDependencies() async {
@@ -856,7 +719,6 @@ Future<void> _initProfileDependencies() async {
     () => ProfileBloc(
       getProfileUsecase: serviceLocator(),
       signOutUsecase: serviceLocator(),
-      resetCometCacheUsecase: serviceLocator(),
     ),
   );
   serviceLocator.registerFactory(

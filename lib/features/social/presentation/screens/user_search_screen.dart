@@ -9,7 +9,6 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_en
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_search/user_search_state.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/conversation_list_item_skeleton.dart';
 
 class UserSearchScreen extends StatelessWidget {
@@ -197,28 +196,6 @@ class _UserSearchViewState extends State<_UserSearchView> {
       isOnline: user.status == 'online',
       conversationType: 'user',
       conversationWith: user.uid,
-    );
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            ChatScreen(conversation: conversation),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(1, 0),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 300),
-        reverseTransitionDuration: const Duration(milliseconds: 260),
-      ),
     );
   }
 }

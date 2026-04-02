@@ -15,7 +15,6 @@ import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_h
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_screen.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/screens/message_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/social_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
@@ -71,7 +70,7 @@ class _NewFeedViewState extends State<_NewFeedView> {
       MaterialPageRoute(
         builder: (_) => tab == NewFeedTab.feed
             ? const SocialSearchScreen(initialQuery: '')
-            : const MessageSearchScreen(),
+            : Placeholder(),
       ),
     );
   }

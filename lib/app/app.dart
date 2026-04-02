@@ -2,11 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/app_router.dart';
-import 'package:uit_buddy_mobile/core/overlay/app_overlay.dart';
 import 'package:uit_buddy_mobile/core/theme/app_theme.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_event.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/bloc/call/call_bloc.dart';
 
 class MainApp extends StatelessWidget {
   const MainApp({super.key});
@@ -18,20 +16,14 @@ class MainApp extends StatelessWidget {
         create: (_) =>
             serviceLocator<SessionBloc>()..add(SessionUserFetchRequested()),
       ),
-      // CallBloc is a singleton — accessible from any screen for the
-      // incoming call overlay. Provided at root level here so
-      // AppOverlayManager can listen to it.
-      BlocProvider<CallBloc>.value(value: serviceLocator<CallBloc>()),
     ],
-    child: AppOverlayManager(
-      child: MaterialApp.router(
-        title: 'UIT Buddy Mobile',
-        themeMode: ThemeMode.light,
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        routerConfig: goRouter,
-      ),
+    child: MaterialApp.router(
+      title: 'UIT Buddy Mobile',
+      themeMode: ThemeMode.light,
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      routerConfig: goRouter,
     ),
   );
 }

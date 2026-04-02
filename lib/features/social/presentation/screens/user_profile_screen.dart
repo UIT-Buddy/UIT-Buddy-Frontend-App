@@ -12,7 +12,6 @@ import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_ent
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_state.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
@@ -754,11 +753,7 @@ class _ProfileActionBar extends StatelessWidget {
       conversationType: 'user',
     );
 
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ChatScreen(conversation: conversation),
-      ),
-    );
+    
   }
 }
 

@@ -17,9 +17,5 @@ abstract interface class UserSearchRepository {
     int limit = 100,
   });
 
-  Future<Either<Failure, PagedResult<CometUserEntity>>> searchCometUsers({
-    required String query,
-    int page = 1,
-    int limit = 10,
-  });
+ 
 }

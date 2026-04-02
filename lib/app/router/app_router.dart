@@ -1,9 +1,9 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/app/router/transitions/slide_transition.dart';
-import 'package:uit_buddy_mobile/core/overlay/app_overlay.dart';
 import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
@@ -30,9 +30,9 @@ import 'package:uit_buddy_mobile/features/home/presentation/screens/note_screen.
 import 'package:uit_buddy_mobile/features/home/presentation/screens/website_screen.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/weather_screen.dart';
 import 'package:uit_buddy_mobile/features/root/screens/wrapper_screen.dart';
-
+final _rootNavigatorKey = GlobalKey<NavigatorState>();
 final goRouter = GoRouter(
-  navigatorKey: rootNavigatorKey,
+  navigatorKey: _rootNavigatorKey,
   initialLocation: RouteName.welcome,
   redirect: (context, state) {
     final tokenStore = serviceLocator<TokenStore>();
