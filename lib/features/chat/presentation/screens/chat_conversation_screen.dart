@@ -49,6 +49,8 @@ class ChatConversationScreen extends StatelessWidget {
       group: group,
       messageId: message?.id,
       startFromUnreadMessages: true,
+      hideEditMessageOption: false,
+      hideDeleteMessageOption: false,
     );
   }
 
