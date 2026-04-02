@@ -1,6 +1,7 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/theme/chat_theme.dart';
 
 class ChatThreadScreen extends StatelessWidget {
   final User? user;
@@ -53,6 +54,7 @@ class ChatThreadScreen extends StatelessWidget {
       user: user,
       group: group,
       messagesRequestBuilder: requestBuilder,
+      style: ChatTheme.messageListStyle,
     );
   }
 
@@ -61,6 +63,7 @@ class ChatThreadScreen extends StatelessWidget {
       user: user,
       group: group,
       parentMessageId: message.id,
+      compactMessageComposerStyle: ChatTheme.compactComposerStyle,
     );
   }
 }

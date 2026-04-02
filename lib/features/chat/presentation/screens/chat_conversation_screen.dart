@@ -1,6 +1,7 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/theme/chat_theme.dart';
 
 class ChatConversationScreen extends StatelessWidget {
   final User? user;
@@ -33,6 +34,7 @@ class ChatConversationScreen extends StatelessWidget {
       user: user,
       group: group,
       onBack: () => context.pop(),
+      messageHeaderStyle: ChatTheme.messageHeaderStyle,
     );
   }
 
@@ -51,6 +53,7 @@ class ChatConversationScreen extends StatelessWidget {
       startFromUnreadMessages: true,
       hideEditMessageOption: false,
       hideDeleteMessageOption: false,
+      style: ChatTheme.messageListStyle,
     );
   }
 
@@ -91,6 +94,7 @@ class ChatConversationScreen extends StatelessWidget {
     return CometChatCompactMessageComposer(
       user: user,
       group: group,
+      compactMessageComposerStyle: ChatTheme.compactComposerStyle,
     );
   }
 }

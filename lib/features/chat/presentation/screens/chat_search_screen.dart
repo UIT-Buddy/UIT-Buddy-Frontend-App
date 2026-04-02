@@ -2,6 +2,7 @@ import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/theme/chat_theme.dart';
 
 class ChatSearchScreen extends StatelessWidget {
   const ChatSearchScreen({super.key});
@@ -20,6 +21,7 @@ class ChatSearchScreen extends StatelessWidget {
         title: const Text('Search'),
       ),
       body: CometChatSearch(
+        searchStyle: ChatTheme.searchStyle,
         searchIn: const [SearchScope.conversations, SearchScope.messages],
         onBack: () => context.pop(),
         onConversationClicked: (conversation) {
