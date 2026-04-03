@@ -1,4 +1,3 @@
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
@@ -35,9 +34,10 @@ import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_convers
 import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_search_screen.dart';
 import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_contacts_screen.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
-final _rootNavigatorKey = GlobalKey<NavigatorState>();
+import 'package:uit_buddy_mobile/app/router/app_router_keys.dart';
+
 final goRouter = GoRouter(
-  navigatorKey: _rootNavigatorKey,
+  navigatorKey: rootNavigatorKey,
   initialLocation: RouteName.welcome,
   redirect: (context, state) {
     final tokenStore = serviceLocator<TokenStore>();

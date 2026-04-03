@@ -1,6 +1,9 @@
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get_it/get_it.dart';
 import 'package:uit_buddy_mobile/core/config/app_env.dart';
+import 'package:uit_buddy_mobile/features/chat/services/in_app_notification_service.dart';
+import 'package:uit_buddy_mobile/features/chat/services/push_notification_service.dart';
 
 class ChatService {
   static final ChatService _instance = ChatService._internal();
@@ -61,6 +64,10 @@ class ChatService {
 
   Future<void> logout({VoidCallback? onSuccess}) async {
     try {
+      // Stop in-app notification listener
+      InAppNotificationService().stopListening();
+      // Unregister FCM token from CometChat before logout
+      GetIt.I<PushNotificationService>().unregister();
       await CometChatUIKit.logout(
         onSuccess: (msg) {
           debugPrint('CometChat logout success');
