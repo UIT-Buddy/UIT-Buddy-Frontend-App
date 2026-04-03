@@ -13,55 +13,59 @@ class CalendarDatasourceImpl implements CalendarDatasourceInterface {
     required int month,
     required int year,
   }) async {
-    final response = await _dio.get<Map<String, dynamic>>(
-      '/api/schedule/deadline',
-      queryParameters: {'month': month, 'year': year},
-    );
-    final json = response.data!;
-    final apiData = json['data'] as Map<String, dynamic>;
-    final courseContents = apiData['courseContents'] as List<dynamic>;
-
-    final Map<int, List<DeadlineDetailModel>> byDay = {};
-    var idx = 0;
-
-    for (final course in courseContents) {
-      final courseName = course['courseName'] as String;
-      final exercises = course['exercises'] as List<dynamic>;
-      for (final exercise in exercises) {
-        final dueDateStr = exercise['dueDate'] as String;
-        final dueDate = DateTime.parse(dueDateStr);
-        if (dueDate.month != month || dueDate.year != year) {
-          idx++;
-          continue;
-        }
-        final day = dueDate.day;
-        byDay.putIfAbsent(day, () => []);
-        byDay[day]!.add(
-          DeadlineDetailModel(
-            id: '$idx',
-            title: exercise['exerciseName'] as String,
-            status: (exercise['status'] as String).toLowerCase(),
-            courseId: courseName,
-            deadline: dueDateStr,
-          ),
-        );
-        idx++;
-      }
-    }
-
-    final items = byDay.entries.map((entry) {
-      return CalendarDeadlineItemModel(
-        day: entry.key,
-        status: _dominantStatus(entry.value.map((d) => d.status).toList()),
-        details: entry.value,
+    try {
+      final response = await _dio.get<Map<String, dynamic>>(
+        '/api/schedule/deadline',
+        queryParameters: {'month': month, 'year': year},
       );
-    }).toList()..sort((a, b) => a.day.compareTo(b.day));
+      final json = response.data!;
+      final apiData = json['data'] as Map<String, dynamic>;
+      final courseContents = apiData['courseContents'] as List<dynamic>;
 
-    return ApiResponse<CalendarDeadlineModel>(
-      statusCode: json['statusCode'] as int,
-      message: json['message'] as String,
-      data: CalendarDeadlineModel(month: month, year: year, items: items),
-    );
+      final Map<int, List<DeadlineDetailModel>> byDay = {};
+      var idx = 0;
+
+      for (final course in courseContents) {
+        final courseName = course['courseName'] as String;
+        final exercises = course['exercises'] as List<dynamic>;
+        for (final exercise in exercises) {
+          final dueDateStr = exercise['dueDate'] as String;
+          final dueDate = DateTime.parse(dueDateStr);
+          if (dueDate.month != month || dueDate.year != year) {
+            idx++;
+            continue;
+          }
+          final day = dueDate.day;
+          byDay.putIfAbsent(day, () => []);
+          byDay[day]!.add(
+            DeadlineDetailModel(
+              id: '$idx',
+              title: exercise['exerciseName'] as String,
+              status: (exercise['status'] as String).toLowerCase(),
+              courseId: courseName,
+              deadline: dueDateStr,
+            ),
+          );
+          idx++;
+        }
+      }
+
+      final items = byDay.entries.map((entry) {
+        return CalendarDeadlineItemModel(
+          day: entry.key,
+          status: _dominantStatus(entry.value.map((d) => d.status).toList()),
+          details: entry.value,
+        );
+      }).toList()..sort((a, b) => a.day.compareTo(b.day));
+
+      return ApiResponse<CalendarDeadlineModel>(
+        statusCode: json['statusCode'] as int,
+        message: json['message'] as String,
+        data: CalendarDeadlineModel(month: month, year: year, items: items),
+      );
+    } on DioException catch (e) {
+      throw _mapDioException(e);
+    }
   }
 
   String _dominantStatus(List<String> statuses) {
@@ -70,6 +74,17 @@ class CalendarDatasourceImpl implements CalendarDatasourceInterface {
     if (statuses.contains('neardeadline')) return 'neardeadline';
     if (statuses.contains('done')) return 'done';
     return 'empty';
+  }
+
+  Exception _mapDioException(DioException e) {
+    // Prefer the server's own message field
+    if (e.response?.data is Map<String, dynamic>) {
+      final message = e.response!.data['message'] as String?;
+      if (message != null && message.isNotEmpty) {
+        return Exception(message);
+      }
+    }
+    return e;
   }
 
   @override
