@@ -1,6 +1,9 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get_it/get_it.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
+import 'package:uit_buddy_mobile/features/chat/services/chat_service.dart';
+import 'package:uit_buddy_mobile/features/chat/services/push_notification_service.dart';
 import 'package:uit_buddy_mobile/features/session/domain/usecases/get_current_user_usecase.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_event.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_state.dart';
@@ -14,6 +17,9 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
   }
 
   final GetCurrentUserUsecase _getCurrentUserUsecase;
+  final ChatService _chatService = ChatService();
+  final PushNotificationService _pushService =
+      GetIt.I<PushNotificationService>();
 
   Future<void> _onUserFetchRequested(
     SessionUserFetchRequested event,
@@ -29,17 +35,33 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
           errorMessage: failure.message,
         ),
       ),
-      (user) => emit(
-        state.copyWith(
-          status: SessionStatus.authenticated,
-          user: user,
-          errorMessage: null,
-        ),
-      ),
+      (user) async {
+        // Login to CometChat
+        final cometUid = user.cometUid ?? user.mssv;
+
+        emit(
+          state.copyWith(
+            status: SessionStatus.authenticated,
+            user: user,
+            errorMessage: null,
+          ),
+        );
+        await _chatService.login(
+          cometUid,
+          name: user.fullName,
+          avatar: user.avatarUrl,
+        );
+        // Register FCM token with CometChat after successful login
+        await _pushService.registerAfterChatLogin();
+      },
     );
   }
 
-  void _onSessionCleared(SessionCleared event, Emitter<SessionState> emit) {
+  Future<void> _onSessionCleared(
+    SessionCleared event,
+    Emitter<SessionState> emit,
+  ) async {
+    await _chatService.logout();
     emit(const SessionState(status: SessionStatus.unauthenticated));
   }
 }

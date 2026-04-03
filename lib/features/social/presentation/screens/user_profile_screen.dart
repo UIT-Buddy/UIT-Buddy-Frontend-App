@@ -5,14 +5,12 @@ import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
-import 'package:uit_buddy_mobile/features/social/domain/entities/conversation_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/other_people_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/search_user_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_state.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/screens/chat_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
@@ -742,23 +740,6 @@ class _ProfileActionBar extends StatelessWidget {
       );
       return;
     }
-
-    final conversation = ConversationEntity(
-      id: cometUid,
-      name: user.fullName,
-      avatarUrl: user.avatarUrl ?? '',
-      lastMessage: '',
-      time: '',
-      isGroup: false,
-      isOnline: false,
-      conversationType: 'user',
-    );
-
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(
-        builder: (_) => ChatScreen(conversation: conversation),
-      ),
-    );
   }
 }
 

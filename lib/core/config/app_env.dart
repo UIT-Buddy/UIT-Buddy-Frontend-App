@@ -14,4 +14,7 @@ class AppEnv {
   static const String cometChatRegion = String.fromEnvironment(
     'COMETCHAT_REGION',
   );
+  static const String cometChatProviderId = String.fromEnvironment(
+    'COMETCHAT_PROVIDER_ID',
+  );
 }

@@ -33,4 +33,8 @@ class RouteName {
   static const String note = '/note';
   static const String website = '/website';
   static const String weather = '/weather';
+  static const String chat = '/chat';
+  static const String chatConversation = '/chat/conversation';
+  static const String chatSearch = '/chat/search';
+  static const String chatContacts = '/chat/contacts';
 }

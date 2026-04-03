@@ -8,17 +8,16 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_event.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_state.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/constants/social_text.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/screens/user_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/create_post_bar.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/message_tab.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/new_feed_header.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_screen.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/screens/message_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/social_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_search_screen.dart';
 
 class NewFeedScreen extends StatelessWidget {
   const NewFeedScreen({super.key});
@@ -71,7 +70,7 @@ class _NewFeedViewState extends State<_NewFeedView> {
       MaterialPageRoute(
         builder: (_) => tab == NewFeedTab.feed
             ? const SocialSearchScreen(initialQuery: '')
-            : const MessageSearchScreen(),
+            : const ChatSearchScreen(),
       ),
     );
   }
@@ -89,17 +88,9 @@ class _NewFeedViewState extends State<_NewFeedView> {
           prev.hasMore != curr.hasMore ||
           prev.errorMessage != curr.errorMessage,
       builder: (context, state) {
-        final isMessageTab = state.selectedTab == NewFeedTab.message;
         return Scaffold(
           backgroundColor: AppColor.pureWhite,
-          floatingActionButton: isMessageTab
-              ? FloatingActionButton(
-                  onPressed: () => _openUserSearch(context),
-                  backgroundColor: AppColor.primaryBlue,
-                  shape: const CircleBorder(),
-                  child: const Icon(Icons.edit_outlined, color: Colors.white),
-                )
-              : null,
+
           body: SafeArea(
             child: Column(
               children: [
@@ -128,31 +119,6 @@ class _NewFeedViewState extends State<_NewFeedView> {
           ),
         );
       },
-    );
-  }
-
-  void _openUserSearch(BuildContext context) {
-    Navigator.of(context).push(
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) =>
-            const UserSearchScreen(),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          final curved = CurvedAnimation(
-            parent: animation,
-            curve: Curves.easeOutCubic,
-            reverseCurve: Curves.easeInCubic,
-          );
-          return SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 1),
-              end: Offset.zero,
-            ).animate(curved),
-            child: child,
-          );
-        },
-        transitionDuration: const Duration(milliseconds: 280),
-        reverseTransitionDuration: const Duration(milliseconds: 240),
-      ),
     );
   }
 
