@@ -6,6 +6,7 @@ import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_entity.dart';
 import 'package:uit_buddy_mobile/features/social/domain/entities/post_media_entity.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/screens/user_profile_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_action_bar.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_author_row.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_stats_row.dart';
@@ -58,6 +59,13 @@ class PostCard extends StatelessWidget {
               postContent: post.contentSnippet,
               onDeleteConfirmed: onDeleteTap,
               onEditTap: onEditTap,
+              onViewProfile: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => UserProfileScreen(mssv: post.authorMssv),
+                  ),
+                );
+              },
             ),
             if (post.title.isNotEmpty) _buildTitle(),
             _buildContent(),
