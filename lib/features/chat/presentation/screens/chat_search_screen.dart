@@ -27,20 +27,15 @@ class ChatSearchScreen extends StatelessWidget {
         onConversationClicked: (conversation) {
           if (conversation.conversationWith is User) {
             final user = conversation.conversationWith as User;
-            context.push(
-              RouteName.chatConversation,
-              extra: {'user': user},
-            );
+            context.push(RouteName.chatConversation, extra: {'user': user});
           } else if (conversation.conversationWith is Group) {
             final group = conversation.conversationWith as Group;
-            context.push(
-              RouteName.chatConversation,
-              extra: {'group': group},
-            );
+            context.push(RouteName.chatConversation, extra: {'group': group});
           }
         },
         onMessageClicked: (message) {
-          final isUserMessage = message.receiverType == ReceiverTypeConstants.user;
+          final isUserMessage =
+              message.receiverType == ReceiverTypeConstants.user;
           final sender = message.sender;
           final receiver = message.receiver as User?;
 

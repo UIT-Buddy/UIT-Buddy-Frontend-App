@@ -11,11 +11,9 @@ class UserSearchRepositoryImpl implements UserSearchRepository {
   UserSearchRepositoryImpl({
     required UserSearchDatasourceInterface datasource,
     required UserProfileDatasourceInterface userProfileDatasource,
-  }) : _datasource = datasource,
-       _userProfileDatasource = userProfileDatasource;
+  }) : _datasource = datasource;
 
   final UserSearchDatasourceInterface _datasource;
-  final UserProfileDatasourceInterface _userProfileDatasource;
 
   @override
   Future<Either<Failure, PagedResult<SearchUserEntity>>> searchUsers({
@@ -45,7 +43,4 @@ class UserSearchRepositoryImpl implements UserSearchRepository {
       return Left(Failure.fromException(e));
     }
   }
-
-
-  
 }

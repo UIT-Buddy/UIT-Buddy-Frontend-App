@@ -208,11 +208,6 @@ Future<void> initDependencies() async {
   // await _initYourPostsDependencies();
   _initWeatherDependencies();
   await _initChatDependencies();
-
- 
-
-
-  
 }
 
 Future<void> _initAuthDependencies() async {
@@ -598,18 +593,12 @@ void _initSocialDependencies() {
     ),
   );
 
-  
- 
-
   // User Search (CometChat)
   serviceLocator.registerLazySingleton<UserSearchDatasourceInterface>(
     () => UserSearchDatasourceImpl(
       dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
-
-  
- 
 }
 
 Future<void> _initProfileDependencies() async {
@@ -924,7 +913,9 @@ void _initWeatherDependencies() {
 Future<void> _initChatDependencies() async {
   final chatService = ChatService();
   serviceLocator.registerLazySingleton<ChatService>(() => chatService);
-  serviceLocator.registerFactory(() => ChatInitBloc(chatService: serviceLocator()));
+  serviceLocator.registerFactory(
+    () => ChatInitBloc(chatService: serviceLocator()),
+  );
   // Initialize CometChat early
   await chatService.init();
 

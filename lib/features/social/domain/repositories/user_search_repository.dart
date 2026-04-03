@@ -11,7 +11,4 @@ abstract interface class UserSearchRepository {
     String? sortBy,
     String? sortType,
   });
-
- 
- 
 }

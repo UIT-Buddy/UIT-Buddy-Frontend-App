@@ -42,7 +42,8 @@ class ChatConversationScreen extends StatelessWidget {
     if (user != null && user!.blockedByMe == true) {
       return _buildBlockedView(context);
     }
-    if (group != null && (group!.hasJoined == false || group!.isBannedFromGroup == true)) {
+    if (group != null &&
+        (group!.hasJoined == false || group!.isBannedFromGroup == true)) {
       return _buildKickedView(context);
     }
 
@@ -87,7 +88,8 @@ class ChatConversationScreen extends StatelessWidget {
     if (user != null && user!.blockedByMe == true) {
       return const SizedBox.shrink();
     }
-    if (group != null && (group!.hasJoined == false || group!.isBannedFromGroup == true)) {
+    if (group != null &&
+        (group!.hasJoined == false || group!.isBannedFromGroup == true)) {
       return const SizedBox.shrink();
     }
 
@@ -95,6 +97,7 @@ class ChatConversationScreen extends StatelessWidget {
       user: user,
       group: group,
       compactMessageComposerStyle: ChatTheme.compactComposerStyle,
+      enableRichTextFormatting: false,
     );
   }
 }

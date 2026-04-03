@@ -55,10 +55,7 @@ class _ChatContactsScreenState extends State<ChatContactsScreen>
       ),
       body: TabBarView(
         controller: _tabController,
-        children: [
-          _buildUsersTab(),
-          _buildGroupsTab(),
-        ],
+        children: [_buildUsersTab(), _buildGroupsTab()],
       ),
     );
   }
@@ -68,10 +65,7 @@ class _ChatContactsScreenState extends State<ChatContactsScreen>
       usersRequestBuilder: UsersRequestBuilder()..limit = 30,
       usersStyle: ChatTheme.usersStyle,
       onItemTap: (context, user) {
-        context.push(
-          RouteName.chatConversation,
-          extra: {'user': user},
-        );
+        context.push(RouteName.chatConversation, extra: {'user': user});
       },
     );
   }
@@ -81,10 +75,7 @@ class _ChatContactsScreenState extends State<ChatContactsScreen>
       groupsRequestBuilder: GroupsRequestBuilder()..limit = 30,
       groupsStyle: ChatTheme.groupsStyle,
       onItemTap: (context, group) {
-        context.push(
-          RouteName.chatConversation,
-          extra: {'group': group},
-        );
+        context.push(RouteName.chatConversation, extra: {'group': group});
       },
     );
   }

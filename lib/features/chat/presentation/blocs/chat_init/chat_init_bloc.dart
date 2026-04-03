@@ -7,8 +7,8 @@ class ChatInitBloc extends Bloc<ChatInitEvent, ChatInitState> {
   final ChatService _chatService;
 
   ChatInitBloc({required ChatService chatService})
-      : _chatService = chatService,
-        super(const ChatInitState()) {
+    : _chatService = chatService,
+      super(const ChatInitState()) {
     on<ChatInitRequested>(_onInitRequested);
     on<ChatLoginRequested>(_onLoginRequested);
     on<ChatLogoutRequested>(_onLogoutRequested);
@@ -24,10 +24,12 @@ class ChatInitBloc extends Bloc<ChatInitEvent, ChatInitState> {
       await _chatService.init();
       emit(state.copyWith(status: ChatInitStatus.initialized));
     } catch (e) {
-      emit(state.copyWith(
-        status: ChatInitStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: ChatInitStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 
@@ -40,21 +42,27 @@ class ChatInitBloc extends Bloc<ChatInitEvent, ChatInitState> {
     try {
       final success = await _chatService.login(event.uid, name: event.name);
       if (success) {
-        emit(state.copyWith(
-          status: ChatInitStatus.loggedIn,
-          currentUser: _chatService.currentUser,
-        ));
+        emit(
+          state.copyWith(
+            status: ChatInitStatus.loggedIn,
+            currentUser: _chatService.currentUser,
+          ),
+        );
       } else {
-        emit(state.copyWith(
-          status: ChatInitStatus.error,
-          errorMessage: 'Login failed',
-        ));
+        emit(
+          state.copyWith(
+            status: ChatInitStatus.error,
+            errorMessage: 'Login failed',
+          ),
+        );
       }
     } catch (e) {
-      emit(state.copyWith(
-        status: ChatInitStatus.error,
-        errorMessage: e.toString(),
-      ));
+      emit(
+        state.copyWith(
+          status: ChatInitStatus.error,
+          errorMessage: e.toString(),
+        ),
+      );
     }
   }
 

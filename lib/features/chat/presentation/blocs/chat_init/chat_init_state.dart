@@ -1,7 +1,14 @@
 import 'package:equatable/equatable.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 
-enum ChatInitStatus { initial, initializing, initialized, loggingIn, loggedIn, error }
+enum ChatInitStatus {
+  initial,
+  initializing,
+  initialized,
+  loggingIn,
+  loggedIn,
+  error,
+}
 
 class ChatInitState extends Equatable {
   final ChatInitStatus status;

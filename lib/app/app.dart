@@ -12,10 +12,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) => MultiBlocProvider(
     providers: [
-      BlocProvider<SessionBloc>(
-        create: (_) =>
-            serviceLocator<SessionBloc>(),
-      ),
+      BlocProvider<SessionBloc>(create: (_) => serviceLocator<SessionBloc>()),
     ],
     child: MaterialApp.router(
       title: 'UIT Buddy Mobile',

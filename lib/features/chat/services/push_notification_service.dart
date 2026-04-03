@@ -10,7 +10,8 @@ import 'package:uit_buddy_mobile/features/chat/services/in_app_notification_serv
 import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/firebase_repository.dart';
 
 class PushNotificationService {
-  static final PushNotificationService _instance = PushNotificationService._internal();
+  static final PushNotificationService _instance =
+      PushNotificationService._internal();
   factory PushNotificationService() => _instance;
   PushNotificationService._internal();
 

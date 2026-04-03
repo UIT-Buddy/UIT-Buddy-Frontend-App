@@ -740,10 +740,6 @@ class _ProfileActionBar extends StatelessWidget {
       );
       return;
     }
-
-   
-
-    
   }
 }
 

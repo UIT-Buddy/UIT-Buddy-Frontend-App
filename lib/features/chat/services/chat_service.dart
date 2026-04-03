@@ -1,7 +1,9 @@
+import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uit_buddy_mobile/core/config/app_env.dart';
+import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/features/chat/services/in_app_notification_service.dart';
 import 'package:uit_buddy_mobile/features/chat/services/push_notification_service.dart';
 
@@ -16,15 +18,18 @@ class ChatService {
   Future<void> init() async {
     if (_isInitialized) return;
 
-    final uiKitSettings = (UIKitSettingsBuilder()
-      ..subscriptionType = CometChatSubscriptionType.allUsers
-      ..region = AppEnv.cometChatRegion
-      ..autoEstablishSocketConnection = true
-      ..appId = AppEnv.cometChatAppId
-      ..callingExtension = null
-      ..extensions = CometChatUIKitChatExtensions.getDefaultExtensions()
-      ..aiFeature = null)
-        .build();
+    final uiKitSettings =
+        (UIKitSettingsBuilder()
+              ..subscriptionType = CometChatSubscriptionType.allUsers
+              ..region = AppEnv.cometChatRegion
+              ..autoEstablishSocketConnection = true
+              ..appId = AppEnv.cometChatAppId
+              ..callingExtension = CometChatCallingExtension(
+                configuration: _buildCallingConfiguration(),
+              )
+              ..extensions = CometChatUIKitChatExtensions.getDefaultExtensions()
+              ..aiFeature = null)
+            .build();
 
     await CometChatUIKit.init(
       uiKitSettings: uiKitSettings,
@@ -35,6 +40,36 @@ class ChatService {
       onError: (e) {
         debugPrint('CometChat init error: $e');
       },
+    );
+  }
+
+  CallingConfiguration _buildCallingConfiguration() {
+    return CallingConfiguration(
+      callButtonsConfiguration: CallButtonsConfiguration(
+        callButtonsStyle: CometChatCallButtonsStyle(
+          voiceCallButtonColor: AppColor.primaryBlue10,
+          videoCallButtonColor: AppColor.primaryBlue10,
+          voiceCallIconColor: AppColor.primaryBlue,
+          videoCallIconColor: AppColor.primaryBlue,
+        ),
+      ),
+      incomingCallConfiguration: CometChatIncomingCallConfiguration(
+        incomingCallStyle: CometChatIncomingCallStyle(
+          backgroundColor: AppColor.pureWhite,
+          titleColor: AppColor.primaryText,
+          subtitleColor: AppColor.secondaryText,
+          acceptButtonColor: AppColor.successGreen,
+          declineButtonColor: AppColor.alertRed,
+        ),
+      ),
+      outgoingCallConfiguration: CometChatOutgoingCallConfiguration(
+        outgoingCallStyle: CometChatOutgoingCallStyle(
+          backgroundColor: AppColor.pureWhite,
+          titleColor: AppColor.primaryText,
+          subtitleColor: AppColor.secondaryText,
+          declineButtonColor: AppColor.alertRed,
+        ),
+      ),
     );
   }
 

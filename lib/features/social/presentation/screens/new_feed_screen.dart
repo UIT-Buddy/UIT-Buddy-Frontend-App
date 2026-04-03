@@ -17,6 +17,7 @@ import 'package:uit_buddy_mobile/features/social/presentation/screens/edit_post_
 import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/screens/social_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
+import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_search_screen.dart';
 
 class NewFeedScreen extends StatelessWidget {
   const NewFeedScreen({super.key});
@@ -69,7 +70,7 @@ class _NewFeedViewState extends State<_NewFeedView> {
       MaterialPageRoute(
         builder: (_) => tab == NewFeedTab.feed
             ? const SocialSearchScreen(initialQuery: '')
-            : Placeholder(),
+            : const ChatSearchScreen(),
       ),
     );
   }
@@ -87,10 +88,9 @@ class _NewFeedViewState extends State<_NewFeedView> {
           prev.hasMore != curr.hasMore ||
           prev.errorMessage != curr.errorMessage,
       builder: (context, state) {
-        final isMessageTab = state.selectedTab == NewFeedTab.message;
         return Scaffold(
           backgroundColor: AppColor.pureWhite,
-        
+
           body: SafeArea(
             child: Column(
               children: [
@@ -121,8 +121,6 @@ class _NewFeedViewState extends State<_NewFeedView> {
       },
     );
   }
-
-  
 
   Future<void> _navigateToEdit(BuildContext context, PostEntity post) async {
     final bloc = context.read<NewFeedBloc>();

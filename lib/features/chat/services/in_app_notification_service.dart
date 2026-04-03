@@ -7,7 +7,8 @@ import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 
 class InAppNotificationService {
-  static final InAppNotificationService _instance = InAppNotificationService._internal();
+  static final InAppNotificationService _instance =
+      InAppNotificationService._internal();
   factory InAppNotificationService() => _instance;
   InAppNotificationService._internal();
 
@@ -15,7 +16,10 @@ class InAppNotificationService {
 
   /// Start listening for CometChat message events. Call after ChatService.login().
   void startListening() {
-    CometChatMessageEvents.addMessagesListener(_listenerId, _MessageEventListener(this));
+    CometChatMessageEvents.addMessagesListener(
+      _listenerId,
+      _MessageEventListener(this),
+    );
   }
 
   /// Stop listening. Call on logout.

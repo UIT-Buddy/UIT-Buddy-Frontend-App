@@ -1,3 +1,6 @@
+import 'dart:ui';
+
+import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 
@@ -8,7 +11,7 @@ class ChatTheme {
         backgroundColor: AppColor.pureWhite,
         titleTextColor: AppColor.primaryText,
         itemTitleTextColor: AppColor.primaryText,
-        itemSubtitleTextColor: AppColor.secondaryText,
+        itemSubtitleTextColor: const Color.fromRGBO(142, 142, 147, 1),
         separatorColor: AppColor.dividerGrey,
         searchBackgroundColor: AppColor.veryLightGrey,
         searchIconColor: AppColor.secondaryText,
@@ -17,6 +20,18 @@ class ChatTheme {
         submitIconColor: AppColor.primaryBlue,
         checkboxSelectedIconColor: AppColor.primaryBlue,
         checkBoxCheckedBackgroundColor: AppColor.primaryBlue,
+        messageTypeIconColor: AppColor.primaryBlue,
+        checkBoxBackgroundColor: AppColor.primaryBlue,
+        badgeStyle: CometChatBadgeStyle(
+          textColor: AppColor.pureWhite,
+          backgroundColor: AppColor.primaryBlue,
+        ),
+        receiptStyle: CometChatMessageReceiptStyle(
+          sentIconColor: AppColor.primaryBlue,
+          readIconColor: AppColor.primaryBlue,
+          waitIconColor: AppColor.primaryBlue,
+          deliveredIconColor: AppColor.primaryBlue,
+        ),
       );
 
   // Message List
@@ -37,7 +52,7 @@ class ChatTheme {
           ),
         ),
         incomingMessageBubbleStyle: CometChatIncomingMessageBubbleStyle(
-          backgroundColor: AppColor.veryLightGrey,
+          backgroundColor: Color(0xFFC7C7CC),
           textBubbleStyle: CometChatTextBubbleStyle(
             textColor: AppColor.primaryText,
           ),
@@ -91,48 +106,76 @@ class ChatTheme {
 
   // Users List
   static CometChatUsersStyle get usersStyle => CometChatUsersStyle(
-        backgroundColor: AppColor.pureWhite,
-        titleTextColor: AppColor.primaryText,
-        itemTitleTextColor: AppColor.primaryText,
-        separatorColor: AppColor.dividerGrey,
-        searchBackgroundColor: AppColor.veryLightGrey,
-        searchIconColor: AppColor.secondaryText,
-        searchPlaceHolderTextColor: AppColor.secondaryText,
-        backIconColor: AppColor.primaryBlue,
-        submitIconColor: AppColor.primaryBlue,
-        checkboxSelectedIconColor: AppColor.primaryBlue,
-        checkBoxCheckedBackgroundColor: AppColor.primaryBlue,
-      );
+    backgroundColor: AppColor.pureWhite,
+    titleTextColor: AppColor.primaryText,
+    itemTitleTextColor: AppColor.primaryText,
+    separatorColor: AppColor.dividerGrey,
+    searchBackgroundColor: AppColor.veryLightGrey,
+    searchIconColor: AppColor.secondaryText,
+    searchPlaceHolderTextColor: AppColor.secondaryText,
+    backIconColor: AppColor.primaryBlue,
+    submitIconColor: AppColor.primaryBlue,
+    checkboxSelectedIconColor: AppColor.primaryBlue,
+    checkBoxCheckedBackgroundColor: AppColor.primaryBlue,
+  );
 
   // Groups List
   static CometChatGroupsStyle get groupsStyle => CometChatGroupsStyle(
-        backgroundColor: AppColor.pureWhite,
-        titleTextColor: AppColor.primaryText,
-        itemTitleTextColor: AppColor.primaryText,
-        itemSubtitleTextColor: AppColor.secondaryText,
-        separatorColor: AppColor.dividerGrey,
-        searchBackgroundColor: AppColor.veryLightGrey,
-        searchIconColor: AppColor.secondaryText,
-        searchPlaceHolderTextColor: AppColor.secondaryText,
-        backIconColor: AppColor.primaryBlue,
-        submitIconColor: AppColor.primaryBlue,
-        checkboxSelectedIconColor: AppColor.primaryBlue,
-        checkBoxCheckedBackgroundColor: AppColor.primaryBlue,
-      );
+    backgroundColor: AppColor.pureWhite,
+    titleTextColor: AppColor.primaryText,
+    itemTitleTextColor: AppColor.primaryText,
+    itemSubtitleTextColor: AppColor.secondaryText,
+    separatorColor: AppColor.dividerGrey,
+    searchBackgroundColor: AppColor.veryLightGrey,
+    searchIconColor: AppColor.secondaryText,
+    searchPlaceHolderTextColor: AppColor.secondaryText,
+    backIconColor: AppColor.primaryBlue,
+    submitIconColor: AppColor.primaryBlue,
+    checkboxSelectedIconColor: AppColor.primaryBlue,
+    checkBoxCheckedBackgroundColor: AppColor.primaryBlue,
+  );
 
   // Search
   static CometChatSearchStyle get searchStyle => CometChatSearchStyle(
+    backgroundColor: AppColor.pureWhite,
+    searchBackgroundColor: AppColor.veryLightGrey,
+    searchTextColor: AppColor.primaryText,
+    searchPlaceHolderTextColor: AppColor.secondaryText,
+    searchBackIconColor: AppColor.primaryBlue,
+    searchClearIconColor: AppColor.secondaryText,
+    searchFilterChipBackgroundColor: AppColor.veryLightGrey,
+    searchFilterChipSelectedBackgroundColor: AppColor.primaryBlue,
+    searchFilterChipTextColor: AppColor.secondaryText,
+    searchFilterChipSelectedTextColor: AppColor.pureWhite,
+    searchSectionHeaderTextColor: AppColor.secondaryText,
+    searchSeeMoreColor: AppColor.primaryBlue,
+  );
+
+  // Call Buttons Style
+  static CometChatCallButtonsStyle get callButtonsStyle =>
+      CometChatCallButtonsStyle(
+        voiceCallButtonColor: AppColor.primaryBlue10,
+        videoCallButtonColor: AppColor.primaryBlue10,
+        voiceCallIconColor: AppColor.primaryBlue,
+        videoCallIconColor: AppColor.primaryBlue,
+      );
+
+  // Incoming Call Style
+  static CometChatIncomingCallStyle get incomingCallStyle =>
+      CometChatIncomingCallStyle(
         backgroundColor: AppColor.pureWhite,
-        searchBackgroundColor: AppColor.veryLightGrey,
-        searchTextColor: AppColor.primaryText,
-        searchPlaceHolderTextColor: AppColor.secondaryText,
-        searchBackIconColor: AppColor.primaryBlue,
-        searchClearIconColor: AppColor.secondaryText,
-        searchFilterChipBackgroundColor: AppColor.veryLightGrey,
-        searchFilterChipSelectedBackgroundColor: AppColor.primaryBlue,
-        searchFilterChipTextColor: AppColor.secondaryText,
-        searchFilterChipSelectedTextColor: AppColor.pureWhite,
-        searchSectionHeaderTextColor: AppColor.secondaryText,
-        searchSeeMoreColor: AppColor.primaryBlue,
+        titleColor: AppColor.primaryText,
+        subtitleColor: AppColor.secondaryText,
+        acceptButtonColor: AppColor.successGreen,
+        declineButtonColor: AppColor.alertRed,
+      );
+
+  // Outgoing Call Style
+  static CometChatOutgoingCallStyle get outgoingCallStyle =>
+      CometChatOutgoingCallStyle(
+        backgroundColor: AppColor.pureWhite,
+        titleColor: AppColor.primaryText,
+        subtitleColor: AppColor.secondaryText,
+        declineButtonColor: AppColor.alertRed,
       );
 }

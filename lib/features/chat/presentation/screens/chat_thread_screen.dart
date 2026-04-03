@@ -37,9 +37,7 @@ class ChatThreadScreen extends StatelessWidget {
             parentMessage: message,
             loggedInUser: CometChatUIKit.loggedInUser!,
           ),
-          Expanded(
-            child: _buildMessageList(),
-          ),
+          Expanded(child: _buildMessageList()),
           _buildComposer(),
         ],
       ),

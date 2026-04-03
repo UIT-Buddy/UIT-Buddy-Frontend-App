@@ -18,7 +18,8 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
 
   final GetCurrentUserUsecase _getCurrentUserUsecase;
   final ChatService _chatService = ChatService();
-  final PushNotificationService _pushService = GetIt.I<PushNotificationService>();
+  final PushNotificationService _pushService =
+      GetIt.I<PushNotificationService>();
 
   Future<void> _onUserFetchRequested(
     SessionUserFetchRequested event,
@@ -37,7 +38,7 @@ class SessionBloc extends Bloc<SessionEvent, SessionState> {
       (user) async {
         // Login to CometChat
         final cometUid = user.cometUid ?? user.mssv;
-        
+
         emit(
           state.copyWith(
             status: SessionStatus.authenticated,
