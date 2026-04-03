@@ -16,6 +16,7 @@ class PostAuthorRow extends StatelessWidget {
   final String postContent;
   final VoidCallback? onDeleteConfirmed;
   final VoidCallback? onEditTap;
+  final VoidCallback? onViewProfile;
 
   const PostAuthorRow({
     super.key,
@@ -27,6 +28,7 @@ class PostAuthorRow extends StatelessWidget {
     this.postContent = '',
     this.onDeleteConfirmed,
     this.onEditTap,
+    this.onViewProfile,
   });
 
   @override
@@ -35,36 +37,39 @@ class PostAuthorRow extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
         children: [
-          _buildAvatar(),
+          GestureDetector(onTap: onViewProfile, child: _buildAvatar()),
           const SizedBox(width: 10),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  authorName,
-                  style: AppTextStyle.bodySmall.copyWith(
-                    fontWeight: AppTextStyle.bold,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Text(authorClass, style: AppTextStyle.captionMedium),
-                    const SizedBox(width: 6),
-                    Container(
-                      width: 3,
-                      height: 3,
-                      decoration: const BoxDecoration(
-                        color: AppColor.secondaryText,
-                        shape: BoxShape.circle,
-                      ),
+            child: GestureDetector(
+              onTap: onViewProfile,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    authorName,
+                    style: AppTextStyle.bodySmall.copyWith(
+                      fontWeight: AppTextStyle.bold,
                     ),
-                    const SizedBox(width: 6),
-                    Text(timeAgo, style: AppTextStyle.captionMedium),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 2),
+                  Row(
+                    children: [
+                      Text(authorClass, style: AppTextStyle.captionMedium),
+                      const SizedBox(width: 6),
+                      Container(
+                        width: 3,
+                        height: 3,
+                        decoration: const BoxDecoration(
+                          color: AppColor.secondaryText,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Text(timeAgo, style: AppTextStyle.captionMedium),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
           _buildMoreButton(context),
