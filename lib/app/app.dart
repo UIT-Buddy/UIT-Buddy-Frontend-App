@@ -1,8 +1,10 @@
 import 'package:bot_toast/bot_toast.dart';
+import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/app_router.dart';
+import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_theme.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
 
@@ -19,9 +21,9 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
       routerConfig: goRouter,
       builder: BotToastInit(),
+      darkTheme: null,
     ),
   );
 }
