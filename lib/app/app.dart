@@ -19,9 +19,9 @@ class MainApp extends StatelessWidget {
       themeMode: ThemeMode.light,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
       routerConfig: goRouter,
       builder: BotToastInit(),
+      darkTheme: null,
     ),
   );
 }

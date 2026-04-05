@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:cometchat_calls_uikit/cometchat_calls_uikit.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
@@ -11,7 +9,7 @@ class ChatTheme {
         backgroundColor: AppColor.pureWhite,
         titleTextColor: AppColor.primaryText,
         itemTitleTextColor: AppColor.primaryText,
-        itemSubtitleTextColor: const Color.fromRGBO(142, 142, 147, 1),
+        itemSubtitleTextColor: AppColor.secondaryText,
         separatorColor: AppColor.dividerGrey,
         searchBackgroundColor: AppColor.veryLightGrey,
         searchIconColor: AppColor.secondaryText,
@@ -52,7 +50,7 @@ class ChatTheme {
           ),
         ),
         incomingMessageBubbleStyle: CometChatIncomingMessageBubbleStyle(
-          backgroundColor: Color(0xFFC7C7CC),
+          backgroundColor: AppColor.bubbleGrey,
           textBubbleStyle: CometChatTextBubbleStyle(
             textColor: AppColor.primaryText,
           ),

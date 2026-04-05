@@ -26,8 +26,17 @@ class ChatEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 64, color: AppColor.tertiaryText),
-            const SizedBox(height: 16),
+            // Rounded icon container with soft background
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                color: AppColor.softBlueBg,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Icon(icon, size: 48, color: AppColor.primaryBlue),
+            ),
+            const SizedBox(height: 24),
             Text(
               title,
               style: AppTextStyle.bodyMedium.copyWith(
@@ -52,7 +61,7 @@ class ChatEmptyState extends StatelessWidget {
                 onPressed: onActionTap,
                 child: Text(
                   actionLabel!,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColor.primaryBlue,
                     fontWeight: FontWeight.w600,
                   ),

@@ -57,4 +57,11 @@ class AppColor {
   static Color primaryBlue20 = primaryBlue.withValues(alpha: 0.2);
   static Color alertRed10 = alertRed.withValues(alpha: 0.1);
   static Color successGreen10 = successGreen.withValues(alpha: 0.1);
+
+  // Chat-specific soft colors
+  static const Color softGrey = Color(0xFFF2F2F7);
+  static const Color softBlueBg = Color(0xFFE8F0FE);
+  static const Color bubbleGrey = Color(0xFFE5E5EA);
+  static const Color shadowLight = Color(0x0D000000);
+  static const Color borderLight = Color(0x1A000000);
 }
