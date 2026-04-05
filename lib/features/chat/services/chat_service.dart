@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:uit_buddy_mobile/core/config/app_env.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
+import 'package:uit_buddy_mobile/features/chat/services/call_permission_service.dart';
 import 'package:uit_buddy_mobile/features/chat/services/in_app_notification_service.dart';
 import 'package:uit_buddy_mobile/features/chat/services/push_notification_service.dart';
 
@@ -117,4 +118,30 @@ class ChatService {
   User? get currentUser => CometChatUIKit.loggedInUser;
 
   bool get isLoggedIn => currentUser != null;
+
+  /// Check and request call permissions (microphone + camera).
+  /// Returns true if permissions are granted.
+  /// Call this before initiating a call.
+  Future<bool> checkAndRequestCallPermissions() async {
+    final permissionService = GetIt.I<CallPermissionService>();
+    return await permissionService.requestCallPermissions();
+  }
+
+  /// Request microphone permission only (for voice calls).
+  Future<bool> requestMicrophonePermission() async {
+    final permissionService = GetIt.I<CallPermissionService>();
+    return await permissionService.requestMicrophonePermission();
+  }
+
+  /// Request camera permission only (for video calls).
+  Future<bool> requestCameraPermission() async {
+    final permissionService = GetIt.I<CallPermissionService>();
+    return await permissionService.requestCameraPermission();
+  }
+
+  /// Open app settings for manually granting permissions.
+  Future<bool> openPermissionSettings() async {
+    final permissionService = GetIt.I<CallPermissionService>();
+    return await permissionService.openSettings();
+  }
 }

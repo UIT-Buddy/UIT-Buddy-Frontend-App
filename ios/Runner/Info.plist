@@ -46,7 +46,9 @@
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Allow access to camera to update your profile avatar.</string>
+	<string>Allow access to camera for video calls and updating your profile avatar.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow access to microphone for voice and video calls.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Allow access to photo library to choose your profile avatar.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
