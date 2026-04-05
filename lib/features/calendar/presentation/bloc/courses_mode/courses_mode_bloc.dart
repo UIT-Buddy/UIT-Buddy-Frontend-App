@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_mode_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/sync_assignments_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/sync_course_assignments_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/upload_schedule_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_state.dart';
@@ -8,17 +10,27 @@ class CoursesModeBloc extends Bloc<CoursesModeEvent, CoursesModeState> {
   CoursesModeBloc({
     required GetCoursesModeUsecase getCoursesModeUsecase,
     required UploadScheduleUsecase uploadScheduleUsecase,
+    required SyncAssignmentsUsecase syncAssignmentsUsecase,
+    required SyncCourseAssignmentsUsecase syncCourseAssignmentsUsecase,
   }) : _getCoursesModeUsecase = getCoursesModeUsecase,
        _uploadScheduleUsecase = uploadScheduleUsecase,
+       _syncAssignmentsUsecase = syncAssignmentsUsecase,
+       _syncCourseAssignmentsUsecase = syncCourseAssignmentsUsecase,
        super(_buildInitialState()) {
     on<CoursesModeStarted>(_onStarted);
     on<CoursesModePreviousSemester>(_onPreviousSemester);
     on<CoursesModeNextSemester>(_onNextSemester);
     on<CoursesModeUploadScheduleRequested>(_onUploadScheduleRequested);
+    on<CoursesModeSyncAssignmentsRequested>(_onSyncAssignmentsRequested);
+    on<CoursesModeSyncCourseAssignmentsRequested>(
+      _onSyncCourseAssignmentsRequested,
+    );
   }
 
   final GetCoursesModeUsecase _getCoursesModeUsecase;
   final UploadScheduleUsecase _uploadScheduleUsecase;
+  final SyncAssignmentsUsecase _syncAssignmentsUsecase;
+  final SyncCourseAssignmentsUsecase _syncCourseAssignmentsUsecase;
 
   static CoursesModeState _buildInitialState() {
     final now = DateTime.now();
@@ -60,29 +72,107 @@ class CoursesModeBloc extends Bloc<CoursesModeEvent, CoursesModeState> {
       state.copyWith(
         uploadStatus: UploadScheduleStatus.loading,
         uploadErrorMessage: null,
+        // Reset sync state so stale deadlines from previous sync are cleared
+        syncAssignmentsStatus: SyncAssignmentsStatus.idle,
+        syncAssignmentsErrorMessage: null,
       ),
     );
+
     final result = await _uploadScheduleUsecase(
       UploadScheduleParams(filePath: event.filePath, fileName: event.fileName),
     );
-    result.fold(
-      (failure) => emit(
+
+    await result.fold(
+      (failure) async => emit(
         state.copyWith(
           uploadStatus: UploadScheduleStatus.failure,
           uploadErrorMessage: failure.message,
         ),
       ),
+      (courses) async {
+        emit(
+          state.copyWith(
+            uploadStatus: UploadScheduleStatus.success,
+            status: CoursesModeStatus.loaded,
+            // Show courses immediately while we sync deadlines in background
+            courses: courses,
+          ),
+        );
+        // Now sync deadlines from Moodle — this is the slow part, done after upload
+        await _syncAssignments(emit);
+      },
+    );
+
+    emit(state.copyWith(uploadStatus: UploadScheduleStatus.idle));
+  }
+
+  Future<void> _onSyncAssignmentsRequested(
+    CoursesModeSyncAssignmentsRequested event,
+    Emitter<CoursesModeState> emit,
+  ) async {
+    await _syncAssignments(emit, month: event.month, year: event.year);
+  }
+
+  Future<void> _syncAssignments(
+    Emitter<CoursesModeState> emit, {
+    int? month,
+    int? year,
+  }) async {
+    emit(state.copyWith(syncAssignmentsStatus: SyncAssignmentsStatus.syncing));
+
+    final result = await _syncAssignmentsUsecase(
+      SyncAssignmentsParams(month: month, year: year),
+    );
+
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          syncAssignmentsStatus: SyncAssignmentsStatus.failure,
+          syncAssignmentsErrorMessage: failure.message,
+        ),
+      ),
       (courses) => emit(
         state.copyWith(
-          uploadStatus: UploadScheduleStatus.success,
-          status: CoursesModeStatus.loaded,
+          syncAssignmentsStatus: SyncAssignmentsStatus.synced,
           courses: courses,
         ),
       ),
     );
-    // Reset uploadStatus to idle so the listener can fire again on the next upload
-    // and users are not stuck in a terminal success/failure state.
-    emit(state.copyWith(uploadStatus: UploadScheduleStatus.idle));
+  }
+
+  Future<void> _onSyncCourseAssignmentsRequested(
+    CoursesModeSyncCourseAssignmentsRequested event,
+    Emitter<CoursesModeState> emit,
+  ) async {
+    // Mark this course as loading (replaces any previous loading state)
+    emit(state.copyWith(loadingCourseClassId: event.classId));
+
+    final result = await _syncCourseAssignmentsUsecase(
+      SyncCourseAssignmentsParams(classId: event.classId),
+    );
+
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          // Clear loading, store error
+          loadingCourseClassId: null,
+          courseDeadlines: {
+            ...state.courseDeadlines,
+            event.classId: [], // empty = failed/no deadlines
+          },
+        ),
+      ),
+      (content) => emit(
+        state.copyWith(
+          // Clear loading, cache deadlines
+          loadingCourseClassId: null,
+          courseDeadlines: {
+            ...state.courseDeadlines,
+            event.classId: content.exercises,
+          },
+        ),
+      ),
+    );
   }
 
   Future<void> _fetchCourses(Emitter<CoursesModeState> emit) async {

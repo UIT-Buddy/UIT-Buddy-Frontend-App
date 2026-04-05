@@ -7,6 +7,8 @@ enum CoursesModeStatus { initial, loading, loaded, error }
 
 enum UploadScheduleStatus { idle, loading, success, failure }
 
+enum SyncAssignmentsStatus { idle, syncing, synced, failure }
+
 @freezed
 abstract class CoursesModeState with _$CoursesModeState {
   const factory CoursesModeState({
@@ -17,5 +19,14 @@ abstract class CoursesModeState with _$CoursesModeState {
     String? errorMessage,
     @Default(UploadScheduleStatus.idle) UploadScheduleStatus uploadStatus,
     String? uploadErrorMessage,
+    @Default(SyncAssignmentsStatus.idle)
+    SyncAssignmentsStatus syncAssignmentsStatus,
+    String? syncAssignmentsErrorMessage,
+
+    /// Which classId is currently loading its per-course deadlines.
+    String? loadingCourseClassId,
+
+    /// Cached deadlines fetched per course (keyed by classId).
+    @Default({}) Map<String, List<DeadlineDetailEntity>> courseDeadlines,
   }) = _CoursesModeState;
 }

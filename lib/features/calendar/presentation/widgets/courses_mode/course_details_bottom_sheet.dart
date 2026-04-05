@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/entities/course_details_entity.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_event.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_state.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/constants/calendar_text.dart';
 
 /// Opens a read-only bottom sheet with the full details of [course].
@@ -15,7 +19,10 @@ void showCourseDetailsBottomSheet(
     isScrollControlled: true,
     useSafeArea: true,
     backgroundColor: Colors.transparent,
-    builder: (_) => _CourseDetailsSheet(course: course),
+    builder: (_) => BlocProvider.value(
+      value: context.read<CoursesModeBloc>(),
+      child: _CourseDetailsSheet(course: course),
+    ),
   );
 }
 
@@ -23,10 +30,24 @@ void showCourseDetailsBottomSheet(
 // Sheet
 // ─────────────────────────────────────────────────────────────────────────────
 
-class _CourseDetailsSheet extends StatelessWidget {
+class _CourseDetailsSheet extends StatefulWidget {
   const _CourseDetailsSheet({required this.course});
 
   final CourseDetailsEntity course;
+
+  @override
+  State<_CourseDetailsSheet> createState() => _CourseDetailsSheetState();
+}
+
+class _CourseDetailsSheetState extends State<_CourseDetailsSheet> {
+  @override
+  void initState() {
+    super.initState();
+    // Lazily load deadlines for this course when the sheet opens
+    context.read<CoursesModeBloc>().add(
+      CoursesModeSyncCourseAssignmentsRequested(classId: widget.course.classId),
+    );
+  }
 
   String _dayName(int dayOfWeek) => switch (dayOfWeek) {
     2 => 'Monday',
@@ -40,164 +61,195 @@ class _CourseDetailsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(
-        color: AppColor.pureWhite,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ── Drag handle ─────────────────────────────────────────────
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: AppColor.dividerGrey,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
+    return BlocBuilder<CoursesModeBloc, CoursesModeState>(
+      buildWhen: (prev, curr) =>
+          prev.loadingCourseClassId != curr.loadingCourseClassId ||
+          prev.courseDeadlines != curr.courseDeadlines,
+      builder: (context, state) {
+        final isLoading = state.loadingCourseClassId == widget.course.classId;
+        final syncedDeadlines = state.courseDeadlines[widget.course.classId];
+        // Prefer synced deadlines; fall back to the course's embedded deadlines
+        final deadlines = syncedDeadlines ?? widget.course.deadlines;
 
-            // ── Header ──────────────────────────────────────────────────
-            Row(
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColor.pureWhite,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          ),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  CalendarText.courseDetailsTitle,
-                  style: AppTextStyle.h3.copyWith(
-                    fontWeight: AppTextStyle.bold,
-                  ),
-                ),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
+                // ── Drag handle ─────────────────────────────────────────────
+                Center(
                   child: Container(
-                    width: 32,
-                    height: 32,
-                    decoration: const BoxDecoration(
-                      color: AppColor.veryLightGrey,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.close,
-                      size: 18,
-                      color: AppColor.secondaryText,
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: AppColor.dividerGrey,
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
                 ),
+                const SizedBox(height: 20),
+
+                // ── Header ──────────────────────────────────────────────────
+                Row(
+                  children: [
+                    Text(
+                      CalendarText.courseDetailsTitle,
+                      style: AppTextStyle.h3.copyWith(
+                        fontWeight: AppTextStyle.bold,
+                      ),
+                    ),
+                    const Spacer(),
+                    GestureDetector(
+                      onTap: () => Navigator.of(context).pop(),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: const BoxDecoration(
+                          color: AppColor.veryLightGrey,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.close,
+                          size: 18,
+                          color: AppColor.secondaryText,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // ── CLASS ID ────────────────────────────────────────────────
+                _LabeledField(
+                  label: CalendarText.courseDetailsFieldClassId,
+                  value: widget.course.classId,
+                  icon: Icons.badge_outlined,
+                ),
+                const SizedBox(height: 16),
+
+                // ── COURSE NAME ─────────────────────────────────────────────
+                _LabeledField(
+                  label: CalendarText.courseDetailsFieldCourseName,
+                  value: widget.course.courseName,
+                  icon: Icons.book_outlined,
+                ),
+                const SizedBox(height: 16),
+
+                // ── CREDITS ─────────────────────────────────────────────────
+                _LabeledField(
+                  label: CalendarText.courseDetailsFieldCredits,
+                  value: widget.course.credits.toString(),
+                  icon: Icons.stars_outlined,
+                ),
+                const SizedBox(height: 16),
+
+                // ── LECTURER ────────────────────────────────────────────────
+                _LabeledField(
+                  label: CalendarText.courseDetailsFieldLecturer,
+                  value: widget.course.lecturer,
+                  icon: Icons.person_outlined,
+                ),
+                const SizedBox(height: 16),
+
+                // ── ROOM ────────────────────────────────────────────────────
+                _LabeledField(
+                  label: CalendarText.courseDetailsFieldRoom,
+                  value: widget.course.room,
+                  icon: Icons.location_on_outlined,
+                ),
+                const SizedBox(height: 16),
+
+                // ── DAY OF WEEK ─────────────────────────────────────────────
+                _LabeledField(
+                  label: CalendarText.courseDetailsFieldDayOfWeek,
+                  value: _dayName(widget.course.dayOfWeek),
+                  icon: Icons.calendar_today_outlined,
+                ),
+                const SizedBox(height: 16),
+
+                // ── START TIME / END TIME ────────────────────────────────────
+                if (!widget.course.isBlendedLearning) ...[
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _LabeledField(
+                          label: CalendarText.courseDetailsFieldStartTime,
+                          value: widget.course.startTime.isNotEmpty
+                              ? widget.course.startTime
+                              : '—',
+                          icon: Icons.schedule,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _LabeledField(
+                          label: CalendarText.courseDetailsFieldEndTime,
+                          value: widget.course.endTime.isNotEmpty
+                              ? widget.course.endTime
+                              : '—',
+                          icon: Icons.schedule_outlined,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                ] else
+                  const SizedBox(height: 8),
+
+                // ── TASKS ────────────────────────────────────────────────────
+                const Divider(height: 1),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    Text(
+                      CalendarText.courseDetailsTasksSection,
+                      style: AppTextStyle.captionLarge.copyWith(
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.8,
+                        color: AppColor.secondaryText,
+                      ),
+                    ),
+                    if (isLoading) ...[
+                      const SizedBox(width: 8),
+                      const SizedBox(
+                        width: 12,
+                        height: 12,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                    ],
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                if (isLoading)
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: Text('Loading deadlines…'),
+                  )
+                else if (deadlines.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Text(
+                      CalendarText.courseDetailsNoTasks,
+                      style: AppTextStyle.captionLarge.copyWith(
+                        color: AppColor.tertiaryText,
+                      ),
+                    ),
+                  )
+                else
+                  ...deadlines.map((d) => _TaskItem(deadline: d)),
               ],
             ),
-            const SizedBox(height: 24),
-
-            // ── CLASS ID ────────────────────────────────────────────────
-            _LabeledField(
-              label: CalendarText.courseDetailsFieldClassId,
-              value: course.classId,
-              icon: Icons.badge_outlined,
-            ),
-            const SizedBox(height: 16),
-
-            // ── COURSE NAME ─────────────────────────────────────────────
-            _LabeledField(
-              label: CalendarText.courseDetailsFieldCourseName,
-              value: course.courseName,
-              icon: Icons.book_outlined,
-            ),
-            const SizedBox(height: 16),
-
-            // ── CREDITS ─────────────────────────────────────────────────
-            _LabeledField(
-              label: CalendarText.courseDetailsFieldCredits,
-              value: course.credits.toString(),
-              icon: Icons.stars_outlined,
-            ),
-            const SizedBox(height: 16),
-
-            // ── LECTURER ────────────────────────────────────────────────
-            _LabeledField(
-              label: CalendarText.courseDetailsFieldLecturer,
-              value: course.lecturer,
-              icon: Icons.person_outlined,
-            ),
-            const SizedBox(height: 16),
-
-            // ── ROOM ────────────────────────────────────────────────────
-            _LabeledField(
-              label: CalendarText.courseDetailsFieldRoom,
-              value: course.room,
-              icon: Icons.location_on_outlined,
-            ),
-            const SizedBox(height: 16),
-
-            // ── DAY OF WEEK ─────────────────────────────────────────────
-            _LabeledField(
-              label: CalendarText.courseDetailsFieldDayOfWeek,
-              value: _dayName(course.dayOfWeek),
-              icon: Icons.calendar_today_outlined,
-            ),
-            const SizedBox(height: 16),
-
-            // ── START TIME / END TIME ────────────────────────────────────
-            if (!course.isBlendedLearning) ...[
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: _LabeledField(
-                      label: CalendarText.courseDetailsFieldStartTime,
-                      value: course.startTime.isNotEmpty
-                          ? course.startTime
-                          : '—',
-                      icon: Icons.schedule,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _LabeledField(
-                      label: CalendarText.courseDetailsFieldEndTime,
-                      value: course.endTime.isNotEmpty ? course.endTime : '—',
-                      icon: Icons.schedule_outlined,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-            ] else
-              const SizedBox(height: 8),
-
-            // ── TASKS ────────────────────────────────────────────────────
-            const Divider(height: 1),
-            const SizedBox(height: 20),
-            Text(
-              CalendarText.courseDetailsTasksSection,
-              style: AppTextStyle.captionLarge.copyWith(
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.8,
-                color: AppColor.secondaryText,
-              ),
-            ),
-            const SizedBox(height: 12),
-
-            if (course.deadlines.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text(
-                  CalendarText.courseDetailsNoTasks,
-                  style: AppTextStyle.captionLarge.copyWith(
-                    color: AppColor.tertiaryText,
-                  ),
-                ),
-              )
-            else
-              ...course.deadlines.map((d) => _TaskItem(deadline: d)),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }

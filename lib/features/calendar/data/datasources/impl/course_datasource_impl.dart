@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:uit_buddy_mobile/core/network/api/api_response.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/datasources/course_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/calendar/data/models/course_content_model.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/models/course_details_model.dart';
 import 'package:uit_buddy_mobile/features/calendar/data/models/course_model.dart';
 
@@ -69,5 +70,46 @@ class CourseDatasourceImpl implements CourseDatasourceInterface {
       CourseDetailsModel.fromJson,
     );
     return apiResponse.data ?? const [];
+  }
+
+  @override
+  Future<List<CourseDetailsModel>> syncAssignments({
+    int? month,
+    int? year,
+  }) async {
+    final queryParams = <String, dynamic>{};
+    if (month != null) queryParams['month'] = month;
+    if (year != null) queryParams['year'] = year;
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/schedule/assignments/sync',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
+    final apiResponse = apiResponseListFromJson<CourseDetailsModel>(
+      response.data!,
+      CourseDetailsModel.fromJson,
+    );
+    return apiResponse.data ?? const [];
+  }
+
+  @override
+  Future<CourseContentModel> syncCourseAssignments({
+    required String classId,
+    int? month,
+    int? year,
+  }) async {
+    final queryParams = <String, dynamic>{};
+    if (month != null) queryParams['month'] = month;
+    if (year != null) queryParams['year'] = year;
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/schedule/assignments/sync/$classId',
+      queryParameters: queryParams.isEmpty ? null : queryParams,
+    );
+    final apiResponse = apiResponseObjectFromJson<CourseContentModel>(
+      response.data!,
+      CourseContentModel.fromJson,
+    );
+    return apiResponse.data!;
   }
 }
