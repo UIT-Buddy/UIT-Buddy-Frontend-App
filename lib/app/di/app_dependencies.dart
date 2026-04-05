@@ -184,6 +184,7 @@ import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc
 import 'package:uit_buddy_mobile/core/config/parameter.dart';
 import 'package:uit_buddy_mobile/features/chat/services/chat_service.dart';
 import 'package:uit_buddy_mobile/features/chat/services/push_notification_service.dart';
+import 'package:uit_buddy_mobile/features/chat/services/call_permission_service.dart';
 import 'package:uit_buddy_mobile/features/chat/presentation/blocs/chat_init/chat_init_bloc.dart';
 import 'package:uit_buddy_mobile/features/home/data/datasources/impl/weather_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/home/data/datasources/weather_datasource.dart';
@@ -923,6 +924,9 @@ Future<void> _initChatDependencies() async {
   // registration) happens in SessionBloc after successful sign-in
   serviceLocator.registerLazySingleton<PushNotificationService>(
     () => PushNotificationService(),
+  );
+  serviceLocator.registerLazySingleton<CallPermissionService>(
+    () => CallPermissionService(),
   );
 }
 //   // Datasource
