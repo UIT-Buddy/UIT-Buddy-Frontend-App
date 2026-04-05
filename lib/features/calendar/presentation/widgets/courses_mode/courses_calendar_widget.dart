@@ -39,22 +39,46 @@ class CoursesCalendarWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocListener<CoursesModeBloc, CoursesModeState>(
-      listenWhen: (prev, curr) => prev.uploadStatus != curr.uploadStatus,
+      listenWhen: (prev, curr) =>
+          prev.uploadStatus != curr.uploadStatus ||
+          prev.syncAssignmentsStatus != curr.syncAssignmentsStatus,
       listener: (context, state) {
+        // Upload success → show snackbar immediately (courses shown without deadlines)
         if (state.uploadStatus == UploadScheduleStatus.success) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(CalendarText.updateCoursesSuccess),
               backgroundColor: AppColor.successGreen,
+              duration: const Duration(seconds: 2),
             ),
           );
         } else if (state.uploadStatus == UploadScheduleStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                '${CalendarText.updateCoursesError}: ${context.read<CoursesModeBloc>().state.uploadErrorMessage ?? ''}',
+                '${CalendarText.updateCoursesError}: ${state.uploadErrorMessage ?? ''}',
               ),
               backgroundColor: Colors.red,
+            ),
+          );
+        }
+        // Sync complete → show snackbar to let user know deadlines are loaded
+        if (state.syncAssignmentsStatus == SyncAssignmentsStatus.synced) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Deadlines synced from Moodle'),
+              backgroundColor: AppColor.successGreen,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        } else if (state.syncAssignmentsStatus ==
+            SyncAssignmentsStatus.failure) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Failed to sync deadlines: ${state.syncAssignmentsErrorMessage ?? ''}',
+              ),
+              backgroundColor: Colors.orange,
             ),
           );
         }
@@ -65,75 +89,91 @@ class CoursesCalendarWidget extends StatelessWidget {
           final hPad = screenWidth * 0.045;
           final radius = screenWidth * 0.065;
 
-          return SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                // Update courses button — above the calendar card
-                const SizedBox(height: 12),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: _UpdateCoursesButton(
-                    isLoading:
-                        state.uploadStatus == UploadScheduleStatus.loading,
-                    onTap: () => _onUpdateCourses(context),
-                  ),
+          // While syncing assignments, show a thin progress bar at the top
+          final isSyncing =
+              state.syncAssignmentsStatus == SyncAssignmentsStatus.syncing;
+
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Thin sync progress bar at the top
+              if (isSyncing)
+                const LinearProgressIndicator(
+                  minHeight: 2,
+                  backgroundColor: Colors.transparent,
                 ),
-                const SizedBox(height: 6),
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 6),
-                  decoration: BoxDecoration(
-                    color: AppColor.pureWhite,
-                    borderRadius: BorderRadius.circular(radius),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColor.primaryBlue.withValues(alpha: 0.10),
-                        blurRadius: 20,
-                        offset: const Offset(0, 6),
+              SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Update courses button — above the calendar card
+                    const SizedBox(height: 12),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: _UpdateCoursesButton(
+                        isLoading:
+                            state.uploadStatus == UploadScheduleStatus.loading,
+                        isSyncing: isSyncing,
+                        onTap: () => _onUpdateCourses(context),
                       ),
-                      BoxShadow(
-                        color: AppColor.shadowColor,
-                        blurRadius: 4,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Gradient header strip
-                      Container(
-                        padding: EdgeInsets.symmetric(
-                          horizontal: hPad,
-                          vertical: hPad * 0.75,
-                        ),
-                        decoration: BoxDecoration(
-                          gradient: AppColor.primaryGradient,
-                          borderRadius: BorderRadius.vertical(
-                            top: Radius.circular(radius),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      margin: const EdgeInsets.symmetric(vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColor.pureWhite,
+                        borderRadius: BorderRadius.circular(radius),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColor.primaryBlue.withValues(alpha: 0.10),
+                            blurRadius: 20,
+                            offset: const Offset(0, 6),
                           ),
-                        ),
-                        child: const CoursesHeader(),
+                          BoxShadow(
+                            color: AppColor.shadowColor,
+                            blurRadius: 4,
+                            offset: const Offset(0, 1),
+                          ),
+                        ],
                       ),
-                      // Grid / loading / error
-                      Padding(
-                        padding: EdgeInsets.all(hPad),
-                        child: state.status == CoursesModeStatus.loading
-                            ? const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 40),
-                                child: Center(
-                                  child: CircularProgressIndicator(),
-                                ),
-                              )
-                            : state.status == CoursesModeStatus.error
-                            ? CoursesErrorView(message: state.errorMessage)
-                            : CoursesTimetableGrid(courses: state.courses),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Gradient header strip
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: hPad,
+                              vertical: hPad * 0.75,
+                            ),
+                            decoration: BoxDecoration(
+                              gradient: AppColor.primaryGradient,
+                              borderRadius: BorderRadius.vertical(
+                                top: Radius.circular(radius),
+                              ),
+                            ),
+                            child: const CoursesHeader(),
+                          ),
+                          // Grid / loading / error
+                          Padding(
+                            padding: EdgeInsets.all(hPad),
+                            child: state.status == CoursesModeStatus.loading
+                                ? const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 40),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  )
+                                : state.status == CoursesModeStatus.error
+                                ? CoursesErrorView(message: state.errorMessage)
+                                : CoursesTimetableGrid(courses: state.courses),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           );
         },
       ),
@@ -142,9 +182,14 @@ class CoursesCalendarWidget extends StatelessWidget {
 }
 
 class _UpdateCoursesButton extends StatelessWidget {
-  const _UpdateCoursesButton({required this.isLoading, required this.onTap});
+  const _UpdateCoursesButton({
+    required this.isLoading,
+    required this.isSyncing,
+    required this.onTap,
+  });
 
   final bool isLoading;
+  final bool isSyncing;
   final VoidCallback onTap;
 
   @override

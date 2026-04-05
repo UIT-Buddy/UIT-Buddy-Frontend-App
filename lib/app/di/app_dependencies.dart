@@ -23,6 +23,8 @@ import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_deadline_
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadline_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_mode_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_studying_class_codes_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/sync_assignments_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/sync_course_assignments_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/upload_schedule_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
@@ -424,6 +426,12 @@ Future<void> _initCalendarDependencies() async {
   serviceLocator.registerLazySingleton(
     () => UploadScheduleUsecase(courseRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => SyncAssignmentsUsecase(courseRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => SyncCourseAssignmentsUsecase(courseRepository: serviceLocator()),
+  );
 
   // Blocs / Cubits
   serviceLocator.registerFactory(() => CalendarBloc());
@@ -434,6 +442,8 @@ Future<void> _initCalendarDependencies() async {
     () => CoursesModeBloc(
       getCoursesModeUsecase: serviceLocator(),
       uploadScheduleUsecase: serviceLocator(),
+      syncAssignmentsUsecase: serviceLocator(),
+      syncCourseAssignmentsUsecase: serviceLocator(),
     ),
   );
   serviceLocator.registerFactory(

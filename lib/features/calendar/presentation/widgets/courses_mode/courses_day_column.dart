@@ -67,13 +67,11 @@ class CoursesDayColumn extends StatelessWidget {
               height:
                   (course.endPeriod - course.startPeriod + 1) *
                   kCourseRowHeight,
-              child: GestureDetector(
+              child: CourseBlock(
+                course: course,
+                bgColor: bgColor,
+                fgColor: fgColor,
                 onTap: () => showCourseDetailsBottomSheet(context, course),
-                child: CourseBlock(
-                  course: course,
-                  bgColor: bgColor,
-                  fgColor: fgColor,
-                ),
               ),
             );
           }),
