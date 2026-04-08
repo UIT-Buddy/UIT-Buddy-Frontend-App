@@ -1,10 +1,10 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/entities/task_detail_entity.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/create_task_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_task_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_tasks_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/mark_task_completed_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_task_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/create_task_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/delete_task_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/get_tasks_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/mark_task_completed_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/update_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/tasks_screen/tasks_event.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/tasks_screen/tasks_state.dart';
 

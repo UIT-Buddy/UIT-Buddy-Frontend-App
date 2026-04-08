@@ -24,6 +24,7 @@ class RouteName {
   static const String taskDetail = '/task-detail';
   static const String addEditTask = '/add-edit-task';
   static const String yourInfo = '/your-info';
+  static const String yourFriends = '/your-friends';
   static const String editYourInfo = '/edit-your-info';
   static const String groupsJoined = '/groups-joined';
   static const String yourPosts = '/your-posts';

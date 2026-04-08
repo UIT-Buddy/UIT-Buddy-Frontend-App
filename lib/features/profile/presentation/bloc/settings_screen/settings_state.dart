@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum SettingsStatus { initial, loading, loaded, error, deleting, deleted }
+enum SettingsStatus { initial, loading, loaded, error, deleting, deleted, changingWsToken, wsTokenChanged }
 
 class SettingsState extends Equatable {
   const SettingsState({

@@ -8,13 +8,13 @@ class ProfileActionTabsWidget extends StatelessWidget {
     super.key,
     this.onTasksTap,
     this.onYourInfoTap,
-    this.onYourPostsTap,
+    this.onYourFriendsTap,
     this.onGroupsTap,
   });
 
   final VoidCallback? onTasksTap;
   final VoidCallback? onYourInfoTap;
-  final VoidCallback? onYourPostsTap;
+  final VoidCallback? onYourFriendsTap;
   final VoidCallback? onGroupsTap;
 
   @override
@@ -53,10 +53,10 @@ class ProfileActionTabsWidget extends StatelessWidget {
           ),
           _ActionTab(
             icon: Icons.people_outline,
-            label: ProfileText.yourPosts,
+            label: ProfileText.yourFriends,
             iconColor: AppColor.warningOrange,
             bgColor: AppColor.warningOrangeLight,
-            onTap: onYourPostsTap,
+            onTap: onYourFriendsTap,
           ),
           _ActionTab(
             icon: Icons.chat_bubble_outline,

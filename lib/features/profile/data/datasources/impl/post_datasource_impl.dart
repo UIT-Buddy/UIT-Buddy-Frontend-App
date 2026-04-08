@@ -2,10 +2,10 @@ import 'package:dio/dio.dart';
 import 'package:uit_buddy_mobile/core/common/paged_result.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/post_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/models/your_post_model.dart';
-import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/your_posts_paging_mixin.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/paging_mixin.dart';
 
 class ProfilePostDatasourceImpl
-    with YourPostsPagingMixin
+    with PagingMixin
     implements ProfilePostDatasourceInterface {
   ProfilePostDatasourceImpl({required Dio dio}) : _dio = dio;
 

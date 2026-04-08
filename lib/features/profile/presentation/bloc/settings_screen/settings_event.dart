@@ -14,3 +14,11 @@ class SettingsStarted extends SettingsEvent {
 class DeleteAccountRequested extends SettingsEvent {
   const DeleteAccountRequested();
 }
+
+class ChangeWsTokenRequested extends SettingsEvent {
+  final String newToken;
+  const ChangeWsTokenRequested({required this.newToken});
+
+    @override
+  List<Object?> get props => [newToken];
+}

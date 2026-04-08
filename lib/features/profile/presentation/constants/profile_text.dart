@@ -13,4 +13,5 @@ class ProfileText {
   static const String comments = 'Comments';
   static const String viewPosts = 'View posts  →';
   static const String logOut = 'Log out';
+  static const String yourFriends = 'Your friends';
 }

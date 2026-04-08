@@ -1,5 +1,5 @@
-/// Shared cursor/offset-based pagination helpers for social datasource impls.
-mixin YourPostsPagingMixin {
+/// Shared cursor/offset-based pagination helpers for datasource impls.
+mixin PagingMixin {
   String? extractNextCursor(Map<String, dynamic> body) {
     final paging = body['paging'] as Map<String, dynamic>?;
     return paging?['nextCursor'] as String?;
