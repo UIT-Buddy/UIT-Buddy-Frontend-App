@@ -6,11 +6,12 @@ import 'package:uit_buddy_mobile/features/profile/presentation/bloc/settings_scr
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/settings_screen/settings_state.dart';
 
 class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
-  SettingsBloc({required DeleteAccountUsecase deleteAccountUsecase,
-  required ChangeWsTokenUsecase changeWsTokenUsecase,})
-    : _deleteAccountUsecase = deleteAccountUsecase,
-      _changeWsTokenUsecase = changeWsTokenUsecase,
-      super(const SettingsState()) {
+  SettingsBloc({
+    required DeleteAccountUsecase deleteAccountUsecase,
+    required ChangeWsTokenUsecase changeWsTokenUsecase,
+  }) : _deleteAccountUsecase = deleteAccountUsecase,
+       _changeWsTokenUsecase = changeWsTokenUsecase,
+       super(const SettingsState()) {
     on<SettingsStarted>(_onSettingsStarted);
     on<DeleteAccountRequested>(_onDeleteAccountRequested);
     on<ChangeWsTokenRequested>(_onChangeWsTokenRequested);
@@ -46,7 +47,12 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
     ChangeWsTokenRequested event,
     Emitter<SettingsState> emit,
   ) async {
-    emit(state.copyWith(status: SettingsStatus.changingWsToken, errorMessage: null));
+    emit(
+      state.copyWith(
+        status: SettingsStatus.changingWsToken,
+        errorMessage: null,
+      ),
+    );
 
     final result = await _changeWsTokenUsecase(event.newToken);
 
@@ -60,5 +66,4 @@ class SettingsBloc extends Bloc<SettingsEvent, SettingsState> {
       (_) => emit(state.copyWith(status: SettingsStatus.wsTokenChanged)),
     );
   }
-
 }

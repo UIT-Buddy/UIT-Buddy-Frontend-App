@@ -18,5 +18,8 @@ abstract interface class FriendDatasourceInterface {
 
   Future<void> toggleFriendRequest(String receiverMssv);
 
-  Future<void> respondToFriendRequest({required String action, required String senderMssv});
+  Future<void> respondToFriendRequest({
+    required String action,
+    required String senderMssv,
+  });
 }

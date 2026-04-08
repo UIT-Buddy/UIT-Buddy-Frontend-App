@@ -12,7 +12,7 @@ class FriendEntity extends Equatable {
     required this.name,
     required this.mssv,
     required this.avatarUrl,
-    required this.createdAt
+    required this.createdAt,
   });
 
   @override

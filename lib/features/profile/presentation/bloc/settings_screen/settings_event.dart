@@ -19,6 +19,6 @@ class ChangeWsTokenRequested extends SettingsEvent {
   final String newToken;
   const ChangeWsTokenRequested({required this.newToken});
 
-    @override
+  @override
   List<Object?> get props => [newToken];
 }
