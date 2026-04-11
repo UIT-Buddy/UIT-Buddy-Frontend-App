@@ -3,7 +3,7 @@ import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/delete_account_datasource_interface.dart';
 
-class DeleteAccountDatasourceImpl implements DeleteAccountDatasource {
+class DeleteAccountDatasourceImpl implements DeleteAccountDatasourceInterface {
   DeleteAccountDatasourceImpl({required Dio dio}) : _dio = dio;
 
   final Dio _dio;

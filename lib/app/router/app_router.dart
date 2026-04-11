@@ -21,6 +21,7 @@ import 'package:uit_buddy_mobile/features/profile/presentation/screens/groups_sc
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/settings_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/task_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/tasks_screen.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_friends_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_info_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_posts_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/academic_detail_screen.dart';
@@ -172,6 +173,14 @@ final goRouter = GoRouter(
         context: context,
         state: state,
         child: const YourInfoScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.yourFriends,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const YourFriendsScreen(),
       ),
     ),
     GoRoute(

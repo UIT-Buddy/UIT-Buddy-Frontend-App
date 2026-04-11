@@ -93,7 +93,8 @@ class ProfileScreen extends StatelessWidget {
                         extra: {'direction': 'forward'},
                       ),
                       onYourInfoTap: () => context.push(RouteName.yourInfo),
-                      onYourPostsTap: () => context.push(RouteName.yourPosts),
+                      onYourFriendsTap: () =>
+                          context.push(RouteName.yourFriends),
                       onGroupsTap: () => context.push(RouteName.groupsJoined),
                     ),
 

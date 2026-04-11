@@ -1,8 +1,6 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
 
-abstract interface class SettingsRepository {
-  Future<Either<Failure, void>> deleteAccount();
-
+abstract interface class ChangeWsTokenDatasourceInterface {
   Future<Either<Failure, void>> changeWsToken(String newToken);
 }

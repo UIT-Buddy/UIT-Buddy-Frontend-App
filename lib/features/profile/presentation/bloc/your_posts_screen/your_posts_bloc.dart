@@ -1,7 +1,8 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_posts_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_post_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/toggle_post_like_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/entities/cursor_params.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/posts/get_posts_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/posts/delete_post_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/posts/toggle_post_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/your_posts_screen/your_posts_event.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/your_posts_screen/your_posts_state.dart';
 
@@ -32,7 +33,7 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
     Emitter<YourPostsState> emit,
   ) async {
     emit(state.copyWith(status: YourPostsStatus.loading));
-    final result = await _getPostsUsecase(const GetPostsParams());
+    final result = await _getPostsUsecase(const CursorParams());
     result.fold(
       (failure) => emit(
         state.copyWith(
@@ -64,7 +65,7 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
         hasMore: true,
       ),
     );
-    final result = await _getPostsUsecase(const GetPostsParams());
+    final result = await _getPostsUsecase(const CursorParams());
     result.fold(
       (failure) => emit(
         state.copyWith(
@@ -93,7 +94,7 @@ class YourPostsBloc extends Bloc<YourPostsEvent, YourPostsState> {
 
     emit(state.copyWith(isLoadingMore: true));
     final result = await _getPostsUsecase(
-      GetPostsParams(cursor: state.nextCursor),
+      CursorParams(cursor: state.nextCursor),
     );
     result.fold((failure) => emit(state.copyWith(isLoadingMore: false)), (
       paged,

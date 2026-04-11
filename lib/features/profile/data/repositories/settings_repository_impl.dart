@@ -1,17 +1,21 @@
 import 'package:fpdart/fpdart.dart';
 import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
 import 'package:uit_buddy_mobile/core/error/failures.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/change_ws_token_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/delete_account_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/settings_repository.dart';
 
 class SettingsRepositoryImpl implements SettingsRepository {
   SettingsRepositoryImpl({
-    required DeleteAccountDatasource deleteAccountDatasource,
+    required ChangeWsTokenDatasourceInterface changeWsTokenDatasource,
+    required DeleteAccountDatasourceInterface deleteAccountDatasource,
     required TokenStore tokenStore,
-  }) : _deleteAccountDatasource = deleteAccountDatasource,
+  }) : _changeWsTokenDatasource = changeWsTokenDatasource,
+       _deleteAccountDatasource = deleteAccountDatasource,
        _tokenStore = tokenStore;
 
-  final DeleteAccountDatasource _deleteAccountDatasource;
+  final ChangeWsTokenDatasourceInterface _changeWsTokenDatasource;
+  final DeleteAccountDatasourceInterface _deleteAccountDatasource;
   final TokenStore _tokenStore;
 
   @override
@@ -23,6 +27,15 @@ class SettingsRepositoryImpl implements SettingsRepository {
     return result.bind((_) {
       _tokenStore.deleteAccessToken();
       _tokenStore.deleteRefreshToken();
+      return right(null);
+    });
+  }
+
+  @override
+  Future<Either<Failure, void>> changeWsToken(String newToken) async {
+    final result = await _changeWsTokenDatasource.changeWsToken(newToken);
+
+    return result.bind((_) {
       return right(null);
     });
   }
