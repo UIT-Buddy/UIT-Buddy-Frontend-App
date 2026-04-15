@@ -31,6 +31,10 @@ class StorageViewTypeToggled extends StorageEvent {
   const StorageViewTypeToggled();
 }
 
+class StorageRefreshed extends StorageEvent {
+  const StorageRefreshed();
+}
+
 class StorageFileDownloadRequested extends StorageEvent {
   const StorageFileDownloadRequested({required this.file});
 
@@ -56,4 +60,47 @@ class StorageCreateFiles extends StorageEvent {
 
   @override
   List<Object?> get props => [files];
+}
+
+class StorageFileRenamed extends StorageEvent {
+  const StorageFileRenamed({
+    required this.documentId,
+    required this.newFileName,
+  });
+
+  final String documentId;
+  final String newFileName;
+
+  @override
+  List<Object?> get props => [documentId, newFileName];
+}
+
+class StorageFileDeleted extends StorageEvent {
+  const StorageFileDeleted({required this.documentId});
+
+  final String documentId;
+
+  @override
+  List<Object?> get props => [documentId];
+}
+
+class StorageMoveStarted extends StorageEvent {
+  const StorageMoveStarted({required this.file});
+
+  final FileEntity file;
+
+  @override
+  List<Object?> get props => [file];
+}
+
+class StorageMoveCancelled extends StorageEvent {
+  const StorageMoveCancelled();
+}
+
+class StorageMoveConfirmed extends StorageEvent {
+  const StorageMoveConfirmed();
+}
+
+class StorageFeedbackCleared extends StorageEvent {
+  const StorageFeedbackCleared();
 }

@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:uit_buddy_mobile/core/common/paged_result.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/storage_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/models/file_model.dart';
 import 'package:uit_buddy_mobile/features/storage/data/models/folder_model.dart';
+import 'package:uit_buddy_mobile/features/storage/data/models/shared_student_model.dart';
 import 'package:uit_buddy_mobile/features/storage/data/models/sub_folder_model.dart';
 
 class StorageDatasourceImpl implements StorageDatasourceInterface {
@@ -135,5 +137,131 @@ class StorageDatasourceImpl implements StorageDatasourceInterface {
       '/api/document/download/$fileId',
     );
     return res.data!['data'] as String;
+  }
+
+  @override
+  Future<void> updateFile({
+    required String documentId,
+    required String fileName,
+    String? folderId,
+  }) async {
+    final body = <String, dynamic>{'fileName': fileName};
+    if (folderId != null) {
+      body['folderId'] = folderId;
+    }
+
+    await _dio.put<void>('/api/document/$documentId', data: body);
+  }
+
+  @override
+  Future<void> shareResource({
+    required String resourceType,
+    required String resourceId,
+    required String targetMssv,
+  }) async {
+    final body = <String, dynamic>{
+      'resourceType': resourceType,
+      'resourceId': resourceId,
+      'targetMssv': targetMssv,
+    };
+
+    await _dio.post<void>('/api/document/share', data: body);
+  }
+
+  @override
+  Future<PagedResult<SharedStudentModel>> getSharedUsers({
+    required String resourceType,
+    required String resourceId,
+    int page = 1,
+    int limit = 15,
+    String sortType = 'desc',
+    String sortBy = 'sharedAt',
+  }) async {
+    final queryParams = <String, dynamic>{
+      'page': page,
+      'limit': limit,
+      'sortType': sortType,
+      'sortBy': sortBy,
+    };
+
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/document/shared-user/$resourceType/$resourceId',
+      queryParameters: queryParams,
+    );
+
+    final body = response.data!;
+    final dataList = (body['data'] as List<dynamic>? ?? const [])
+        .map(
+          (item) => SharedStudentModel.fromJson(item as Map<String, dynamic>),
+        )
+        .toList();
+
+    final paging = body['paging'] as Map<String, dynamic>?;
+    final total = (paging?['total'] as num?)?.toInt();
+
+    final hasMore = total != null
+        ? page * limit < total
+        : dataList.length == limit;
+
+    return PagedResult<SharedStudentModel>(
+      items: dataList,
+      nextCursor: hasMore ? (page + 1).toString() : null,
+      hasMore: hasMore,
+    );
+  }
+
+  @override
+  Future<void> deleteFile({required String documentId}) async {
+    await _dio.delete<void>('/api/document/$documentId');
+  }
+
+  @override
+  Future<void> unShare({
+    required String resourceId,
+    required String resourceType,
+    required String targetMssv,
+  }) async {
+    final body = <String, dynamic>{
+      'resourceId': resourceId,
+      'resourceType': resourceType,
+      'targetMssv': targetMssv,
+    };
+
+    await _dio.delete<void>('/api/document/share', data: body);
+  }
+
+  @override
+  Future<List<FileModel>> searchSharedDocuments({
+    int? page,
+    int? limit,
+    String? sortType,
+    String? sortBy,
+    required String keyword,
+  }) async {
+    final queryParams = <String, dynamic>{'keyword': keyword};
+
+    if (page != null) queryParams['page'] = page;
+    if (limit != null) queryParams['limit'] = limit;
+    if (sortType != null) queryParams['sortType'] = sortType;
+    if (sortBy != null) queryParams['sortBy'] = sortBy;
+
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/api/document/shared-with-me',
+      queryParameters: queryParams,
+    );
+
+    final dataList = res.data!['data'] as List<dynamic>;
+
+    return dataList.map((item) {
+      final file = item as Map<String, dynamic>;
+      return FileModel(
+        id: file['documentId'] as String,
+        name: file['fileName'] as String,
+        url: file['url'] as String,
+        size: 0.0, // Not provided in search response
+        sizeUnit: '', // Not provided in search response
+        type: '', // Not provided in search response
+      );
+    }).toList();
   }
 }
