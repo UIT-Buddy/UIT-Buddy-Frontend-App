@@ -618,7 +618,7 @@ class _AccessHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
       child: Row(
         children: [
-          Container(
+          SizedBox(
             width: 40,
             height: 40,
 
