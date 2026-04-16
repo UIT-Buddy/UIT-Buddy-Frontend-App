@@ -187,18 +187,28 @@ import 'package:uit_buddy_mobile/features/social/presentation/bloc/social_search
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/user_profile/user_profile_bloc.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/storage_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/storage_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/storage_friend_datasource_impl.dart';
 
+import 'package:uit_buddy_mobile/features/storage/data/datasources/storage_friend_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/impl/subject_class_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/datasources/subject_class_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/storage/data/repositories/storage_friend_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/repositories/storage_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/storage/data/repositories/subject_class_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/repositories/storage_friend_repository.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/repositories/storage_repository.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/repositories/subject_class_repository.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/create_files_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/create_folder_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/delete_file_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_shared_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_download_url_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_folder_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/share_resource_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/storage_get_friends_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/subject_class_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/unshare_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/update_file_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc.dart';
 import 'package:uit_buddy_mobile/core/config/parameter.dart';
 import 'package:uit_buddy_mobile/features/chat/services/chat_service.dart';
@@ -862,6 +872,11 @@ Future<void> _initStorageDependencies() async {
       dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
+  serviceLocator.registerLazySingleton<StorageFriendDatasourceInterface>(
+    () => StorageFriendDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
 
   // Repositories
   serviceLocator.registerLazySingleton<SubjectClassRepository>(
@@ -871,6 +886,11 @@ Future<void> _initStorageDependencies() async {
   );
   serviceLocator.registerLazySingleton<StorageRepository>(
     () => StorageRepositoryImpl(storageDatasourceInterface: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton<StorageFriendRepository>(
+    () => StorageFriendRepositoryImpl(
+      storageFriendDatasourceInterface: serviceLocator(),
+    ),
   );
 
   // Usecases
@@ -889,6 +909,24 @@ Future<void> _initStorageDependencies() async {
   serviceLocator.registerLazySingleton(
     () => GetFolderUsecase(storageRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => UpdateFilesUsecase(storageRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => DeleteFileUsecase(storageRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => ShareResourceUsecase(storageRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => UnshareUsecase(storageRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetSharedUsersUsecase(storageRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => StorageGetFriendsUsecase(friendRepository: serviceLocator()),
+  );
 
   // Blocs
   serviceLocator.registerFactory(
@@ -897,6 +935,8 @@ Future<void> _initStorageDependencies() async {
       getDownloadUrlUsecase: serviceLocator(),
       createFolderUsecase: serviceLocator(),
       createFilesUsecase: serviceLocator(),
+      updateFilesUsecase: serviceLocator(),
+      deleteFileUsecase: serviceLocator(),
     ),
   );
 }
