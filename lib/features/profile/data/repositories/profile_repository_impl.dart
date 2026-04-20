@@ -26,4 +26,19 @@ class ProfileRepositoryImpl implements ProfileRepository {
       return Left(Failure.fromException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, String>> uploadUserCoverPicture({
+    required List<int> fileBytes,
+    required String fileName,
+  }) async {
+    try {
+      final apiResponse = await _profileDatasourceInterface
+          .uploadUserCoverPicture(fileBytes: fileBytes, fileName: fileName);
+
+      return Right(apiResponse.data ?? '');
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
 }

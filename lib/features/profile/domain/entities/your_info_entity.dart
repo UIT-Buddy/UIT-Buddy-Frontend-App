@@ -7,22 +7,26 @@ class YourInfoEntity extends Equatable {
   final String fullName;
   final String email;
   final String avatarUrl;
+  final String coverUrl;
   final String bio;
-  final String gender;
-  final String homeClass;
-  final String faculty;
-  final String major;
+  final String homeClassCode;
+  final String friendStatus;
+  final double accumulatedGpa;
+  final int accumulatedCredits;
+  final int postCount;
 
   const YourInfoEntity({
     required this.mssv,
     required this.fullName,
     required this.email,
     required this.avatarUrl,
+    required this.coverUrl,
     required this.bio,
-    required this.gender,
-    required this.homeClass,
-    required this.faculty,
-    required this.major,
+    required this.homeClassCode,
+    required this.friendStatus,
+    required this.accumulatedGpa,
+    required this.accumulatedCredits,
+    required this.postCount,
   });
 
   @override
@@ -31,10 +35,12 @@ class YourInfoEntity extends Equatable {
     fullName,
     email,
     avatarUrl,
+    coverUrl,
     bio,
-    gender,
-    homeClass,
-    faculty,
-    major,
+    homeClassCode,
+    friendStatus,
+    accumulatedGpa,
+    accumulatedCredits,
+    postCount,
   ];
 }

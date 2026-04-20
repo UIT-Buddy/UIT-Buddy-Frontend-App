@@ -65,6 +65,7 @@ import 'package:uit_buddy_mobile/features/profile/data/datasources/group_datasou
 import 'package:uit_buddy_mobile/features/profile/data/datasources/delete_account_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/change_ws_token_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/delete_account_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/user_settings_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/friend_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/group_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/post_datasource_impl.dart';
@@ -76,6 +77,7 @@ import 'package:uit_buddy_mobile/features/profile/data/datasources/post_datasour
 import 'package:uit_buddy_mobile/features/profile/data/datasources/profile_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/sign_out_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/task_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/user_settings_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/your_info_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/friend_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/group_repository_impl.dart';
@@ -110,10 +112,12 @@ import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_det
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/create_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/change_ws_token_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_account_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_user_settings_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/delete_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_groups_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/posts/get_posts_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_profile_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/upload_profile_cover_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/get_tasks_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_your_info_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/mark_task_completed_usecase.dart';
@@ -123,6 +127,7 @@ import 'package:uit_buddy_mobile/features/profile/domain/usecases/sign_out_useca
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/friends/toggle_friend_request_usecase.dart'
     as profile_friend_toggle;
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/update_task_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_user_settings_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/friends/unfriend_usecase.dart'
     as profile_friend_unfriend;
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/update_your_info_usecase.dart';
@@ -704,6 +709,9 @@ Future<void> _initProfileDependencies() async {
     () => GetProfileUsecase(profileRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
+    () => UploadProfileCoverUsecase(profileRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
     () => GetTasksUsecase(taskRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
@@ -772,6 +780,7 @@ Future<void> _initProfileDependencies() async {
     () => ProfileBloc(
       getProfileUsecase: serviceLocator(),
       signOutUsecase: serviceLocator(),
+      uploadProfileCoverUsecase: serviceLocator(),
     ),
   );
   serviceLocator.registerFactory(
@@ -965,6 +974,11 @@ Future<void> _initGroupsDependencies() async {
 
 Future<void> _initSettingsDependencies() async {
   // Datasources
+  serviceLocator.registerLazySingleton<UserSettingsDatasourceInterface>(
+    () => UserSettingsDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
   serviceLocator.registerLazySingleton<DeleteAccountDatasourceInterface>(
     () => DeleteAccountDatasourceImpl(
       dio: serviceLocator(instanceName: 'authenticatedDio'),
@@ -979,6 +993,7 @@ Future<void> _initSettingsDependencies() async {
   // Repository
   serviceLocator.registerLazySingleton<SettingsRepository>(
     () => SettingsRepositoryImpl(
+      userSettingsDatasource: serviceLocator(),
       deleteAccountDatasource: serviceLocator(),
       changeWsTokenDatasource: serviceLocator(),
       tokenStore: serviceLocator(),
@@ -986,6 +1001,12 @@ Future<void> _initSettingsDependencies() async {
   );
 
   // Usecases
+  serviceLocator.registerLazySingleton(
+    () => GetUserSettingsUsecase(settingsRepository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => UpdateUserSettingsUsecase(settingsRepository: serviceLocator()),
+  );
   serviceLocator.registerLazySingleton(
     () => DeleteAccountUsecase(settingsRepository: serviceLocator()),
   );
@@ -996,6 +1017,8 @@ Future<void> _initSettingsDependencies() async {
   // Bloc
   serviceLocator.registerFactory(
     () => SettingsBloc(
+      getUserSettingsUsecase: serviceLocator(),
+      updateUserSettingsUsecase: serviceLocator(),
       deleteAccountUsecase: serviceLocator(),
       changeWsTokenUsecase: serviceLocator(),
     ),

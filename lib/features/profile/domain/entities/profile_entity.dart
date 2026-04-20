@@ -9,6 +9,8 @@ class ProfileEntity extends Equatable {
   final String avatarUrl;
   final String bio;
   final String coverUrl;
+  final String homeClassCode;
+  final String friendStatus;
   final ProfileStatsEntity stats;
 
   const ProfileEntity({
@@ -18,6 +20,8 @@ class ProfileEntity extends Equatable {
     required this.avatarUrl,
     required this.bio,
     required this.coverUrl,
+    required this.homeClassCode,
+    required this.friendStatus,
     required this.stats,
   });
 
@@ -29,6 +33,8 @@ class ProfileEntity extends Equatable {
     avatarUrl,
     bio,
     coverUrl,
+    homeClassCode,
+    friendStatus,
     stats,
   ];
 }

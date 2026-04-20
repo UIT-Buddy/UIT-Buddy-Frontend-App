@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uit_buddy_mobile/app/router/extensions/router_extension.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
@@ -33,7 +33,7 @@ class HomeHeaderWidget extends StatelessWidget {
           ),
         ),
         IconButton(
-          onPressed: () => context.goTo(RouteName.notification),
+          onPressed: () => context.push(RouteName.notification),
           icon: const Icon(
             Icons.notifications_outlined,
             color: AppColor.primaryText,

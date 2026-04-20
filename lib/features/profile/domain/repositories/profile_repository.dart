@@ -4,4 +4,9 @@ import 'package:uit_buddy_mobile/features/profile/domain/entities/profile_entity
 
 abstract interface class ProfileRepository {
   Future<Either<Failure, ProfileEntity>> getProfile();
+
+  Future<Either<Failure, String>> uploadUserCoverPicture({
+    required List<int> fileBytes,
+    required String fileName,
+  });
 }

@@ -22,3 +22,16 @@ class ChangeWsTokenRequested extends SettingsEvent {
   @override
   List<Object?> get props => [newToken];
 }
+
+class UpdateUserSettingsRequested extends SettingsEvent {
+  const UpdateUserSettingsRequested({
+    required this.enableNotification,
+    required this.enableScheduleReminder,
+  });
+
+  final bool enableNotification;
+  final bool enableScheduleReminder;
+
+  @override
+  List<Object?> get props => [enableNotification, enableScheduleReminder];
+}

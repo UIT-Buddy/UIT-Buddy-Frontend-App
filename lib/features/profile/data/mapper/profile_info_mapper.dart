@@ -11,6 +11,8 @@ extension ProfileMapper on model.ProfileModel {
     avatarUrl: avatarUrl,
     bio: bio,
     coverUrl: coverUrl,
+    homeClassCode: homeClassCode,
+    friendStatus: friendStatus,
     stats: stats.toEntity(),
   );
 }
