@@ -18,6 +18,7 @@ extension OtherPeopleModelMapper on OtherPeopleModel {
     fullName: fullName,
     email: email,
     bio: bio,
+    coverUrl: coverUrl,
     homeClassCode: homeClassCode,
     cometUid: cometUid,
     avatarUrl: avatarUrl,

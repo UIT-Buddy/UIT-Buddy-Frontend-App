@@ -6,6 +6,7 @@ class OtherPeopleEntity {
   final String email;
   final String? bio;
   final String? avatarUrl;
+  final String? coverUrl;
   final String? homeClassCode;
   final String? cometUid;
   final FriendStatus friendStatus;
@@ -16,6 +17,7 @@ class OtherPeopleEntity {
     required this.email,
     this.bio,
     this.avatarUrl,
+    this.coverUrl,
     this.homeClassCode,
     this.cometUid,
     this.friendStatus = FriendStatus.none,
@@ -27,6 +29,7 @@ class OtherPeopleEntity {
     String? email,
     String? bio,
     String? avatarUrl,
+    String? coverUrl,
     String? homeClassCode,
     String? cometUid,
     FriendStatus? friendStatus,
@@ -37,6 +40,7 @@ class OtherPeopleEntity {
       email: email ?? this.email,
       bio: bio ?? this.bio,
       avatarUrl: avatarUrl ?? this.avatarUrl,
+      coverUrl: coverUrl ?? this.coverUrl,
       homeClassCode: homeClassCode ?? this.homeClassCode,
       cometUid: cometUid ?? this.cometUid,
       friendStatus: friendStatus ?? this.friendStatus,

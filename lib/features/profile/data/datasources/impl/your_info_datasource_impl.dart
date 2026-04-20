@@ -12,7 +12,7 @@ class YourInfoDatasourceImpl implements YourInfoDatasourceInterface {
 
   @override
   Future<ApiResponse<YourInfoModel>> getYourInfo() async {
-    final response = await _dio.get<Map<String, dynamic>>('/api/user/me');
+    final response = await _getMeResponse();
     return apiResponseObjectFromJson(
       response.data!,
       (json) => YourInfoModel.fromUserJson(json),
@@ -41,12 +41,19 @@ class YourInfoDatasourceImpl implements YourInfoDatasourceInterface {
     required YourInfoModel info,
   }) async {
     var avatarUrl = info.avatarUrl;
+    var coverUrl = info.coverUrl;
 
     if (_isDataUrl(avatarUrl)) {
       avatarUrl = await _uploadAvatarFromDataUrl(avatarUrl);
     }
+    if (_isDataUrl(coverUrl)) {
+      coverUrl = await _uploadCoverFromDataUrl(coverUrl);
+    }
 
-    final normalizedInfo = info.copyWithAvatar(avatarUrl: avatarUrl);
+    final normalizedInfo = info.copyWith(
+      avatarUrl: avatarUrl,
+      coverUrl: coverUrl,
+    );
     final updatePayload = normalizedInfo.toUpdateRequestJson();
     if (!_isRemoteAvatarUrl(avatarUrl)) {
       updatePayload.remove('avatarUrl');
@@ -90,20 +97,29 @@ class YourInfoDatasourceImpl implements YourInfoDatasourceInterface {
     final parsed = apiResponseStringFromJson(response.data!);
     return parsed.data ?? '';
   }
-}
 
-extension on YourInfoModel {
-  YourInfoModel copyWithAvatar({required String avatarUrl}) {
-    return YourInfoModel(
-      mssv: mssv,
-      fullName: fullName,
-      email: email,
-      avatarUrl: avatarUrl,
-      bio: bio,
-      gender: gender,
-      homeClass: homeClass,
-      faculty: faculty,
-      major: major,
+  Future<String> _uploadCoverFromDataUrl(String dataUrl) async {
+    final parts = dataUrl.split(',');
+    if (parts.length != 2) {
+      throw const FormatException('Invalid image data URL.');
+    }
+
+    final bytes = base64Decode(parts[1]);
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(bytes, filename: 'cover.jpg'),
+    });
+
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/api/user/cover',
+      data: formData,
+      options: Options(contentType: 'multipart/form-data'),
     );
+
+    final parsed = apiResponseStringFromJson(response.data!);
+    return parsed.data ?? '';
+  }
+
+  Future<Response<Map<String, dynamic>>> _getMeResponse() async {
+    return await _dio.get<Map<String, dynamic>>('/api/user/me');
   }
 }

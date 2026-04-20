@@ -12,11 +12,15 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
     required this.profileInfo,
     this.onNotificationTap,
     this.onSettingsTap,
+    this.onCoverEditTap,
+    this.isCoverUploading = false,
   });
 
   final ProfileEntity profileInfo;
   final VoidCallback? onNotificationTap;
   final VoidCallback? onSettingsTap;
+  final VoidCallback? onCoverEditTap;
+  final bool isCoverUploading;
 
   static const double _coverHeight = 150.0;
   static const double _avatarRadius = 48.0;
@@ -56,13 +60,21 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
               child: SizedBox(
                 height: _coverHeight + topPadding,
                 width: double.infinity,
-                child: Image.asset(
-                  profileInfo.coverUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (_, _, _) => Image.asset(
-                    'assets/images/placeholder/bg-placeholder-transparent.png',
-                    fit: BoxFit.cover,
-                  ),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    _buildCoverImage(profileInfo.coverUrl),
+                    if (isCoverUploading)
+                      Container(
+                        color: Colors.black.withValues(alpha: 0.28),
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            color: AppColor.pureWhite,
+                            strokeWidth: 2.4,
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
             ),
@@ -82,6 +94,14 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
               child: _CircleIconButton(
                 icon: Icons.settings_outlined,
                 onTap: onSettingsTap,
+              ),
+            ),
+            Positioned(
+              bottom: 14,
+              right: 12,
+              child: _CircleIconButton(
+                icon: Icons.photo_camera_outlined,
+                onTap: onCoverEditTap,
               ),
             ),
 
@@ -172,6 +192,27 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
 
         // MSSV
         Text('MSSV: ${profileInfo.mssv}', style: AppTextStyle.captionMedium),
+        if (profileInfo.homeClassCode.isNotEmpty &&
+            profileInfo.homeClassCode != '-')
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              'Class: ${profileInfo.homeClassCode}',
+              style: AppTextStyle.captionMedium.copyWith(
+                color: AppColor.secondaryText,
+              ),
+            ),
+          ),
+        if (profileInfo.friendStatus != 'NONE')
+          Padding(
+            padding: const EdgeInsets.only(top: 2),
+            child: Text(
+              'Friend status: ${profileInfo.friendStatus}',
+              style: AppTextStyle.captionMedium.copyWith(
+                color: AppColor.secondaryText,
+              ),
+            ),
+          ),
         const SizedBox(height: 4),
 
         // Bio
@@ -185,6 +226,51 @@ class ProfileCoverHeaderWidget extends StatelessWidget {
         ),
         const SizedBox(height: 16),
       ],
+    );
+  }
+
+  Widget _buildCoverImage(String coverPath) {
+    if (coverPath.startsWith('http://') || coverPath.startsWith('https://')) {
+      return CachedNetworkImage(
+        imageUrl: coverPath,
+        fit: BoxFit.cover,
+        placeholder: (_, _) => Image.asset(
+          'assets/images/placeholder/bg-placeholder-transparent.png',
+          fit: BoxFit.cover,
+        ),
+        errorWidget: (_, _, _) => Image.asset(
+          'assets/images/placeholder/bg-placeholder-transparent.png',
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    if (coverPath.startsWith('data:image')) {
+      final parts = coverPath.split(',');
+      if (parts.length == 2) {
+        try {
+          final imageBytes = base64Decode(parts[1]);
+          return Image.memory(imageBytes, fit: BoxFit.cover);
+        } catch (_) {
+          // Fall back to the placeholder image below.
+        }
+      }
+    }
+
+    if (coverPath.isNotEmpty) {
+      return Image.asset(
+        coverPath,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => Image.asset(
+          'assets/images/placeholder/bg-placeholder-transparent.png',
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+
+    return Image.asset(
+      'assets/images/placeholder/bg-placeholder-transparent.png',
+      fit: BoxFit.cover,
     );
   }
 

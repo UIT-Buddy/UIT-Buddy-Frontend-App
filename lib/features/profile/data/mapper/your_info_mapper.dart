@@ -9,11 +9,13 @@ extension YourInfoModelMapper on model.YourInfoModel {
     fullName: fullName,
     email: email,
     avatarUrl: avatarUrl,
+    coverUrl: coverUrl,
     bio: bio,
-    gender: gender,
-    homeClass: homeClass,
-    faculty: faculty,
-    major: major,
+    homeClassCode: homeClassCode,
+    friendStatus: friendStatus,
+    accumulatedGpa: accumulatedGpa,
+    accumulatedCredits: accumulatedCredits,
+    postCount: postCount,
   );
 }
 
@@ -23,10 +25,12 @@ extension YourInfoEntityMapper on entity.YourInfoEntity {
     fullName: fullName,
     email: email,
     avatarUrl: avatarUrl,
+    coverUrl: coverUrl,
     bio: bio,
-    gender: gender,
-    homeClass: homeClass,
-    faculty: faculty,
-    major: major,
+    homeClassCode: homeClassCode,
+    friendStatus: friendStatus,
+    accumulatedGpa: accumulatedGpa,
+    accumulatedCredits: accumulatedCredits,
+    postCount: postCount,
   );
 }

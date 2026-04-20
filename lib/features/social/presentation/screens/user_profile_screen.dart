@@ -272,20 +272,7 @@ class _ProfileHeaderContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 150,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppColor.primaryBlue.withValues(alpha: 0.18),
-                  AppColor.primaryBlueDark.withValues(alpha: 0.08),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(24),
-            ),
-          ),
+          _buildCover(),
           Transform.translate(
             offset: const Offset(0, -42),
             child: Row(
@@ -355,6 +342,42 @@ class _ProfileHeaderContent extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCover() {
+    final coverUrl = user.coverUrl?.trim() ?? '';
+    if (coverUrl.isNotEmpty &&
+        (coverUrl.startsWith('http://') || coverUrl.startsWith('https://'))) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: CachedNetworkImage(
+          imageUrl: coverUrl,
+          height: 150,
+          width: double.infinity,
+          fit: BoxFit.cover,
+          placeholder: (_, _) => _coverFallback(),
+          errorWidget: (_, _, _) => _coverFallback(),
+        ),
+      );
+    }
+    return _coverFallback();
+  }
+
+  Widget _coverFallback() {
+    return Container(
+      height: 150,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColor.primaryBlue.withValues(alpha: 0.18),
+            AppColor.primaryBlueDark.withValues(alpha: 0.08),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
       ),
     );
   }

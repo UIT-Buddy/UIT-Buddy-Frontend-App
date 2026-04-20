@@ -8,24 +8,47 @@ class ProfileState extends Equatable {
     this.status = ProfileStatus.initial,
     this.profileInfo,
     this.errorMessage,
+    this.isUploadingCover = false,
+    this.actionErrorMessage,
+    this.actionSuccessMessage,
   });
 
   final ProfileStatus status;
   final ProfileEntity? profileInfo;
   final String? errorMessage;
+  final bool isUploadingCover;
+  final String? actionErrorMessage;
+  final String? actionSuccessMessage;
 
   ProfileState copyWith({
     ProfileStatus? status,
     ProfileEntity? profileInfo,
-    String? errorMessage,
+    String? Function()? errorMessage,
+    bool? isUploadingCover,
+    String? Function()? actionErrorMessage,
+    String? Function()? actionSuccessMessage,
   }) {
     return ProfileState(
       status: status ?? this.status,
       profileInfo: profileInfo ?? this.profileInfo,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
+      isUploadingCover: isUploadingCover ?? this.isUploadingCover,
+      actionErrorMessage: actionErrorMessage != null
+          ? actionErrorMessage()
+          : this.actionErrorMessage,
+      actionSuccessMessage: actionSuccessMessage != null
+          ? actionSuccessMessage()
+          : this.actionSuccessMessage,
     );
   }
 
   @override
-  List<Object?> get props => [status, profileInfo, errorMessage];
+  List<Object?> get props => [
+    status,
+    profileInfo,
+    errorMessage,
+    isUploadingCover,
+    actionErrorMessage,
+    actionSuccessMessage,
+  ];
 }

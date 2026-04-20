@@ -132,10 +132,6 @@ class _YourInfoBody extends StatelessWidget {
                                 value: state.yourInfo!.fullName,
                               ),
                               _InfoField(
-                                label: 'GENDER',
-                                value: state.yourInfo!.gender,
-                              ),
-                              _InfoField(
                                 label: 'EMAIL',
                                 value: state.yourInfo!.email,
                               ),
@@ -143,9 +139,25 @@ class _YourInfoBody extends StatelessWidget {
                                 label: 'BIO',
                                 value: state.yourInfo!.bio,
                               ),
-                              _AvatarInfoField(
+                              _InfoField(
+                                label: 'FRIEND STATUS',
+                                value: state.yourInfo!.friendStatus,
+                              ),
+                              _ImageInfoField(
                                 label: 'AVATAR',
-                                avatarUrl: state.yourInfo!.avatarUrl,
+                                imageUrl: state.yourInfo!.avatarUrl,
+                                width: 72,
+                                height: 72,
+                                borderRadius: 10,
+                              ),
+                              _ImageInfoField(
+                                label: 'COVER PHOTO',
+                                imageUrl: state.yourInfo!.coverUrl,
+                                width: double.infinity,
+                                height: 120,
+                                borderRadius: 12,
+                                fallbackAssetPath:
+                                    'assets/images/placeholder/bg-placeholder-transparent.png',
                               ),
                             ],
                           ),
@@ -154,16 +166,21 @@ class _YourInfoBody extends StatelessWidget {
                             title: 'Academic',
                             fields: [
                               _InfoField(
-                                label: 'HOME CLASS',
-                                value: state.yourInfo!.homeClass,
+                                label: 'HOME CLASS CODE',
+                                value: state.yourInfo!.homeClassCode,
                               ),
                               _InfoField(
-                                label: 'FACULTY',
-                                value: state.yourInfo!.faculty,
+                                label: 'ACCUMULATED GPA',
+                                value: state.yourInfo!.accumulatedGpa
+                                    .toStringAsFixed(2),
                               ),
                               _InfoField(
-                                label: 'MAJOR',
-                                value: state.yourInfo!.major,
+                                label: 'ACCUMULATED CREDITS',
+                                value: '${state.yourInfo!.accumulatedCredits}',
+                              ),
+                              _InfoField(
+                                label: 'POST COUNT',
+                                value: '${state.yourInfo!.postCount}',
                               ),
                             ],
                           ),
@@ -254,11 +271,22 @@ class _InfoField extends StatelessWidget {
   }
 }
 
-class _AvatarInfoField extends StatelessWidget {
-  const _AvatarInfoField({required this.label, required this.avatarUrl});
+class _ImageInfoField extends StatelessWidget {
+  const _ImageInfoField({
+    required this.label,
+    required this.imageUrl,
+    required this.width,
+    required this.height,
+    this.borderRadius = 10,
+    this.fallbackAssetPath = 'assets/images/placeholder/user-icon.png',
+  });
 
   final String label;
-  final String avatarUrl;
+  final String imageUrl;
+  final double width;
+  final double height;
+  final double borderRadius;
+  final String fallbackAssetPath;
 
   @override
   Widget build(BuildContext context) {
@@ -274,8 +302,13 @@ class _AvatarInfoField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         ClipRRect(
-          borderRadius: BorderRadius.circular(10),
-          child: _AvatarImage(url: avatarUrl, size: 72),
+          borderRadius: BorderRadius.circular(borderRadius),
+          child: _AvatarImage(
+            url: imageUrl,
+            width: width,
+            height: height,
+            fallbackAssetPath: fallbackAssetPath,
+          ),
         ),
       ],
     );
@@ -283,10 +316,17 @@ class _AvatarInfoField extends StatelessWidget {
 }
 
 class _AvatarImage extends StatelessWidget {
-  const _AvatarImage({required this.url, required this.size});
+  const _AvatarImage({
+    required this.url,
+    required this.width,
+    required this.height,
+    required this.fallbackAssetPath,
+  });
 
   final String url;
-  final double size;
+  final double width;
+  final double height;
+  final String fallbackAssetPath;
 
   bool get _isNetworkUrl =>
       url.startsWith('http://') ||
@@ -304,8 +344,8 @@ class _AvatarImage extends StatelessWidget {
           final imageBytes = base64Decode(parts[1]);
           return Image.memory(
             imageBytes,
-            width: size,
-            height: size,
+            width: width,
+            height: height,
             fit: BoxFit.cover,
           );
         } catch (_) {
@@ -317,8 +357,8 @@ class _AvatarImage extends StatelessWidget {
     if (_isNetworkUrl) {
       return Image.network(
         url,
-        width: size,
-        height: size,
+        width: width,
+        height: height,
         fit: BoxFit.cover,
         errorBuilder: (_, _, _) => _fallbackImage(),
       );
@@ -327,8 +367,8 @@ class _AvatarImage extends StatelessWidget {
     if (url.isNotEmpty) {
       return Image.asset(
         url,
-        width: size,
-        height: size,
+        width: width,
+        height: height,
         fit: BoxFit.cover,
         errorBuilder: (_, _, _) => _fallbackImage(),
       );
@@ -339,9 +379,9 @@ class _AvatarImage extends StatelessWidget {
 
   Widget _fallbackImage() {
     return Image.asset(
-      'assets/images/placeholder/user-icon.png',
-      width: size,
-      height: size,
+      fallbackAssetPath,
+      width: width,
+      height: height,
       fit: BoxFit.cover,
     );
   }

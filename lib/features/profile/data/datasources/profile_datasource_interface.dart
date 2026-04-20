@@ -3,4 +3,9 @@ import 'package:uit_buddy_mobile/features/profile/data/models/profile_model.dart
 
 abstract interface class ProfileDatasourceInterface {
   Future<ApiResponse<ProfileModel>> getProfile();
+
+  Future<ApiResponse<String>> uploadUserCoverPicture({
+    required List<int> fileBytes,
+    required String fileName,
+  });
 }

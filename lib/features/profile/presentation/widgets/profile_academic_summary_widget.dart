@@ -16,6 +16,20 @@ class ProfileAcademicSummaryWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final showDualGpa =
+        profileInfo.stats.currentGpa > 0 &&
+        profileInfo.stats.gpaOn4Scale > 0 &&
+        (profileInfo.stats.currentGpa - profileInfo.stats.gpaOn4Scale).abs() >
+            0.01;
+
+    final gpaMainValue = showDualGpa
+        ? profileInfo.stats.gpaOn4Scale
+        : profileInfo.stats.currentGpa;
+
+    final shouldShowCreditRatio =
+        profileInfo.stats.totalCredits > 0 &&
+        profileInfo.stats.totalCredits != profileInfo.stats.accumulatedCredits;
+
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.all(16),
@@ -42,17 +56,19 @@ class ProfileAcademicSummaryWidget extends StatelessWidget {
             children: [
               Expanded(
                 child: _BlueStatCard(
-                  mainValue: profileInfo.stats.gpaOn4Scale.toStringAsFixed(1),
-                  subValue:
-                      '(${profileInfo.stats.currentGpa.toStringAsFixed(1)})',
+                  mainValue: gpaMainValue.toStringAsFixed(1),
+                  subValue: showDualGpa
+                      ? '(${profileInfo.stats.currentGpa.toStringAsFixed(1)})'
+                      : null,
                   label: ProfileText.overallGpa,
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: _BlueStatCard(
-                  mainValue:
-                      '${profileInfo.stats.accumulatedCredits}/${profileInfo.stats.totalCredits}',
+                  mainValue: shouldShowCreditRatio
+                      ? '${profileInfo.stats.accumulatedCredits}/${profileInfo.stats.totalCredits}'
+                      : '${profileInfo.stats.accumulatedCredits}',
                   label: ProfileText.creditsAccumulated,
                 ),
               ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uit_buddy_mobile/app/router/extensions/router_extension.dart';
+import 'package:go_router/go_router.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
@@ -18,21 +18,21 @@ class SelectionOptionWidget extends StatelessWidget {
           label: HomeText.selectionWebsites,
           subBgColor: AppColor.primaryBlue10,
           iconColor: AppColor.primaryBlue,
-          onTap: () => context.goTo(RouteName.website),
+          onTap: () => context.push(RouteName.website),
         ),
         _SelectionItem(
           icon: Icons.sticky_note_2_outlined,
           label: HomeText.selectionNote,
           subBgColor: AppColor.warningOrangeLight,
           iconColor: AppColor.warningOrange,
-          onTap: () => context.goTo(RouteName.note),
+          onTap: () => context.push(RouteName.note),
         ),
         _SelectionItem(
           icon: Icons.wb_sunny_rounded,
           label: HomeText.selectionWeather,
           subBgColor: AppColor.successGreen10,
           iconColor: AppColor.successGreen,
-          onTap: () => context.goTo(RouteName.weather),
+          onTap: () => context.push(RouteName.weather),
         ),
         _SelectionItem(
           icon: Icons.grid_view_rounded,

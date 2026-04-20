@@ -10,6 +10,7 @@ abstract class OtherPeopleModel with _$OtherPeopleModel {
     required String fullName,
     required String email,
     String? avatarUrl,
+    String? coverUrl,
     String? bio,
     String? homeClassCode,
     String? cometUid,
