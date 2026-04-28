@@ -14,5 +14,5 @@ class GetAcademicDetailsUsecase
 
   @override
   Future<Either<Failure, AcademicDetailEntity>> call(NoParams params) async =>
-      _academicDetailRepository.getAcademicDetail();
+      _academicDetailRepository.getAcademicSummary();
 }

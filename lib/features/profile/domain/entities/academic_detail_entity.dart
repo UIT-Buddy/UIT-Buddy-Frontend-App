@@ -5,36 +5,48 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 class AcademicDetailEntity extends Equatable {
   final int attemptedCredits;
   final int accumulatedCredits;
-  final int generalCredits;
-  final int foundationCredits;
-  final int majorCredits;
-  final int graduationCredits;
+  final double attemptedGpaScale10;
+  final double attemptedGpaScale4;
+  final double accumulatedGpaScale10;
+  final double accumulatedGpaScale4;
+  final int accumulatedGeneralCredits;
+  final int accumulatedFoundationCredits;
+  final int accumulatedMajorCredits;
+  final int accumulatedGraduationCredits;
+  final int accumulatedElectiveCredits;
+  final int accumulatedPoliticalCredits;
   final double majorProgress;
-  final double currentGpa;
-  final double targetGpa;
 
   const AcademicDetailEntity({
     required this.attemptedCredits,
     required this.accumulatedCredits,
-    required this.generalCredits,
-    required this.foundationCredits,
-    required this.majorCredits,
-    required this.graduationCredits,
+    required this.attemptedGpaScale10,
+    required this.attemptedGpaScale4,
+    required this.accumulatedGpaScale10,
+    required this.accumulatedGpaScale4,
+    required this.accumulatedGeneralCredits,
+    required this.accumulatedFoundationCredits,
+    required this.accumulatedMajorCredits,
+    required this.accumulatedGraduationCredits,
+    required this.accumulatedElectiveCredits,
+    required this.accumulatedPoliticalCredits,
     required this.majorProgress,
-    required this.currentGpa,
-    required this.targetGpa,
   });
 
   @override
   List<Object?> get props => [
     attemptedCredits,
     accumulatedCredits,
-    generalCredits,
-    foundationCredits,
-    majorCredits,
-    graduationCredits,
+    attemptedGpaScale10,
+    attemptedGpaScale4,
+    accumulatedGpaScale10,
+    accumulatedGpaScale4,
+    accumulatedGeneralCredits,
+    accumulatedFoundationCredits,
+    accumulatedMajorCredits,
+    accumulatedGraduationCredits,
+    accumulatedElectiveCredits,
+    accumulatedPoliticalCredits,
     majorProgress,
-    currentGpa,
-    targetGpa,
   ];
 }
