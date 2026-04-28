@@ -1,40 +1,26 @@
-import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
-@immutable
-class AcademicDetailModel extends Equatable {
-  final int attemptedCredits;
-  final int accumulatedCredits;
-  final int generalCredits;
-  final int foundationCredits;
-  final int majorCredits;
-  final int graduationCredits;
-  final double majorProgress;
-  final double currentGpa;
-  final double targetGpa;
+part 'academic_detail_model.freezed.dart';
+part 'academic_detail_model.g.dart';
 
-  const AcademicDetailModel({
-    required this.attemptedCredits,
-    required this.accumulatedCredits,
-    required this.generalCredits,
-    required this.foundationCredits,
-    required this.majorCredits,
-    required this.graduationCredits,
-    required this.majorProgress,
-    required this.currentGpa,
-    required this.targetGpa,
-  });
+@freezed
+abstract class AcademicDetailModel with _$AcademicDetailModel {
+  const factory AcademicDetailModel({
+    required int attemptedCredits,
+    required int accumulatedCredits,
+    required double attemptedGpaScale10,
+    required double attemptedGpaScale4,
+    required double accumulatedGpaScale10,
+    required double accumulatedGpaScale4,
+    required int accumulatedGeneralCredits,
+    required int accumulatedFoundationCredits,
+    required int accumulatedMajorCredits,
+    required int accumulatedGraduationCredits,
+    required int accumulatedElectiveCredits,
+    required int accumulatedPoliticalCredits,
+    required double majorProgress,
+  }) = _AcademicDetailModel;
 
-  @override
-  List<Object?> get props => [
-    attemptedCredits,
-    accumulatedCredits,
-    generalCredits,
-    foundationCredits,
-    majorCredits,
-    graduationCredits,
-    majorProgress,
-    currentGpa,
-    targetGpa,
-  ];
+  factory AcademicDetailModel.fromJson(Map<String, dynamic> json) =>
+      _$AcademicDetailModelFromJson(json);
 }

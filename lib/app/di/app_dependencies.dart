@@ -60,9 +60,11 @@ import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_in/
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/change_ws_token_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/academic_detail_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/friend_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/group_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/delete_account_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/academic_detail_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/change_ws_token_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/delete_account_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/data/datasources/impl/user_settings_datasource_impl.dart';
@@ -96,19 +98,16 @@ import 'package:uit_buddy_mobile/features/profile/domain/repositories/sign_out_r
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/task_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/your_info_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/academic_detail_repository.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/repositories/semester_detail_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/academic_detail_repository_impl.dart';
-import 'package:uit_buddy_mobile/features/profile/data/repositories/semester_detail_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/posts/delete_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_academic_detail_usecase.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_semester_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/import_grade_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/friends/get_friends_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/friends/get_pending_requests_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/friends/get_sent_requests_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/posts/toggle_post_like_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/academic_detail_screen/academic_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/bloc/your_friends_screen/friends_bloc.dart';
-import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_screen/semester_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/tasks/create_task_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/change_ws_token_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/delete_account_usecase.dart';
@@ -674,6 +673,11 @@ Future<void> _initProfileDependencies() async {
       dio: serviceLocator(instanceName: 'authenticatedDio'),
     ),
   );
+  serviceLocator.registerLazySingleton<AcademicDetailDatasourceInterface>(
+    () => AcademicDetailDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
 
   // Repositories
   serviceLocator.registerLazySingleton<ProfileRepository>(
@@ -698,10 +702,9 @@ Future<void> _initProfileDependencies() async {
     ),
   );
   serviceLocator.registerLazySingleton<AcademicDetailRepository>(
-    () => AcademicDetailRepositoryImpl(),
-  );
-  serviceLocator.registerLazySingleton<SemesterDetailRepository>(
-    () => SemesterDetailRepositoryImpl(),
+    () => AcademicDetailRepositoryImpl(
+      academicDetailDatasourceInterface: serviceLocator(),
+    ),
   );
 
   // Usecases
@@ -772,7 +775,7 @@ Future<void> _initProfileDependencies() async {
     () => GetAcademicDetailsUsecase(academicDetailRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => GetSemesterDetailsUsecase(semesterDetailRepository: serviceLocator()),
+    () => ImportGradeUsecase(academicDetailRepository: serviceLocator()),
   );
 
   // Blocs
@@ -819,10 +822,10 @@ Future<void> _initProfileDependencies() async {
     ),
   );
   serviceLocator.registerFactory(
-    () => AcademicDetailBloc(getAcademicDetailsUsecase: serviceLocator()),
-  );
-  serviceLocator.registerFactory(
-    () => SemesterDetailBloc(getSemesterDetailsUsecase: serviceLocator()),
+    () => AcademicDetailBloc(
+      getAcademicDetailsUsecase: serviceLocator(),
+      importGradeUsecase: serviceLocator(),
+    ),
   );
 }
 

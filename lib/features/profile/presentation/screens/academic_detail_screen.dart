@@ -1,3 +1,4 @@
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -40,7 +41,31 @@ class AcademicDetailScreen extends StatelessWidget {
             ),
           ],
         ),
-        body: BlocBuilder<AcademicDetailBloc, AcademicDetailState>(
+        body: BlocConsumer<AcademicDetailBloc, AcademicDetailState>(
+          listenWhen: (prev, curr) => prev.importStatus != curr.importStatus,
+          listener: (context, state) {
+            if (state.importStatus == AcademicDetailImportStatus.success) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.importMessage ?? 'Grades imported successfully.',
+                  ),
+                  backgroundColor: AppColor.successGreen,
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            } else if (state.importStatus ==
+                AcademicDetailImportStatus.failure) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.importMessage ?? 'Failed to import grades.',
+                  ),
+                  backgroundColor: AppColor.alertRed,
+                ),
+              );
+            }
+          },
           builder: (context, state) {
             if (state.status == AcademicDetailStatus.loading ||
                 state.status == AcademicDetailStatus.initial) {
@@ -61,6 +86,9 @@ class AcademicDetailScreen extends StatelessWidget {
               return const Center(child: Text('No details found.'));
             }
 
+            final isImporting =
+                state.importStatus == AcademicDetailImportStatus.loading;
+
             return SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
               child: Column(
@@ -68,7 +96,7 @@ class AcademicDetailScreen extends StatelessWidget {
                 children: [
                   _buildSection(
                     'PROGRESS',
-                    '${detail.majorProgress.toStringAsFixed(0)}%',
+                    _formatProgress(detail.majorProgress),
                   ),
                   const SizedBox(height: 24),
                   _buildSection(
@@ -82,28 +110,49 @@ class AcademicDetailScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 24),
                   _buildSection(
-                    'CURRENT GPA',
-                    '${detail.currentGpa.toStringAsFixed(1)} (8.0)',
+                    'ACCUMULATED GPA',
+                    _formatGpa(
+                      detail.accumulatedGpaScale4,
+                      detail.accumulatedGpaScale10,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   _buildSection(
-                    'TARGET GPA',
-                    '${detail.targetGpa.toStringAsFixed(1)} (10.0)',
+                    'ATTEMPTED GPA',
+                    _formatGpa(
+                      detail.attemptedGpaScale4,
+                      detail.attemptedGpaScale10,
+                    ),
                   ),
                   const SizedBox(height: 24),
                   _buildSection(
                     'GENERAL CREDITS',
-                    '${detail.generalCredits}/43',
+                    '${detail.accumulatedGeneralCredits}',
                   ),
                   const SizedBox(height: 24),
                   _buildSection(
                     'FOUNDATION CREDITS',
-                    '${detail.foundationCredits}/49',
+                    '${detail.accumulatedFoundationCredits}',
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSection(
+                    'MAJOR CREDITS',
+                    '${detail.accumulatedMajorCredits}',
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSection(
+                    'ELECTIVE CREDITS',
+                    '${detail.accumulatedElectiveCredits}',
+                  ),
+                  const SizedBox(height: 24),
+                  _buildSection(
+                    'POLITICAL CREDITS',
+                    '${detail.accumulatedPoliticalCredits}',
                   ),
                   const SizedBox(height: 24),
                   _buildSection(
                     'GRADUATION CREDITS',
-                    '${detail.graduationCredits}/10',
+                    '${detail.accumulatedGraduationCredits}',
                   ),
                   const SizedBox(height: 40),
                   SizedBox(
@@ -137,6 +186,50 @@ class AcademicDetailScreen extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 5),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: isImporting
+                          ? null
+                          : () => _onImportGrades(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Import grades',
+                            style: AppTextStyle.bodyLarge.copyWith(
+                              color: AppColor.primaryBlue,
+                              fontWeight: AppTextStyle.bold,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          if (isImporting)
+                            const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: AppColor.primaryBlue,
+                              ),
+                            )
+                          else
+                            const Icon(
+                              Icons.document_scanner_outlined,
+                              color: AppColor.primaryBlue,
+                              size: 20,
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                 ],
               ),
@@ -166,6 +259,44 @@ class AcademicDetailScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  static String _formatProgress(double value) {
+    final percent = value <= 1 ? value * 100 : value;
+    return '${percent.toStringAsFixed(0)}%';
+  }
+
+  static String _formatGpa(double scale4, double scale10) {
+    return '${scale4.toStringAsFixed(2)} (${scale10.toStringAsFixed(2)})';
+  }
+
+  Future<void> _onImportGrades(BuildContext context) async {
+    final result = await FilePicker.platform.pickFiles(
+      dialogTitle: 'Select grade PDF',
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+      allowMultiple: false,
+    );
+
+    if (result == null || result.files.isEmpty) return;
+
+    final file = result.files.single;
+    final filePath = file.path;
+    if (filePath == null || filePath.isEmpty) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Could not read the selected file.'),
+          backgroundColor: AppColor.alertRed,
+        ),
+      );
+      return;
+    }
+
+    if (!context.mounted) return;
+    context.read<AcademicDetailBloc>().add(
+      AcademicDetailImportRequested(filePath: filePath, fileName: file.name),
     );
   }
 }

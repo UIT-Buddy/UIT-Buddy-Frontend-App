@@ -1,43 +1,21 @@
-import 'package:equatable/equatable.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:uit_buddy_mobile/features/profile/data/models/grade_model.dart';
 
-@immutable
-class SemesterDetailModel extends Equatable {
-  final String id;
-  final int yearStart;
-  final int yearEnd;
-  final double gpa;
-  final int credits;
-  final DateTime startDate;
-  final DateTime endDate;
-  final bool isCurrent;
-  final String rank;
-  final int semesterNumber;
+part 'semester_detail_model.freezed.dart';
+part 'semester_detail_model.g.dart';
 
-  const SemesterDetailModel({
-    required this.id,
-    required this.yearStart,
-    required this.yearEnd,
-    required this.gpa,
-    required this.credits,
-    required this.startDate,
-    required this.endDate,
-    required this.isCurrent,
-    required this.rank,
-    required this.semesterNumber,
-  });
+@freezed
+abstract class SemesterDetailModel with _$SemesterDetailModel {
+  const factory SemesterDetailModel({
+    required String id,
+    required int accumulatedCredits,
+    required double averageGradeScale10,
+    required double averageGradeScale4,
+    required List<GradeModel> grades,
+    required int totalCredits,
+    required List<int> totalCreditsByCategory,
+  }) = _SemesterDetailModel;
 
-  @override
-  List<Object?> get props => [
-    id,
-    yearStart,
-    yearEnd,
-    gpa,
-    credits,
-    startDate,
-    endDate,
-    isCurrent,
-    rank,
-    semesterNumber,
-  ];
+  factory SemesterDetailModel.fromJson(Map<String, dynamic> json) =>
+      _$SemesterDetailModelFromJson(json);
 }

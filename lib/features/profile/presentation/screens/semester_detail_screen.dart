@@ -1,78 +1,96 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
-import 'package:uit_buddy_mobile/features/profile/domain/entities/semester_detail_entity.dart';
-import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_screen/semester_detail_bloc.dart';
-import 'package:intl/intl.dart';
+
+class _MockSemester {
+  final String title;
+  final String yearLabel;
+  final String startDate;
+  final String endDate;
+  final double gpa;
+  final int credits;
+  final bool isCurrent;
+
+  _MockSemester({
+    required this.title,
+    required this.yearLabel,
+    required this.startDate,
+    required this.endDate,
+    required this.gpa,
+    required this.credits,
+    required this.isCurrent,
+  });
+}
 
 class SemesterDetailScreen extends StatelessWidget {
   const SemesterDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) =>
-          serviceLocator<SemesterDetailBloc>()
-            ..add(const SemesterDetailLoaded()),
-      child: Scaffold(
+    final mockSemesters = [
+      _MockSemester(
+        title: 'HK1',
+        yearLabel: '2023 - 2024',
+        startDate: '05/09/2023',
+        endDate: '15/01/2024',
+        gpa: 8.5,
+        credits: 18,
+        isCurrent: true,
+      ),
+      _MockSemester(
+        title: 'HK2',
+        yearLabel: '2022 - 2023',
+        startDate: '01/02/2023',
+        endDate: '10/06/2023',
+        gpa: 8.0,
+        credits: 20,
+        isCurrent: false,
+      ),
+      _MockSemester(
+        title: 'HK1',
+        yearLabel: '2022 - 2023',
+        startDate: '05/09/2022',
+        endDate: '15/01/2023',
+        gpa: 7.8,
+        credits: 18,
+        isCurrent: false,
+      ),
+    ];
+
+    final currentSemesters = mockSemesters.where((s) => s.isCurrent).toList();
+    final previousSemesters = mockSemesters.where((s) => !s.isCurrent).toList();
+
+    return Scaffold(
+      backgroundColor: AppColor.pureWhite,
+      appBar: AppBar(
         backgroundColor: AppColor.pureWhite,
-        appBar: AppBar(
-          backgroundColor: AppColor.pureWhite,
-          elevation: 0,
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AppColor.primaryText),
-            onPressed: () => context.pop(),
-          ),
-          title: Text(
-            'Semester Details',
-            style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
-          ),
-          centerTitle: true,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: AppColor.primaryText),
+          onPressed: () => context.pop(),
         ),
-        body: BlocBuilder<SemesterDetailBloc, SemesterDetailState>(
-          builder: (context, state) {
-            if (state.status == SemesterDetailStatus.loading ||
-                state.status == SemesterDetailStatus.initial) {
-              return const Center(
-                child: CircularProgressIndicator(color: AppColor.primaryBlue),
-              );
-            } else if (state.status == SemesterDetailStatus.error) {
-              return Center(
-                child: Text(
-                  state.errorMessage ?? 'Error',
-                  style: AppTextStyle.bodyMedium,
-                ),
-              );
-            }
-
-            final currentSemesters = state.details
-                .where((s) => s.isCurrent)
-                .toList();
-            final previousSemesters = state.details
-                .where((s) => !s.isCurrent)
-                .toList();
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeaderRow('Current'),
-                  const SizedBox(height: 12),
-                  ...currentSemesters.map((s) => _SemesterCard(semester: s)),
-                  const SizedBox(height: 24),
-                  if (previousSemesters.isNotEmpty) ...[
-                    _buildHeaderRow('Previous', showAdd: false),
-                    const SizedBox(height: 12),
-                    ...previousSemesters.map((s) => _SemesterCard(semester: s)),
-                  ],
-                ],
-              ),
-            );
-          },
+        title: Text(
+          'Semester Details',
+          style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
+        ),
+        centerTitle: true,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeaderRow('Current'),
+            const SizedBox(height: 12),
+            ...currentSemesters.map((s) => _SemesterCard(semester: s)),
+            const SizedBox(height: 24),
+            if (previousSemesters.isNotEmpty) ...[
+              _buildHeaderRow('Previous', showAdd: false),
+              const SizedBox(height: 12),
+              ...previousSemesters.map((s) => _SemesterCard(semester: s)),
+            ],
+          ],
         ),
       ),
     );
@@ -100,17 +118,12 @@ class SemesterDetailScreen extends StatelessWidget {
 }
 
 class _SemesterCard extends StatelessWidget {
-  final SemesterDetailEntity semester;
+  final _MockSemester semester;
 
   const _SemesterCard({required this.semester});
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('dd/MM/yyyy');
-    final startStr = dateFormat.format(semester.startDate);
-    final endStr = dateFormat.format(semester.endDate);
-
-    // According to mock design: blue border line for current, grey for previous
     final lineColor = semester.isCurrent
         ? AppColor.primaryBlue
         : AppColor.dividerGrey;
@@ -143,7 +156,7 @@ class _SemesterCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'HK${semester.semesterNumber}',
+                        semester.title,
                         style: AppTextStyle.h3.copyWith(
                           fontWeight: AppTextStyle.bold,
                         ),
@@ -173,7 +186,7 @@ class _SemesterCard extends StatelessWidget {
                     ],
                   ),
                   Text(
-                    '${semester.yearStart} - ${semester.yearEnd}',
+                    semester.yearLabel,
                     style: AppTextStyle.bodySmall.copyWith(
                       color: AppColor.secondaryText,
                     ),
@@ -187,7 +200,7 @@ class _SemesterCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    startStr,
+                    semester.startDate,
                     style: AppTextStyle.bodySmall.copyWith(
                       color: AppColor.secondaryText,
                     ),
@@ -201,7 +214,7 @@ class _SemesterCard extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    endStr,
+                    semester.endDate,
                     style: AppTextStyle.bodySmall.copyWith(
                       color: AppColor.secondaryText,
                     ),
@@ -228,9 +241,9 @@ class _SemesterCard extends StatelessWidget {
                                     fontWeight: AppTextStyle.bold,
                                   ),
                                 ),
-                                Text(
+                                const Text(
                                   '(8.0)',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,
                                   ),
