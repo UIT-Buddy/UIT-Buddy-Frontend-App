@@ -123,7 +123,7 @@ class _EditYourInfoScreenState extends State<EditYourInfoScreen> {
       bio: _bioCtrl.text.trim(),
       homeClassCode: widget.info.homeClassCode,
       friendStatus: widget.info.friendStatus,
-      accumulatedGpa: widget.info.accumulatedGpa,
+      accumulatedGpaScale10: widget.info.accumulatedGpaScale10,
       accumulatedCredits: widget.info.accumulatedCredits,
       postCount: widget.info.postCount,
     );

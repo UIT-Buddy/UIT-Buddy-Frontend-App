@@ -41,16 +41,16 @@ class ProfileEntity extends Equatable {
 
 @immutable
 class ProfileStatsEntity extends Equatable {
-  final double currentGpa;
-  final double gpaOn4Scale;
+  final double accumulatedGpaScale10;
+  final double accumulatedGpaScale4;
   final int accumulatedCredits;
   final int totalCredits;
   final int posts;
   final int comments;
 
   const ProfileStatsEntity({
-    required this.currentGpa,
-    required this.gpaOn4Scale,
+    required this.accumulatedGpaScale10,
+    required this.accumulatedGpaScale4,
     required this.accumulatedCredits,
     required this.totalCredits,
     required this.posts,
@@ -59,8 +59,8 @@ class ProfileStatsEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    currentGpa,
-    gpaOn4Scale,
+    accumulatedGpaScale10,
+    accumulatedGpaScale4,
     accumulatedCredits,
     totalCredits,
     posts,

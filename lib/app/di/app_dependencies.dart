@@ -100,6 +100,8 @@ import 'package:uit_buddy_mobile/features/profile/domain/repositories/your_info_
 import 'package:uit_buddy_mobile/features/profile/domain/repositories/academic_detail_repository.dart';
 import 'package:uit_buddy_mobile/features/profile/data/repositories/academic_detail_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/posts/delete_post_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_semester_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_screen/semester_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/get_academic_detail_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/import_grade_usecase.dart';
 import 'package:uit_buddy_mobile/features/profile/domain/usecases/friends/get_friends_usecase.dart';
@@ -777,6 +779,9 @@ Future<void> _initProfileDependencies() async {
   serviceLocator.registerLazySingleton(
     () => ImportGradeUsecase(academicDetailRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => GetSemesterDetailsUsecase(academicDetailRepository: serviceLocator()),
+  );
 
   // Blocs
   serviceLocator.registerFactory(
@@ -826,6 +831,9 @@ Future<void> _initProfileDependencies() async {
       getAcademicDetailsUsecase: serviceLocator(),
       importGradeUsecase: serviceLocator(),
     ),
+  );
+  serviceLocator.registerFactory(
+    () => SemesterDetailBloc(getSemesterDetailsUsecase: serviceLocator()),
   );
 }
 

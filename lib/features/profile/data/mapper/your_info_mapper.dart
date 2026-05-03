@@ -13,7 +13,7 @@ extension YourInfoModelMapper on model.YourInfoModel {
     bio: bio,
     homeClassCode: homeClassCode,
     friendStatus: friendStatus,
-    accumulatedGpa: accumulatedGpa,
+    accumulatedGpaScale10: accumulatedGpaScale10,
     accumulatedCredits: accumulatedCredits,
     postCount: postCount,
   );
@@ -29,7 +29,7 @@ extension YourInfoEntityMapper on entity.YourInfoEntity {
     bio: bio,
     homeClassCode: homeClassCode,
     friendStatus: friendStatus,
-    accumulatedGpa: accumulatedGpa,
+    accumulatedGpaScale10: accumulatedGpaScale10,
     accumulatedCredits: accumulatedCredits,
     postCount: postCount,
   );

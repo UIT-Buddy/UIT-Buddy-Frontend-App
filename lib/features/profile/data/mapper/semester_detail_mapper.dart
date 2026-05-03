@@ -4,7 +4,7 @@ import 'package:uit_buddy_mobile/features/profile/domain/entities/semester_detai
 
 extension SemesterDetailMapper on SemesterDetailModel {
   SemesterDetailEntity toEntity() => SemesterDetailEntity(
-    id: id,
+    semesterCode: semesterCode,
     accumulatedCredits: accumulatedCredits,
     averageGradeScale10: averageGradeScale10,
     averageGradeScale4: averageGradeScale4,

@@ -38,21 +38,23 @@ class AcademicDetailDatasourceImpl
 
   @override
   Future<SemesterDetailModel> getGradesBySemester(String semester) async {
-    //TODO
-    return SemesterDetailModel(
-      id: "0",
-      accumulatedCredits: 0,
-      averageGradeScale10: 0,
-      averageGradeScale4: 0,
-      grades: [],
-      totalCredits: 0,
-      totalCreditsByCategory: [],
+    final res = await _dio.get<Map<String, dynamic>>(
+      '/api/grade/semester/$semester',
     );
+    final apiRes = apiResponseObjectFromJson<SemesterDetailModel>(
+      res.data!,
+      SemesterDetailModel.fromJson,
+    );
+    return apiRes.data!;
   }
 
   @override
   Future<List<SemesterDetailModel>> getAllGrades() async {
-    //TODO
-    return [];
+    final res = await _dio.get<Map<String, dynamic>>('/api/grade/all');
+    final apiRes = apiResponseListFromJson<SemesterDetailModel>(
+      res.data!,
+      SemesterDetailModel.fromJson,
+    );
+    return apiRes.data!;
   }
 }

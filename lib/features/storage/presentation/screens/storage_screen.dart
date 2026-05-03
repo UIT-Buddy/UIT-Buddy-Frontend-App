@@ -18,12 +18,26 @@ import 'package:uit_buddy_mobile/features/storage/presentation/widgets/storage_s
 import 'package:uit_buddy_mobile/features/storage/presentation/widgets/storage_screen/storage_move_mode_banner.dart';
 
 class StorageScreen extends StatelessWidget {
-  const StorageScreen({super.key});
+  final file_entity.FileEntity? fileToMove;
+  final String? moveSourceFolderId;
+
+  const StorageScreen({super.key, this.fileToMove, this.moveSourceFolderId});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => serviceLocator<StorageBloc>()..add(const StorageStarted()),
+      create: (_) {
+        final bloc = serviceLocator<StorageBloc>()..add(const StorageStarted());
+        if (fileToMove != null && moveSourceFolderId != null) {
+          bloc.add(
+            StorageMoveInitialized(
+              file: fileToMove!,
+              sourceFolderId: moveSourceFolderId!,
+            ),
+          );
+        }
+        return bloc;
+      },
       child: BlocConsumer<StorageBloc, StorageState>(
         listenWhen: (previous, current) =>
             previous.actionErrorMessage != current.actionErrorMessage ||
@@ -40,6 +54,11 @@ class StorageScreen extends StatelessWidget {
             message,
             isError: state.actionErrorMessage != null,
           );
+          if (state.actionSuccessMessage == 'File moved successfully.' &&
+              fileToMove != null) {
+            Navigator.of(context).pop(true);
+          }
+
           context.read<StorageBloc>().add(const StorageFeedbackCleared());
         },
         builder: (context, state) {
@@ -89,9 +108,15 @@ class StorageScreen extends StatelessWidget {
                                   state.currentFolder!.id !=
                                       state.moveSourceFolderId &&
                                   !state.isCreating,
-                              onCancel: () => context.read<StorageBloc>().add(
-                                const StorageMoveCancelled(),
-                              ),
+                              onCancel: () {
+                                if (fileToMove != null) {
+                                  Navigator.of(context).pop();
+                                } else {
+                                  context.read<StorageBloc>().add(
+                                    const StorageMoveCancelled(),
+                                  );
+                                }
+                              },
                               onMoveHere: () => context.read<StorageBloc>().add(
                                 const StorageMoveConfirmed(),
                               ),
@@ -160,7 +185,24 @@ class StorageScreen extends StatelessWidget {
     }
 
     void onMove(file_entity.FileEntity file) {
-      bloc.add(StorageMoveStarted(file: file));
+      showModalBottomSheet<bool>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        builder: (ctx) {
+          return ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+            child: StorageScreen(
+              fileToMove: file,
+              moveSourceFolderId: state.currentFolder?.id ?? '',
+            ),
+          );
+        },
+      ).then((moved) {
+        if (moved == true) {
+          bloc.add(const StorageRefreshed());
+        }
+      });
     }
 
     void onDownload(file_entity.FileEntity file) {

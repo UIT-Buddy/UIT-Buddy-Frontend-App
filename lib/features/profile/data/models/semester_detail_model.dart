@@ -7,13 +7,13 @@ part 'semester_detail_model.g.dart';
 @freezed
 abstract class SemesterDetailModel with _$SemesterDetailModel {
   const factory SemesterDetailModel({
-    required String id,
+    required String semesterCode,
     required int accumulatedCredits,
     required double averageGradeScale10,
     required double averageGradeScale4,
     required List<GradeModel> grades,
     required int totalCredits,
-    required List<int> totalCreditsByCategory,
+    required Map<String, int> totalCreditsByCategory,
   }) = _SemesterDetailModel;
 
   factory SemesterDetailModel.fromJson(Map<String, dynamic> json) =>

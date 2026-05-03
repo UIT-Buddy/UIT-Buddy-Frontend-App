@@ -10,11 +10,11 @@ abstract class GradeModel with _$GradeModel {
     required String courseCode,
     required String courseName,
     required String courseType,
-    required double finalGrade,
-    required double labGrade,
-    required double midtermGrade,
-    required double processGrade,
-    required double totalGrade,
+    double? finalGrade,
+    double? labGrade,
+    double? midtermGrade,
+    double? processGrade,
+    double? totalGrade,
     required int credits,
   }) = _GradeModel;
 

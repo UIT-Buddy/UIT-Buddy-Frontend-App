@@ -19,8 +19,8 @@ extension ProfileMapper on model.ProfileModel {
 
 extension ProfileStatsMapper on model.ProfileStatsModel {
   entity.ProfileStatsEntity toEntity() => entity.ProfileStatsEntity(
-    currentGpa: currentGpa,
-    gpaOn4Scale: gpaOn4Scale,
+    accumulatedGpaScale10: accumulatedGpaScale10,
+    accumulatedGpaScale4: accumulatedGpaScale4,
     accumulatedCredits: accumulatedCredits,
     totalCredits: totalCredits,
     posts: posts,
