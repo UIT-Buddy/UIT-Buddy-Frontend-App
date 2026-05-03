@@ -171,7 +171,7 @@ class _YourInfoBody extends StatelessWidget {
                               ),
                               _InfoField(
                                 label: 'ACCUMULATED GPA',
-                                value: state.yourInfo!.accumulatedGpa
+                                value: state.yourInfo!.accumulatedGpaScale10
                                     .toStringAsFixed(2),
                               ),
                               _InfoField(

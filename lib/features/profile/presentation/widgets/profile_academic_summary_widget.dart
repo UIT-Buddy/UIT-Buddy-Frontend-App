@@ -17,14 +17,16 @@ class ProfileAcademicSummaryWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final showDualGpa =
-        profileInfo.stats.currentGpa > 0 &&
-        profileInfo.stats.gpaOn4Scale > 0 &&
-        (profileInfo.stats.currentGpa - profileInfo.stats.gpaOn4Scale).abs() >
+        profileInfo.stats.accumulatedGpaScale10 > 0 &&
+        profileInfo.stats.accumulatedGpaScale4 > 0 &&
+        (profileInfo.stats.accumulatedGpaScale10 -
+                    profileInfo.stats.accumulatedGpaScale4)
+                .abs() >
             0.01;
 
     final gpaMainValue = showDualGpa
-        ? profileInfo.stats.gpaOn4Scale
-        : profileInfo.stats.currentGpa;
+        ? profileInfo.stats.accumulatedGpaScale4
+        : profileInfo.stats.accumulatedGpaScale10;
 
     final shouldShowCreditRatio =
         profileInfo.stats.totalCredits > 0 &&
@@ -58,7 +60,7 @@ class ProfileAcademicSummaryWidget extends StatelessWidget {
                 child: _BlueStatCard(
                   mainValue: gpaMainValue.toStringAsFixed(1),
                   subValue: showDualGpa
-                      ? '(${profileInfo.stats.currentGpa.toStringAsFixed(1)})'
+                      ? '(${profileInfo.stats.accumulatedGpaScale10.toStringAsFixed(1)})'
                       : null,
                   label: ProfileText.overallGpa,
                 ),

@@ -25,11 +25,10 @@ abstract class ProfileModel with _$ProfileModel {
   factory ProfileModel.fromMeJson(Map<String, dynamic> json) {
     final data = (json['data'] as Map<String, dynamic>? ?? json);
 
-    final accumulatedGpa = (data['accumulatedGpa'] as num?)?.toDouble();
-    final currentGpa =
-        (data['currentGpa'] as num?)?.toDouble() ?? accumulatedGpa ?? 0;
-    final gpaOn4Scale =
-        (data['gpaOn4Scale'] as num?)?.toDouble() ?? accumulatedGpa ?? 0;
+    final accumulatedGpaScale10 =
+        (data['accumulatedGpaScale10'] as num?)?.toDouble() ?? 0;
+    final accumulatedGpaScale4 =
+        (data['accumulatedGpaScale4'] as num?)?.toDouble() ?? 0;
 
     return ProfileModel(
       mssv: (data['mssv'] as String?) ?? '',
@@ -45,8 +44,8 @@ abstract class ProfileModel with _$ProfileModel {
       homeClassCode: (data['homeClassCode'] as String?) ?? '-',
       friendStatus: (data['friendStatus'] as String?) ?? 'NONE',
       stats: ProfileStatsModel(
-        currentGpa: currentGpa,
-        gpaOn4Scale: gpaOn4Scale,
+        accumulatedGpaScale10: accumulatedGpaScale10,
+        accumulatedGpaScale4: accumulatedGpaScale4,
         accumulatedCredits: (data['accumulatedCredits'] as num?)?.toInt() ?? 0,
         totalCredits: (data['totalCredits'] as num?)?.toInt() ?? 0,
         posts:
@@ -62,8 +61,8 @@ abstract class ProfileModel with _$ProfileModel {
 @freezed
 abstract class ProfileStatsModel with _$ProfileStatsModel {
   const factory ProfileStatsModel({
-    required double currentGpa,
-    required double gpaOn4Scale,
+    required double accumulatedGpaScale10,
+    required double accumulatedGpaScale4,
     required int accumulatedCredits,
     required int totalCredits,
     required int posts,

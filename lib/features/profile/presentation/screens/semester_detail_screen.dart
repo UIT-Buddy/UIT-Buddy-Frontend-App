@@ -1,102 +1,95 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
-
-class _MockSemester {
-  final String title;
-  final String yearLabel;
-  final String startDate;
-  final String endDate;
-  final double gpa;
-  final int credits;
-  final bool isCurrent;
-
-  _MockSemester({
-    required this.title,
-    required this.yearLabel,
-    required this.startDate,
-    required this.endDate,
-    required this.gpa,
-    required this.credits,
-    required this.isCurrent,
-  });
-}
+import 'package:uit_buddy_mobile/features/profile/domain/entities/semester_detail_entity.dart';
+import 'package:uit_buddy_mobile/features/profile/presentation/bloc/semester_detail_screen/semester_detail_bloc.dart';
 
 class SemesterDetailScreen extends StatelessWidget {
   const SemesterDetailScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final mockSemesters = [
-      _MockSemester(
-        title: 'HK1',
-        yearLabel: '2023 - 2024',
-        startDate: '05/09/2023',
-        endDate: '15/01/2024',
-        gpa: 8.5,
-        credits: 18,
-        isCurrent: true,
-      ),
-      _MockSemester(
-        title: 'HK2',
-        yearLabel: '2022 - 2023',
-        startDate: '01/02/2023',
-        endDate: '10/06/2023',
-        gpa: 8.0,
-        credits: 20,
-        isCurrent: false,
-      ),
-      _MockSemester(
-        title: 'HK1',
-        yearLabel: '2022 - 2023',
-        startDate: '05/09/2022',
-        endDate: '15/01/2023',
-        gpa: 7.8,
-        credits: 18,
-        isCurrent: false,
-      ),
-    ];
-
-    final currentSemesters = mockSemesters.where((s) => s.isCurrent).toList();
-    final previousSemesters = mockSemesters.where((s) => !s.isCurrent).toList();
-
-    return Scaffold(
-      backgroundColor: AppColor.pureWhite,
-      appBar: AppBar(
+    return BlocProvider(
+      create: (_) =>
+          serviceLocator<SemesterDetailBloc>()
+            ..add(const SemesterDetailLoaded()),
+      child: Scaffold(
         backgroundColor: AppColor.pureWhite,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColor.primaryText),
-          onPressed: () => context.pop(),
+        appBar: AppBar(
+          backgroundColor: AppColor.pureWhite,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: AppColor.primaryText),
+            onPressed: () => context.pop(),
+          ),
+          title: Text(
+            'Semester Details',
+            style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
+          ),
+          centerTitle: true,
         ),
-        title: Text(
-          'Semester Details',
-          style: AppTextStyle.h3.copyWith(fontWeight: AppTextStyle.bold),
-        ),
-        centerTitle: true,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildHeaderRow('Current'),
-            const SizedBox(height: 12),
-            ...currentSemesters.map((s) => _SemesterCard(semester: s)),
-            const SizedBox(height: 24),
-            if (previousSemesters.isNotEmpty) ...[
-              _buildHeaderRow('Previous', showAdd: false),
-              const SizedBox(height: 12),
-              ...previousSemesters.map((s) => _SemesterCard(semester: s)),
-            ],
-          ],
+        body: BlocBuilder<SemesterDetailBloc, SemesterDetailState>(
+          builder: (context, state) {
+            if (state.status == SemesterDetailStatus.loading ||
+                state.status == SemesterDetailStatus.initial) {
+              return const Center(
+                child: CircularProgressIndicator(color: AppColor.primaryBlue),
+              );
+            }
+
+            if (state.status == SemesterDetailStatus.error) {
+              return Center(
+                child: Text(
+                  state.errorMessage ?? 'An error occurred',
+                  style: AppTextStyle.bodyMedium.copyWith(
+                    color: AppColor.alertRed,
+                  ),
+                ),
+              );
+            }
+
+            // Sort semesters descending by code so the newest is first
+            final details = List<SemesterDetailEntity>.from(state.details)
+              ..sort((a, b) => b.semesterCode.compareTo(a.semesterCode));
+
+            if (details.isEmpty) {
+              return const Center(child: Text('No details available.'));
+            }
+
+            final currentSemester = details.first;
+            final previousSemesters = details.length > 1
+                ? details.sublist(1)
+                : <SemesterDetailEntity>[];
+
+            return SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeaderRow('Current'),
+                  const SizedBox(height: 12),
+                  _SemesterCard(semester: currentSemester, isCurrent: true),
+                  const SizedBox(height: 24),
+                  if (previousSemesters.isNotEmpty) ...[
+                    _buildHeaderRow('Previous', showAdd: false),
+                    const SizedBox(height: 12),
+                    ...previousSemesters.map(
+                      (s) => _SemesterCard(semester: s, isCurrent: false),
+                    ),
+                  ],
+                ],
+              ),
+            );
+          },
         ),
       ),
     );
   }
 
-  Widget _buildHeaderRow(String title, {bool showAdd = true}) {
+  Widget _buildHeaderRow(String title, {bool showAdd = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -117,17 +110,49 @@ class SemesterDetailScreen extends StatelessWidget {
   }
 }
 
-class _SemesterCard extends StatelessWidget {
-  final _MockSemester semester;
+class _SemesterCard extends StatefulWidget {
+  final SemesterDetailEntity semester;
+  final bool isCurrent;
 
-  const _SemesterCard({required this.semester});
+  const _SemesterCard({required this.semester, required this.isCurrent});
+
+  @override
+  State<_SemesterCard> createState() => _SemesterCardState();
+}
+
+class _SemesterCardState extends State<_SemesterCard> {
+  bool _isExpanded = false;
+
+  String _getCategoryName(String code) {
+    switch (code.toUpperCase()) {
+      case 'TOTTN':
+        return 'Graduation Credits';
+      case 'DC':
+        return 'General Credits';
+      case 'CSNN':
+        return 'Foundation (Optional)';
+      case 'CSN':
+        return 'Foundation Credits';
+      case 'CN':
+        return 'Major Credits';
+      case 'TC':
+        return 'Elective (Tự chọn)';
+      case 'CT':
+        return 'Political Credits';
+      case 'TD':
+        return 'Free Credits (Tự do)';
+      default:
+        return code;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final lineColor = semester.isCurrent
+    final semester = widget.semester;
+    final lineColor = widget.isCurrent
         ? AppColor.primaryBlue
         : AppColor.dividerGrey;
-    final gpaLabel = semester.isCurrent ? 'GPA' : 'Overall GPA';
+    final gpaLabel = widget.isCurrent ? 'GPA' : 'Overall GPA';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -156,7 +181,7 @@ class _SemesterCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        semester.title,
+                        semester.semesterCode,
                         style: AppTextStyle.h3.copyWith(
                           fontWeight: AppTextStyle.bold,
                         ),
@@ -166,9 +191,7 @@ class _SemesterCard extends StatelessWidget {
                           Icons.more_horiz,
                           color: AppColor.secondaryText,
                         ),
-                        onSelected: (value) {
-                          // Handle edit/delete
-                        },
+                        onSelected: (value) {},
                         itemBuilder: (context) => [
                           const PopupMenuItem(
                             value: 'edit',
@@ -185,41 +208,7 @@ class _SemesterCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                  Text(
-                    semester.yearLabel,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: AppColor.secondaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'START DATE',
-                    style: AppTextStyle.captionSmall.copyWith(
-                      fontWeight: AppTextStyle.bold,
-                      color: AppColor.secondaryText,
-                    ),
-                  ),
-                  Text(
-                    semester.startDate,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: AppColor.secondaryText,
-                    ),
-                  ),
                   const SizedBox(height: 12),
-                  Text(
-                    'END DATE',
-                    style: AppTextStyle.captionSmall.copyWith(
-                      fontWeight: AppTextStyle.bold,
-                      color: AppColor.secondaryText,
-                    ),
-                  ),
-                  Text(
-                    semester.endDate,
-                    style: AppTextStyle.bodySmall.copyWith(
-                      color: AppColor.secondaryText,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
                   IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -235,15 +224,17 @@ class _SemesterCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  semester.gpa.toStringAsFixed(1),
+                                  semester.averageGradeScale10.toStringAsFixed(
+                                    2,
+                                  ),
                                   style: AppTextStyle.h2.copyWith(
                                     color: Colors.white,
                                     fontWeight: AppTextStyle.bold,
                                   ),
                                 ),
-                                const Text(
-                                  '(8.0)',
-                                  style: TextStyle(
+                                Text(
+                                  '(${semester.averageGradeScale4.toStringAsFixed(2)})',
+                                  style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,
                                   ),
@@ -271,7 +262,7 @@ class _SemesterCard extends StatelessWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  '${semester.credits}',
+                                  '${semester.totalCredits}',
                                   style: AppTextStyle.h2.copyWith(
                                     color: Colors.white,
                                     fontWeight: AppTextStyle.bold,
@@ -279,7 +270,7 @@ class _SemesterCard extends StatelessWidget {
                                 ),
                                 const Spacer(),
                                 Text(
-                                  'Credits (this term)',
+                                  'Total credits',
                                   style: AppTextStyle.captionMedium.copyWith(
                                     color: Colors.white,
                                   ),
@@ -291,6 +282,116 @@ class _SemesterCard extends StatelessWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 12),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        _isExpanded = !_isExpanded;
+                      });
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _isExpanded ? 'Hide Details' : 'View Details',
+                            style: AppTextStyle.bodyMedium.copyWith(
+                              color: AppColor.primaryBlue,
+                              fontWeight: AppTextStyle.bold,
+                            ),
+                          ),
+                          Icon(
+                            _isExpanded
+                                ? Icons.keyboard_arrow_up
+                                : Icons.keyboard_arrow_down,
+                            color: AppColor.primaryBlue,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_isExpanded) ...[
+                    const SizedBox(height: 12),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    Text(
+                      "Credits by Category",
+                      style: AppTextStyle.bodyMedium.copyWith(
+                        fontWeight: AppTextStyle.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...semester.totalCreditsByCategory.entries
+                        .where((e) => e.value > 0)
+                        .map(
+                          (e) => Padding(
+                            padding: const EdgeInsets.only(bottom: 4.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    _getCategoryName(e.key),
+                                    style: AppTextStyle.bodyMedium,
+                                  ),
+                                ),
+                                Text(
+                                  '${e.value} credits',
+                                  style: AppTextStyle.bodyMedium.copyWith(
+                                    fontWeight: AppTextStyle.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                    const SizedBox(height: 16),
+                    Text(
+                      "Grades",
+                      style: AppTextStyle.bodyMedium.copyWith(
+                        fontWeight: AppTextStyle.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ...semester.grades.map(
+                      (g) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              '${g.courseCode} - ${g.courseName}',
+                              style: AppTextStyle.bodyMedium.copyWith(
+                                fontWeight: AppTextStyle.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Credits: ${g.credits} | Type: ${_getCategoryName(g.courseType)}',
+                                  style: AppTextStyle.captionMedium.copyWith(
+                                    color: AppColor.secondaryText,
+                                  ),
+                                ),
+                                Text(
+                                  g.totalGrade != null
+                                      ? g.totalGrade!.toStringAsFixed(1)
+                                      : 'N/A',
+                                  style: AppTextStyle.bodyMedium.copyWith(
+                                    color: AppColor.primaryBlue,
+                                    fontWeight: AppTextStyle.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

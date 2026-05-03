@@ -16,7 +16,7 @@ abstract class YourInfoModel with _$YourInfoModel {
     required String bio,
     required String homeClassCode,
     required String friendStatus,
-    required double accumulatedGpa,
+    required double accumulatedGpaScale10,
     required int accumulatedCredits,
     required int postCount,
   }) = _YourInfoModel;
@@ -47,9 +47,9 @@ abstract class YourInfoModel with _$YourInfoModel {
           (data['homeClassCode'] as String?) ?? fallback?.homeClassCode ?? '-',
       friendStatus:
           (data['friendStatus'] as String?) ?? fallback?.friendStatus ?? 'NONE',
-      accumulatedGpa:
-          (data['accumulatedGpa'] as num?)?.toDouble() ??
-          fallback?.accumulatedGpa ??
+      accumulatedGpaScale10:
+          (data['accumulatedGpaScale10'] as num?)?.toDouble() ??
+          fallback?.accumulatedGpaScale10 ??
           0,
       accumulatedCredits:
           (data['accumulatedCredits'] as num?)?.toInt() ??

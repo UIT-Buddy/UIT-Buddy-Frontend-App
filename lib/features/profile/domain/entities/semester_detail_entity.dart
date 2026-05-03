@@ -3,16 +3,16 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 
 @immutable
 class SemesterDetailEntity extends Equatable {
-  final String id;
+  final String semesterCode;
   final int accumulatedCredits;
   final double averageGradeScale10;
   final double averageGradeScale4;
   final List<GradeEntity> grades;
   final int totalCredits;
-  final List<int> totalCreditsByCategory;
+  final Map<String, int> totalCreditsByCategory;
 
   const SemesterDetailEntity({
-    required this.id,
+    required this.semesterCode,
     required this.accumulatedCredits,
     required this.averageGradeScale10,
     required this.averageGradeScale4,
@@ -23,7 +23,7 @@ class SemesterDetailEntity extends Equatable {
 
   @override
   List<Object?> get props => [
-    id,
+    semesterCode,
     accumulatedCredits,
     averageGradeScale10,
     averageGradeScale4,
@@ -39,11 +39,11 @@ class GradeEntity extends Equatable {
   final String courseCode;
   final String courseName;
   final String courseType;
-  final double finalGrade;
-  final double labGrade;
-  final double midtermGrade;
-  final double processGrade;
-  final double totalGrade;
+  final double? finalGrade;
+  final double? labGrade;
+  final double? midtermGrade;
+  final double? processGrade;
+  final double? totalGrade;
   final int credits;
 
   const GradeEntity({
@@ -51,11 +51,11 @@ class GradeEntity extends Equatable {
     required this.courseCode,
     required this.courseName,
     required this.courseType,
-    required this.finalGrade,
-    required this.labGrade,
-    required this.midtermGrade,
-    required this.processGrade,
-    required this.totalGrade,
+    this.finalGrade,
+    this.labGrade,
+    this.midtermGrade,
+    this.processGrade,
+    this.totalGrade,
     required this.credits,
   });
 

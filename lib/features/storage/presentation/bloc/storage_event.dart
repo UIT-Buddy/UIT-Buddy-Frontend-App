@@ -93,6 +93,19 @@ class StorageMoveStarted extends StorageEvent {
   List<Object?> get props => [file];
 }
 
+class StorageMoveInitialized extends StorageEvent {
+  const StorageMoveInitialized({
+    required this.file,
+    required this.sourceFolderId,
+  });
+
+  final FileEntity file;
+  final String sourceFolderId;
+
+  @override
+  List<Object?> get props => [file, sourceFolderId];
+}
+
 class StorageMoveCancelled extends StorageEvent {
   const StorageMoveCancelled();
 }

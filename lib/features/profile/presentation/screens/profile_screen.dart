@@ -31,8 +31,8 @@ class ProfileScreen extends StatefulWidget {
     homeClassCode: '-',
     friendStatus: 'NONE',
     stats: ProfileStatsEntity(
-      currentGpa: 0.0,
-      gpaOn4Scale: 0.0,
+      accumulatedGpaScale10: 0.0,
+      accumulatedGpaScale4: 0.0,
       accumulatedCredits: 0,
       totalCredits: 0,
       posts: 0,

@@ -117,7 +117,7 @@ class SettingsScreen extends StatelessWidget {
           builder: (dialogContext, setState) {
             return AlertDialog(
               title: Text(
-                'Update WebSocket Token?',
+                'Update Token',
                 style: AppTextStyle.h4.copyWith(fontWeight: AppTextStyle.bold),
               ),
               content: Column(
@@ -142,7 +142,7 @@ class SettingsScreen extends StatelessWidget {
                     },
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
-                      hintText: 'New WebSocket Token',
+                      hintText: 'New Token',
                       errorText: tokenError,
                     ),
                   ),

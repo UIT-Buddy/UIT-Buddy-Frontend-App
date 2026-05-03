@@ -35,6 +35,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     on<StorageFileRenamed>(_onFileRenamed);
     on<StorageFileDeleted>(_onFileDeleted);
     on<StorageMoveStarted>(_onMoveStarted);
+    on<StorageMoveInitialized>(_onMoveInitialized);
     on<StorageMoveCancelled>(_onMoveCancelled);
     on<StorageMoveConfirmed>(_onMoveConfirmed);
     on<StorageFeedbackCleared>(_onFeedbackCleared);
@@ -75,9 +76,6 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
           currentFolder: () => folder,
           folderStack: [folder],
           errorMessage: () => null,
-          isMoveMode: false,
-          movingFile: () => null,
-          moveSourceFolderId: () => null,
         ),
       ),
     );
@@ -483,6 +481,21 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
         isMoveMode: true,
         movingFile: () => event.file,
         moveSourceFolderId: () => sourceFolderId,
+        actionErrorMessage: () => null,
+        actionSuccessMessage: () => null,
+      ),
+    );
+  }
+
+  void _onMoveInitialized(
+    StorageMoveInitialized event,
+    Emitter<StorageState> emit,
+  ) {
+    emit(
+      state.copyWith(
+        isMoveMode: true,
+        movingFile: () => event.file,
+        moveSourceFolderId: () => event.sourceFolderId,
         actionErrorMessage: () => null,
         actionSuccessMessage: () => null,
       ),

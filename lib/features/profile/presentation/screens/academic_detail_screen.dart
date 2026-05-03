@@ -32,13 +32,13 @@ class AcademicDetailScreen extends StatelessWidget {
           ),
           centerTitle: true,
           actions: [
-            IconButton(
-              icon: const Icon(
-                Icons.edit_outlined,
-                color: AppColor.primaryText,
-              ),
-              onPressed: () {},
-            ),
+            // IconButton(
+            //   icon: const Icon(
+            //     Icons.edit_outlined,
+            //     color: AppColor.primaryText,
+            //   ),
+            //   onPressed: () {},
+            // ),
           ],
         ),
         body: BlocConsumer<AcademicDetailBloc, AcademicDetailState>(

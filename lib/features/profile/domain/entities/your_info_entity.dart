@@ -11,7 +11,7 @@ class YourInfoEntity extends Equatable {
   final String bio;
   final String homeClassCode;
   final String friendStatus;
-  final double accumulatedGpa;
+  final double accumulatedGpaScale10;
   final int accumulatedCredits;
   final int postCount;
 
@@ -24,7 +24,7 @@ class YourInfoEntity extends Equatable {
     required this.bio,
     required this.homeClassCode,
     required this.friendStatus,
-    required this.accumulatedGpa,
+    required this.accumulatedGpaScale10,
     required this.accumulatedCredits,
     required this.postCount,
   });
@@ -39,7 +39,7 @@ class YourInfoEntity extends Equatable {
     bio,
     homeClassCode,
     friendStatus,
-    accumulatedGpa,
+    accumulatedGpaScale10,
     accumulatedCredits,
     postCount,
   ];
