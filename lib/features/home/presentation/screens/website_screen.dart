@@ -45,6 +45,31 @@ final _websites = [
     bgColor: AppColor.warningOrangeLight,
   ),
   _WebsiteEntry(
+    title: 'Student Support Center',
+    url: 'https://ctsv.uit.edu.vn/',
+    description:
+        'Access student support services, counseling and campus resources.',
+    icon: Icons.support_agent_outlined,
+    iconColor: AppColor.alertRed,
+    bgColor: AppColor.alertRed10,
+  ),
+  _WebsiteEntry(
+    title: 'Course Registration',
+    url: 'https://dkhp.uit.edu.vn/',
+    description: 'Register for courses and manage your academic schedule.',
+    icon: Icons.app_registration_outlined,
+    iconColor: AppColor.primaryBlueLight,
+    bgColor: AppColor.veryLightGrey,
+  ),
+  _WebsiteEntry(
+    title: 'Internship Forum',
+    url: 'https://forum.uit.edu.vn/tag/internship',
+    description: 'Find and register for internship opportunities.',
+    icon: Icons.work_outline_rounded,
+    iconColor: AppColor.secondaryText,
+    bgColor: AppColor.veryLightGrey,
+  ),
+  _WebsiteEntry(
     title: 'Library',
     url: 'https://lib.uit.edu.vn/',
     description: 'Access the UIT digital library, e-books and research papers.',
@@ -53,28 +78,13 @@ final _websites = [
     bgColor: AppColor.successGreen10,
   ),
   _WebsiteEntry(
-    title: 'UIT Email',
-    url: 'https://mail.google.com/a/gm.uit.edu.vn',
-    description: 'Official UIT Gmail workspace for students and staff.',
-    icon: Icons.email_outlined,
-    iconColor: AppColor.alertRed,
-    bgColor: AppColor.alertRed10,
-  ),
-  _WebsiteEntry(
-    title: 'Scientific Research',
-    url: 'https://nckh.uit.edu.vn/',
-    description: 'Register and manage your scientific research projects.',
-    icon: Icons.science_outlined,
+    title: 'Post University Training',
+    url: 'https://sdh.uit.edu.vn/',
+    description:
+        'Training and development programs for students after graduation.',
+    icon: Icons.school_outlined,
     iconColor: AppColor.primaryBlueDark,
     bgColor: AppColor.primaryBlue20,
-  ),
-  _WebsiteEntry(
-    title: 'Internship Portal',
-    url: 'https://intern.uit.edu.vn/',
-    description: 'Find and register for internship opportunities.',
-    icon: Icons.work_outline_rounded,
-    iconColor: AppColor.secondaryText,
-    bgColor: AppColor.veryLightGrey,
   ),
 ];
 

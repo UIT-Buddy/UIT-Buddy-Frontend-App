@@ -1,6 +1,7 @@
 /// Shared cursor/offset-based pagination helpers for social datasource impls.
 mixin NotificationPagingMixin {
   String? extractNextCursor(Map<String, dynamic> body) {
+    // API response has paging nested inside data: data: { ..., paging: {...} }
     final paging = body['paging'] as Map<String, dynamic>?;
     return paging?['nextCursor'] as String?;
   }
@@ -11,6 +12,7 @@ mixin NotificationPagingMixin {
     int returnedCount,
     int requestedLimit,
   ) {
+    // API response has paging nested inside data: data: { ..., paging: {...} }
     final paging = body['paging'] as Map<String, dynamic>?;
     if (paging == null) return false;
 

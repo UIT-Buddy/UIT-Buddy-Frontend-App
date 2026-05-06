@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_bloc.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_state.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/constants/home_text.dart';
 
 class HomeMainWidget extends StatelessWidget {
@@ -8,73 +11,109 @@ class HomeMainWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: AppColor.primaryGradient,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Top row: incoming badge + avatars
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
+    return BlocBuilder<HomeBloc, HomeState>(
+      builder: (context, state) {
+        final incomingCourse = state.homepageData?.incomingCourse;
+
+        if (incomingCourse == null) {
+          return Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              gradient: AppColor.greenAvatarGradient,
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColor.primaryBlue.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Text(
+              HomeText.noMoreClassToday,
+              style: AppTextStyle.h1.copyWith(
+                color: AppColor.pureWhite,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          );
+        }
+
+        return Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: AppColor.primaryGradient,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: AppColor.pureWhite.withValues(alpha: 0.6),
+              // Top row: incoming badge + avatars
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: AppColor.pureWhite.withValues(alpha: 0.6),
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      HomeText.incomingBadge +
+                          incomingCourse.remainingTime.toString() +
+                          HomeText.incomingBadge2,
+                      style: AppTextStyle.captionSmallWhite.copyWith(
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
                   ),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  HomeText.incomingBadge,
-                  style: AppTextStyle.captionSmallWhite.copyWith(
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.4,
-                  ),
+                  const Spacer(),
+                  const _AvatarStack(extraCount: 12),
+                ],
+              ),
+              const SizedBox(height: 20),
+              // Course code
+              Text(
+                incomingCourse.courseCode,
+                style: AppTextStyle.h1.copyWith(
+                  color: AppColor.pureWhite,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
-              const Spacer(),
-              const _AvatarStack(extraCount: 12),
+              const SizedBox(height: 6),
+              // Course name
+              Text(
+                incomingCourse.courseName,
+                style: AppTextStyle.bodyLarge.copyWith(
+                  color: AppColor.pureWhite.withValues(alpha: 0.9),
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Room
+              _InfoRow(
+                icon: Icons.room_outlined,
+                label: incomingCourse.roomCode,
+              ),
+              const SizedBox(height: 8),
+              // Lecturer
+              _InfoRow(
+                icon: Icons.person_outline,
+                label: incomingCourse.lecturerName,
+              ),
             ],
           ),
-          const SizedBox(height: 20),
-          // Course code
-          Text(
-            HomeText.nextClassCode,
-            style: AppTextStyle.h1.copyWith(
-              color: AppColor.pureWhite,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 6),
-          // Course name
-          Text(
-            HomeText.nextClassName,
-            style: AppTextStyle.bodyLarge.copyWith(
-              color: AppColor.pureWhite.withValues(alpha: 0.9),
-              fontWeight: FontWeight.w500,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 20),
-          // Room
-          _InfoRow(icon: Icons.room_outlined, label: HomeText.nextClassRoom),
-          const SizedBox(height: 8),
-          // Lecturer
-          _InfoRow(
-            icon: Icons.person_outline,
-            label: HomeText.nextClassLecturer,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

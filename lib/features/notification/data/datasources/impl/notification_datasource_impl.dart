@@ -25,14 +25,17 @@ class NotificationDatasourceImpl
     );
 
     final body = response.data!;
-    final dataList = (body['data'] as List)
+
+    // API returns data as: { notifications: [...], unread_notification: X, paging: {...} }
+    final dataMap = body['data'] as Map<String, dynamic>;
+    final notifications = (dataMap['notifications'] as List)
         .map((e) => NotificationModel.fromJson(e as Map<String, dynamic>))
         .toList();
 
     return PagedResult<NotificationModel>(
-      items: dataList,
-      nextCursor: extractNextCursor(body),
-      hasMore: extractHasMore(body, dataList.length, limit),
+      items: notifications,
+      nextCursor: extractNextCursor(dataMap),
+      hasMore: extractHasMore(dataMap, notifications.length, limit),
     );
   }
 

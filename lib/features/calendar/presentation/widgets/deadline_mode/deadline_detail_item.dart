@@ -204,7 +204,9 @@ class SubTitleText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Text(
-      '${_formatDeadline(deadlineDetailEntity.deadline)} • ${deadlineDetailEntity.courseId}',
+      deadlineDetailEntity.courseId.isEmpty
+          ? _formatDeadline(deadlineDetailEntity.deadline)
+          : '${_formatDeadline(deadlineDetailEntity.deadline)} • ${deadlineDetailEntity.courseId}',
       style: AppTextStyle.captionMedium,
     );
   }

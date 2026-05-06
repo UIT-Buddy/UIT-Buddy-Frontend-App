@@ -8,10 +8,11 @@ class HomeText {
   static const String selectionWeather = 'Weather';
   static const String selectionMore = 'More';
   static const String userName = 'Đình Minh! 👋';
-  static const String classThisEvening = 'You got 1 class this evening';
+  static const String classToday = 'You got ';
+  static const String classToday2 = ' today.';
 
   // Deadline section
-  static const String deadlineSectionTitle = 'Incoming Deadline (3)';
+  static const String deadlineSectionTitle = 'Incoming Deadlines (';
   static const String deadlineSeeAll = 'See all';
   static String deadlineSectionSubtitle(int count) =>
       '$count upcoming deadline${count == 1 ? '' : 's'}';
@@ -31,10 +32,13 @@ class HomeText {
   static const String websiteSearchHint = 'Search websites...';
 
   // Next class card
-  static const String incomingBadge = 'INCOMING (15 MINS)';
+  static const String incomingBadge = 'INCOMING (';
+  static const String incomingBadge2 = ' MINS)';
   static const String nextClassCode = 'SE100.Q21';
   static const String nextClassName =
       'Phương pháp phát triển phần mềm hướng đối tượng';
   static const String nextClassRoom = 'B2.14';
   static const String nextClassLecturer = 'TS. Lê Thanh Trọng';
+  static const String noMoreClassToday =
+      'No classes today! Time to recharge and rest well for our next session. You’ve got this! ☕️☁️';
 }

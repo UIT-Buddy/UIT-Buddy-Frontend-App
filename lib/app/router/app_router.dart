@@ -36,6 +36,7 @@ import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_search_
 import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_contacts_screen.dart';
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:uit_buddy_mobile/app/router/app_router_keys.dart';
+import 'package:uit_buddy_mobile/features/shared/screens/import_grade__guide_screen.dart';
 
 final goRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
@@ -309,6 +310,14 @@ final goRouter = GoRouter(
         context: context,
         state: state,
         child: const ChatContactsScreen(),
+      ),
+    ),
+    GoRoute(
+      path: RouteName.gradeGuide,
+      pageBuilder: (context, state) => buildFlexibleSlideTransition(
+        context: context,
+        state: state,
+        child: const ImportGradeGuideScreen(),
       ),
     ),
   ],

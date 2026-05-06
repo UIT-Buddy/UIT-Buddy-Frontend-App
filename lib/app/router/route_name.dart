@@ -38,4 +38,5 @@ class RouteName {
   static const String chatConversation = '/chat/conversation';
   static const String chatSearch = '/chat/search';
   static const String chatContacts = '/chat/contacts';
+  static const String gradeGuide = '/grade-guide';
 }
