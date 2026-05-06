@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; // Ensure this is imported
+import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_bloc.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_event.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/widgets/home_deadline_widget.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/widgets/home_header_widget.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/widgets/home_main_widget.dart';
@@ -24,22 +27,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColor.pureWhite,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              HomeHeaderWidget(),
-              SizedBox(height: 20),
-              HomeMainWidget(),
-              SizedBox(height: 24),
-              SelectionOptionWidget(),
-              SizedBox(height: 28),
-              HomeDeadlineWidget(),
-            ],
+    return BlocProvider(
+      create: (_) => serviceLocator<HomeBloc>()..add(const HomeDataFetched()),
+      child: Scaffold(
+        backgroundColor: AppColor.pureWhite,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: const [
+                HomeHeaderWidget(),
+                SizedBox(height: 20),
+                HomeMainWidget(),
+                SizedBox(height: 24),
+                SelectionOptionWidget(),
+                SizedBox(height: 28),
+                HomeDeadlineWidget(),
+              ],
+            ),
           ),
         ),
       ),

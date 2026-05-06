@@ -67,6 +67,7 @@ class _ChatContactsScreenState extends State<ChatContactsScreen>
       onItemTap: (context, user) {
         context.push(RouteName.chatConversation, extra: {'user': user});
       },
+      hideAppbar: true,
     );
   }
 
@@ -77,6 +78,7 @@ class _ChatContactsScreenState extends State<ChatContactsScreen>
       onItemTap: (context, group) {
         context.push(RouteName.chatConversation, extra: {'group': group});
       },
+      hideAppbar: true,
     );
   }
 }

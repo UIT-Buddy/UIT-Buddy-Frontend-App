@@ -66,6 +66,7 @@ flutter:
     - assets/images/
     - assets/images/placeholder/
     - assets/images/sample/
+    - assets/images/guide/grade/
 
   fonts:
     - family: Inter

@@ -204,10 +204,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
 
                   const SizedBox(height: 20),
-                  OutlinedButton(
-                    onPressed: () => context.push(RouteName.chat),
-                    child: const Text('Chat'),
-                  ),
                   // Log out
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16),

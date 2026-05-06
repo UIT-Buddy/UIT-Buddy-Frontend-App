@@ -221,11 +221,17 @@ import 'package:uit_buddy_mobile/features/chat/services/chat_service.dart';
 import 'package:uit_buddy_mobile/features/chat/services/push_notification_service.dart';
 import 'package:uit_buddy_mobile/features/chat/services/call_permission_service.dart';
 import 'package:uit_buddy_mobile/features/chat/presentation/blocs/chat_init/chat_init_bloc.dart';
+import 'package:uit_buddy_mobile/features/home/data/datasources/homepage_datasource.dart';
+import 'package:uit_buddy_mobile/features/home/data/datasources/impl/homepage_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/home/data/repositories/homepage_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/home/domain/repositories/homepage_repository.dart';
+import 'package:uit_buddy_mobile/features/home/domain/usecases/get_homepage_data_usecase.dart';
 import 'package:uit_buddy_mobile/features/home/data/datasources/impl/weather_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/home/data/datasources/weather_datasource.dart';
 import 'package:uit_buddy_mobile/features/home/data/repositories/weather_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/home/domain/repositories/weather_repository.dart';
 import 'package:uit_buddy_mobile/features/home/domain/usecases/get_weather_usecase.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_bloc.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/weather_bloc.dart';
 
 final serviceLocator = GetIt.instance;
@@ -242,7 +248,7 @@ Future<void> initDependencies() async {
   await _initGroupsDependencies();
   await _initSettingsDependencies();
   // await _initYourPostsDependencies();
-  _initWeatherDependencies();
+  _initHomeDependencies();
   await _initChatDependencies();
 }
 
@@ -1036,7 +1042,7 @@ Future<void> _initSettingsDependencies() async {
   );
 }
 
-void _initWeatherDependencies() {
+void _initHomeDependencies() {
   // Dedicated plain Dio for OpenWeatherMap (no auth interceptor needed)
   serviceLocator.registerLazySingleton<Dio>(
     () => Dio(
@@ -1049,23 +1055,37 @@ void _initWeatherDependencies() {
     instanceName: 'weatherDio',
   );
 
-  // Datasource
+  // Datasources
+  serviceLocator.registerLazySingleton<HomepageDatasource>(
+    () => HomePageDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
   serviceLocator.registerLazySingleton<WeatherDatasource>(
     () =>
         WeatherDatasourceImpl(dio: serviceLocator(instanceName: 'weatherDio')),
   );
 
-  // Repository
+  // Repositories
+  serviceLocator.registerLazySingleton<HomepageRepository>(
+    () => HomepageRepositoryImpl(homepageDatasource: serviceLocator()),
+  );
   serviceLocator.registerLazySingleton<WeatherRepository>(
     () => WeatherRepositoryImpl(weatherDatasource: serviceLocator()),
   );
 
-  // Usecase
+  // Usecases
+  serviceLocator.registerLazySingleton(
+    () => GetHomepageDataUsecase(serviceLocator()),
+  );
   serviceLocator.registerLazySingleton(
     () => GetWeatherUsecase(repository: serviceLocator()),
   );
 
-  // Bloc
+  // Blocs
+  serviceLocator.registerFactory(
+    () => HomeBloc(getHomepageDataUsecase: serviceLocator()),
+  );
   serviceLocator.registerFactory(
     () => WeatherBloc(getWeatherUsecase: serviceLocator()),
   );
