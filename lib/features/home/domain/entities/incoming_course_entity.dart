@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:uit_buddy_mobile/features/home/domain/entities/incoming_deadline_entity.dart';
 
 class IncomingCourseEntity extends Equatable {
   const IncomingCourseEntity({
@@ -10,7 +11,7 @@ class IncomingCourseEntity extends Equatable {
     required this.lecturerName,
   });
 
-  final int remainingTime;
+  final RemainingTimeEntity remainingTime;
   final int studentsInClass;
   final String courseCode;
   final String courseName;

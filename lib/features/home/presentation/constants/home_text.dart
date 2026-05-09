@@ -18,7 +18,7 @@ class HomeText {
       '$count upcoming deadline${count == 1 ? '' : 's'}';
 
   // Note screen
-  static const String noteDefaultTitle = 'Untitled Note';
+  static const String noteDefaultTitle = 'Note';
   static const String noteSaveButton = 'Save';
   static const String noteEditLabel = 'Edit';
   static const String notePreviewLabel = 'Preview';

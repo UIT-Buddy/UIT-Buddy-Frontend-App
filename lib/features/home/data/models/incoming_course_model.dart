@@ -1,3 +1,4 @@
+import 'package:uit_buddy_mobile/features/home/data/models/incoming_deadline_model.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'incoming_course_model.freezed.dart';
@@ -6,7 +7,7 @@ part 'incoming_course_model.g.dart';
 @freezed
 abstract class IncomingCourseModel with _$IncomingCourseModel {
   const factory IncomingCourseModel({
-    required int remainingTime,
+    required RemainingTimeModel remainingTime,
     required int studentsInClass,
     required String courseCode,
     required String courseName,

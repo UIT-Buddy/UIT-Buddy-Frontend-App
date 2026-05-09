@@ -36,7 +36,7 @@ extension HomepagePagingModelToEntity on HomepagePagingModel {
 extension IncomingCourseModelToEntity on IncomingCourseModel {
   IncomingCourseEntity toEntity() {
     return IncomingCourseEntity(
-      remainingTime: remainingTime,
+      remainingTime: remainingTime.toEntity(),
       studentsInClass: studentsInClass,
       courseCode: courseCode,
       courseName: courseName,
