@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:uit_buddy_mobile/app/router/extensions/router_extension.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/note/note_bloc.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/note/note_event.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/note/note_state.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/constants/home_text.dart';
 
 class NoteScreen extends StatefulWidget {
@@ -37,18 +41,8 @@ class _NoteScreenState extends State<NoteScreen> {
 
   void _onSave() {
     FocusScope.of(context).unfocus();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Note "${_titleController.text}" saved',
-          style: AppTextStyle.bodySmall.copyWith(color: AppColor.pureWhite),
-        ),
-        backgroundColor: AppColor.successGreen,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        margin: const EdgeInsets.all(16),
-        duration: const Duration(seconds: 2),
-      ),
+    context.read<NoteBloc>().add(
+      SaveNoteRequested(content: _bodyController.text),
     );
   }
 
@@ -57,15 +51,70 @@ class _NoteScreenState extends State<NoteScreen> {
     return Scaffold(
       backgroundColor: AppColor.pureWhite,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            _NoteHeader(titleController: _titleController, onSave: _onSave),
-            const Divider(height: 1, color: AppColor.dividerGrey),
-            _EditSection(controller: _bodyController),
-            const Divider(height: 1, color: AppColor.dividerGrey),
-            _PreviewSection(markdown: _previewText),
-          ],
+        child: BlocConsumer<NoteBloc, NoteState>(
+          listener: (context, state) {
+            if (state is NoteLoaded) {
+              if (_bodyController.text.isEmpty && state.note.content != null) {
+                _bodyController.text = state.note.content!;
+              }
+            } else if (state is NoteSaveSuccess) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Note "${_titleController.text}" saved',
+                    style: AppTextStyle.bodySmall.copyWith(
+                      color: AppColor.pureWhite,
+                    ),
+                  ),
+                  backgroundColor: AppColor.successGreen,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.all(16),
+                  duration: const Duration(seconds: 2),
+                ),
+              );
+            } else if (state is NoteError) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.message,
+                    style: AppTextStyle.bodySmall.copyWith(
+                      color: AppColor.pureWhite,
+                    ),
+                  ),
+                  backgroundColor: Colors.red,
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  margin: const EdgeInsets.all(16),
+                ),
+              );
+            }
+          },
+          builder: (context, state) {
+            final isLoading = state is NoteLoading;
+            return Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _NoteHeader(
+                      titleController: _titleController,
+                      onSave: isLoading ? () {} : _onSave,
+                    ),
+                    const Divider(height: 1, color: AppColor.dividerGrey),
+                    _EditSection(controller: _bodyController),
+                    const Divider(height: 1, color: AppColor.dividerGrey),
+                    _PreviewSection(markdown: _previewText),
+                  ],
+                ),
+                if (isLoading) const Center(child: CircularProgressIndicator()),
+              ],
+            );
+          },
         ),
       ),
     );

@@ -26,6 +26,8 @@ import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_info
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_posts_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/academic_detail_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/semester_detail_screen.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/note/note_bloc.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/note/note_event.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/note_screen.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/website_screen.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/screens/weather_screen.dart';
@@ -251,7 +253,11 @@ final goRouter = GoRouter(
       pageBuilder: (context, state) => buildFlexibleSlideTransition(
         context: context,
         state: state,
-        child: const NoteScreen(),
+        child: BlocProvider(
+          create: (context) =>
+              serviceLocator<NoteBloc>()..add(const FetchNoteRequested()),
+          child: const NoteScreen(),
+        ),
       ),
     ),
     GoRoute(

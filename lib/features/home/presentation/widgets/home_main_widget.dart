@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
+import 'package:uit_buddy_mobile/features/home/domain/entities/incoming_deadline_entity.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_bloc.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_state.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/constants/home_text.dart';
@@ -66,9 +67,13 @@ class HomeMainWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      HomeText.incomingBadge +
-                          incomingCourse.remainingTime.toString() +
-                          HomeText.incomingBadge2,
+                      "${HomeText.incomingBadge}${incomingCourse.remainingTime.unit} ${incomingCourse.remainingTime.unitName == TimeUnit.minute
+                          ? 'minutes'
+                          : incomingCourse.remainingTime.unitName == TimeUnit.hour
+                          ? 'hours'
+                          : incomingCourse.remainingTime.unitName == TimeUnit.day
+                          ? 'days'
+                          : 'weeks'})",
                       style: AppTextStyle.captionSmallWhite.copyWith(
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.4,
@@ -76,7 +81,7 @@ class HomeMainWidget extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  const _AvatarStack(extraCount: 12),
+                  _AvatarStack(extraCount: incomingCourse.studentsInClass),
                 ],
               ),
               const SizedBox(height: 20),

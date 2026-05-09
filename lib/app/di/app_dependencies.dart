@@ -234,6 +234,15 @@ import 'package:uit_buddy_mobile/features/home/domain/usecases/get_weather_useca
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_bloc.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/weather_bloc.dart';
 
+// NOTE
+import 'package:uit_buddy_mobile/features/home/data/datasources/impl/note_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/home/data/datasources/note_datasource.dart';
+import 'package:uit_buddy_mobile/features/home/data/repositories/note_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/home/domain/repositories/note_repository.dart';
+import 'package:uit_buddy_mobile/features/home/domain/usecases/get_note_usecase.dart';
+import 'package:uit_buddy_mobile/features/home/domain/usecases/upsert_note_usecase.dart';
+import 'package:uit_buddy_mobile/features/home/presentation/bloc/note/note_bloc.dart';
+
 final serviceLocator = GetIt.instance;
 
 Future<void> initDependencies() async {
@@ -1088,6 +1097,28 @@ void _initHomeDependencies() {
   );
   serviceLocator.registerFactory(
     () => WeatherBloc(getWeatherUsecase: serviceLocator()),
+  );
+
+  // Note
+  serviceLocator.registerLazySingleton<NoteDatasource>(
+    () => NoteDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
+  serviceLocator.registerLazySingleton<NoteRepository>(
+    () => NoteRepositoryImpl(noteDatasource: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetNoteUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => UpsertNoteUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => NoteBloc(
+      getNoteUsecase: serviceLocator(),
+      upsertNoteUsecase: serviceLocator(),
+    ),
   );
 }
 
