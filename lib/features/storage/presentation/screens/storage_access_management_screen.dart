@@ -12,6 +12,8 @@ import 'package:uit_buddy_mobile/features/storage/domain/usecases/share_resource
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/storage_get_friends_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/unshare_usecase.dart';
 
+enum StorageUserAccessType { viewer, editor, owner }
+
 enum StorageShareResourceType { document, folder }
 
 enum StorageShareActionMode { share, manageSharedUsers }
@@ -350,6 +352,25 @@ class _StorageAccessManagementScreenState
   Future<void> _onShare(StorageFriendEntity friend) async {
     if (_isPerformingAction || _newlySharedMssvs.contains(friend.mssv)) return;
 
+    final accessRole = await showDialog<String>(
+      context: context,
+      builder: (context) => SimpleDialog(
+        title: const Text('Select Access Role', style: AppTextStyle.h4),
+        children: [
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(context).pop('VIEWER'),
+            child: const Text('Viewer', style: AppTextStyle.bodyMedium),
+          ),
+          SimpleDialogOption(
+            onPressed: () => Navigator.of(context).pop('EDITOR'),
+            child: const Text('Editor', style: AppTextStyle.bodyMedium),
+          ),
+        ],
+      ),
+    );
+
+    if (accessRole == null) return;
+
     setState(() {
       _isPerformingAction = true;
       _activeActionMssv = friend.mssv;
@@ -361,6 +382,7 @@ class _StorageAccessManagementScreenState
           resourceType: resourceType,
           resourceId: widget.resourceId,
           targetMssv: friend.mssv,
+          accessRole: accessRole,
         ),
       ),
     );

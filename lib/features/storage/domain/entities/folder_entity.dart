@@ -8,6 +8,7 @@ class FolderEntity extends Equatable {
   final String name;
   final String path;
   final String parentFolderId;
+  final String? accessRole;
   final List<SubFolderEntity> folders;
   final List<FileEntity> files;
 
@@ -16,6 +17,7 @@ class FolderEntity extends Equatable {
     required this.name,
     required this.path,
     required this.parentFolderId,
+    this.accessRole,
     required this.folders,
     required this.files,
   });
@@ -25,6 +27,7 @@ class FolderEntity extends Equatable {
     String? name,
     String? path,
     String? parentFolderId,
+    String? accessRole,
     List<SubFolderEntity>? folders,
     List<FileEntity>? files,
   }) {
@@ -33,13 +36,22 @@ class FolderEntity extends Equatable {
       name: name ?? this.name,
       path: path ?? this.path,
       parentFolderId: parentFolderId ?? this.parentFolderId,
+      accessRole: accessRole ?? this.accessRole,
       folders: folders ?? this.folders,
       files: files ?? this.files,
     );
   }
 
   @override
-  List<Object?> get props => [id, name, path, parentFolderId, folders, files];
+  List<Object?> get props => [
+    id,
+    name,
+    path,
+    parentFolderId,
+    accessRole,
+    folders,
+    files,
+  ];
 }
 
 @immutable

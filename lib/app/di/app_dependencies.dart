@@ -19,8 +19,8 @@ import 'package:uit_buddy_mobile/features/calendar/data/repositories/calendar_re
 import 'package:uit_buddy_mobile/features/calendar/data/repositories/course_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/repositories/calendar_repository.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/repositories/course_repository.dart';
-import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_deadline_usecase.dart';
-import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadline_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_deadline_mode_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadline_mode_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_courses_mode_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_studying_class_codes_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/sync_assignments_usecase.dart';
@@ -29,7 +29,14 @@ import 'package:uit_buddy_mobile/features/calendar/domain/usecases/upload_schedu
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_bloc.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_bloc.dart';
+import 'package:uit_buddy_mobile/features/deadline/data/datasources/deadline_datasource.dart';
+import 'package:uit_buddy_mobile/features/deadline/data/datasources/impl/deadline_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/deadline/data/repositories/deadline_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/deadline/domain/repositories/deadline_repository.dart';
+import 'package:uit_buddy_mobile/features/deadline/domain/usecases/get_deadline_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/deadline/domain/usecases/update_deadline_usecase.dart';
+import 'package:uit_buddy_mobile/features/deadline/presentation/bloc/deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/notification/data/datasources/impl/notification_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/notification/data/datasources/notification_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/notification/data/repositories/notification_repository_impl.dart';
@@ -49,6 +56,7 @@ import 'package:uit_buddy_mobile/features/onboarding/data/repositories/auth_repo
 import 'package:uit_buddy_mobile/features/onboarding/data/repositories/firebase_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/auth_repository.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/repositories/firebase_repository.dart';
+import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/change_ws_token_usecase.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/forget_password_usecase.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/reset_password_usecase.dart';
 import 'package:uit_buddy_mobile/features/onboarding/domain/usecases/signin_usecase.dart';
@@ -210,6 +218,7 @@ import 'package:uit_buddy_mobile/features/storage/domain/usecases/delete_file_us
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_shared_users_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_download_url_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_folder_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_shared_folders_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/share_resource_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/storage_get_friends_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/subject_class_usecase.dart';
@@ -259,6 +268,7 @@ Future<void> initDependencies() async {
   // await _initYourPostsDependencies();
   _initHomeDependencies();
   await _initChatDependencies();
+  await _initDeadlineDependencies();
 }
 
 Future<void> _initAuthDependencies() async {
@@ -395,10 +405,16 @@ Future<void> _initAuthDependencies() async {
   serviceLocator.registerLazySingleton(
     () => ResetPasswordUsecase(authRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => ChangeWsTokenOnboardingUsecase(authRepository: serviceLocator()),
+  );
 
   // Blocs
   serviceLocator.registerFactory(
-    () => SignUpTokenBloc(signUpInitUsecase: serviceLocator()),
+    () => SignUpTokenBloc(
+      signUpInitUsecase: serviceLocator(),
+      changeWsTokenUsecase: serviceLocator(),
+    ),
   );
   serviceLocator.registerFactory(
     () => SignUpInfoBloc(signUpCompleteUsecase: serviceLocator()),
@@ -461,13 +477,13 @@ Future<void> _initCalendarDependencies() async {
 
   // Usecases
   serviceLocator.registerLazySingleton(
-    () => GetDeadlineUsecase(calendarRepository: serviceLocator()),
+    () => GetDeadlineModeUsecase(calendarRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
     () => GetStudyingClassCodesUsecase(calendarRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
-    () => CreateDeadlineUsecase(calendarRepository: serviceLocator()),
+    () => CreateDeadlineModeUsecase(calendarRepository: serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
     () => GetCoursesModeUsecase(courseRepository: serviceLocator()),
@@ -485,7 +501,7 @@ Future<void> _initCalendarDependencies() async {
   // Blocs / Cubits
   serviceLocator.registerFactory(() => CalendarBloc());
   serviceLocator.registerFactory(
-    () => DeadlineBloc(getDeadlineUsecase: serviceLocator()),
+    () => DeadlineModeBloc(getDeadlineUsecase: serviceLocator()),
   );
   serviceLocator.registerFactory(
     () => CoursesModeBloc(
@@ -962,6 +978,9 @@ Future<void> _initStorageDependencies() async {
   serviceLocator.registerLazySingleton(
     () => StorageGetFriendsUsecase(friendRepository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => GetSharedFoldersUsecase(storageRepository: serviceLocator()),
+  );
 
   // Blocs
   serviceLocator.registerFactory(
@@ -972,6 +991,7 @@ Future<void> _initStorageDependencies() async {
       createFilesUsecase: serviceLocator(),
       updateFilesUsecase: serviceLocator(),
       deleteFileUsecase: serviceLocator(),
+      getSharedFoldersUsecase: serviceLocator(),
     ),
   );
 }
@@ -1140,25 +1160,27 @@ Future<void> _initChatDependencies() async {
     () => CallPermissionService(),
   );
 }
-//   // Datasource
-//   serviceLocator.registerLazySingleton<PostDatasourceInterface>(
-//     () => PostDatasourceImpl(),
-//   );
 
-//   // Repository
-//   serviceLocator.registerLazySingleton<PostRepository>(
-//     () => PostRepositoryImpl(
-//       postDatasourceInterface: serviceLocator(),
-//     ),
-//   );
-
-//   // Usecases
-//   serviceLocator.registerLazySingleton(
-//     () => GetPostsUsecase(postRepository: serviceLocator()),
-//   );
-
-//   // Blocs
-//   serviceLocator.registerFactory(
-//     () => YourPostsBloc(getPostsUsecase: serviceLocator()),
-//   );
-// }
+Future<void> _initDeadlineDependencies() async {
+  // DEADLINE (Detail & Features)
+  serviceLocator.registerLazySingleton<DeadlineDatasource>(
+    () => DeadlineDatasourceImpl(
+      dio: serviceLocator<Dio>(instanceName: 'authenticatedDio'),
+    ),
+  );
+  serviceLocator.registerLazySingleton<DeadlineRepository>(
+    () => DeadlineRepositoryImpl(deadlineDatasource: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => GetDeadlineDetailUsecase(serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => UpdateDeadlineUsecase(serviceLocator()),
+  );
+  serviceLocator.registerFactory(
+    () => DeadlineBloc(
+      getDeadlineDetailUsecase: serviceLocator(),
+      updateDeadlineUsecase: serviceLocator(),
+    ),
+  );
+}

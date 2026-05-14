@@ -27,4 +27,11 @@ abstract interface class AuthRemoteDatasource {
     bool rememberMe,
     String fcmToken,
   });
+
+  Future<ApiResponse<SignUpCompleteResponseModel>> changeWsToken({
+    required String mssv,
+    required String password,
+    required String wstoken,
+    String fcmToken,
+  });
 }

@@ -56,6 +56,8 @@ class DeadlineDatasourceImpl implements DeadlineDatasource {
     final response = await _dio.get<Map<String, dynamic>>(
       '/api/schedule/deadline/$deadlineId',
     );
-    return DeadlineModel.fromJson(response.data!);
+    return DeadlineModel.fromJson(
+      response.data!['data'] as Map<String, dynamic>,
+    );
   }
 }

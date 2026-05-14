@@ -3,7 +3,13 @@ import 'package:uit_buddy_mobile/features/onboarding/domain/entities/signup_init
 
 part 'sign_up_token_state.freezed.dart';
 
-enum SignUpTokenStatus { initial, loading, success, failure }
+enum SignUpTokenStatus {
+  initial,
+  loading,
+  success,
+  failure,
+  changeWsTokenSuccess,
+}
 
 @freezed
 abstract class SignUpTokenState with _$SignUpTokenState {

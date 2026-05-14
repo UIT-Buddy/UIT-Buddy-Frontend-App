@@ -1,12 +1,15 @@
 import 'package:equatable/equatable.dart';
 
+enum DeadlineStatus { done, upcoming, overdue, nearDeadline }
+
 class DeadlineEntity extends Equatable {
   final String id;
   final String exerciseName;
   final DateTime dueDate;
   final String? url;
-  final String status;
+  final DeadlineStatus status;
   final bool isPersonal;
+  final String? classCode;
 
   const DeadlineEntity({
     required this.id,
@@ -15,6 +18,7 @@ class DeadlineEntity extends Equatable {
     this.url,
     required this.status,
     required this.isPersonal,
+    this.classCode,
   });
 
   @override
@@ -25,6 +29,7 @@ class DeadlineEntity extends Equatable {
     url,
     status,
     isPersonal,
+    classCode,
   ];
 }
 

@@ -23,7 +23,7 @@ class CalendarDatasourceImpl implements CalendarDatasourceInterface {
       final courseContents = apiData['courseContents'] as List<dynamic>;
 
       final Map<int, List<DeadlineDetailModel>> byDay = {};
-      var idx = 0;
+      //var idx = 0;
 
       for (final course in courseContents) {
         final courseName = course['courseName'] as String;
@@ -32,21 +32,21 @@ class CalendarDatasourceImpl implements CalendarDatasourceInterface {
           final dueDateStr = exercise['dueDate'] as String;
           final dueDate = DateTime.parse(dueDateStr);
           if (dueDate.month != month || dueDate.year != year) {
-            idx++;
+            //idx++;
             continue;
           }
           final day = dueDate.day;
           byDay.putIfAbsent(day, () => []);
           byDay[day]!.add(
             DeadlineDetailModel(
-              id: '$idx',
+              id: exercise['id'] as String,
               title: exercise['exerciseName'] as String,
               status: (exercise['status'] as String).toLowerCase(),
               courseId: courseName,
               deadline: dueDateStr,
             ),
           );
-          idx++;
+          //idx++;
         }
       }
 

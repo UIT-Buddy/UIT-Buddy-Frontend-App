@@ -15,9 +15,11 @@ class StorageState extends Equatable {
     this.isFolderLoading = false,
     this.isCreating = false,
     this.isMoveMode = false,
+    this.isShared = false,
     this.classes = const [],
     this.currentFolder,
     this.folderStack = const [],
+    this.sharedFolders = const [],
     this.errorMessage,
     this.movingFile,
     this.moveSourceFolderId,
@@ -31,9 +33,11 @@ class StorageState extends Equatable {
   final bool isFolderLoading;
   final bool isCreating;
   final bool isMoveMode;
+  final bool isShared;
   final List<SubjectClassEntity> classes;
   final FolderEntity? currentFolder;
   final List<FolderEntity> folderStack;
+  final List<FolderEntity> sharedFolders;
   final String? errorMessage;
   final FileEntity? movingFile;
   final String? moveSourceFolderId;
@@ -47,9 +51,11 @@ class StorageState extends Equatable {
     bool? isFolderLoading,
     bool? isCreating,
     bool? isMoveMode,
+    bool? isShared,
     List<SubjectClassEntity>? classes,
     FolderEntity? Function()? currentFolder,
     List<FolderEntity>? folderStack,
+    List<FolderEntity>? sharedFolders,
     String? Function()? errorMessage,
     FileEntity? Function()? movingFile,
     String? Function()? moveSourceFolderId,
@@ -63,11 +69,13 @@ class StorageState extends Equatable {
       isFolderLoading: isFolderLoading ?? this.isFolderLoading,
       isCreating: isCreating ?? this.isCreating,
       isMoveMode: isMoveMode ?? this.isMoveMode,
+      isShared: isShared ?? this.isShared,
       classes: classes ?? this.classes,
       currentFolder: currentFolder != null
           ? currentFolder()
           : this.currentFolder,
       folderStack: folderStack ?? this.folderStack,
+      sharedFolders: sharedFolders ?? this.sharedFolders,
       errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
       movingFile: movingFile != null ? movingFile() : this.movingFile,
       moveSourceFolderId: moveSourceFolderId != null
@@ -90,9 +98,11 @@ class StorageState extends Equatable {
     isFolderLoading,
     isCreating,
     isMoveMode,
+    isShared,
     classes,
     currentFolder,
     folderStack,
+    sharedFolders,
     errorMessage,
     movingFile,
     moveSourceFolderId,

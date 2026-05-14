@@ -14,13 +14,14 @@ class StorageStarted extends StorageEvent {
 }
 
 class StorageFolderOpened extends StorageEvent {
-  const StorageFolderOpened({this.folder, this.folderId});
+  const StorageFolderOpened({this.folder, this.folderId, this.isShared});
 
   final SubjectClassEntity? folder;
   final String? folderId;
+  final bool? isShared;
 
   @override
-  List<Object?> get props => [folder, folderId];
+  List<Object?> get props => [folder, folderId, isShared];
 }
 
 class StorageBackPressed extends StorageEvent {
@@ -116,4 +117,8 @@ class StorageMoveConfirmed extends StorageEvent {
 
 class StorageFeedbackCleared extends StorageEvent {
   const StorageFeedbackCleared();
+}
+
+class StorageSharedFoldersRequested extends StorageEvent {
+  const StorageSharedFoldersRequested();
 }

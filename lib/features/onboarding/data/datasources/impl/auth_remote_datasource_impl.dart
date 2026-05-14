@@ -75,6 +75,29 @@ class AuthRemoteDatasourceImpl implements AuthRemoteDatasource {
   }
 
   @override
+  Future<ApiResponse<SignUpCompleteResponseModel>> changeWsToken({
+    required String mssv,
+    required String password,
+    required String wstoken,
+    String fcmToken = '',
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/api/auth/wstoken',
+      data: {
+        'mssv': mssv,
+        'password': password,
+        'wstoken': wstoken,
+        'fcmToken': fcmToken,
+      },
+    );
+
+    return apiResponseObjectFromJson(
+      response.data!,
+      SignUpCompleteResponseModel.fromJson,
+    );
+  }
+
+  @override
   Future<ApiResponse<void>> forgetPassword({required String mssv}) async {
     final response = await _dio.post<Map<String, dynamic>>(
       '/api/auth/forget-password',

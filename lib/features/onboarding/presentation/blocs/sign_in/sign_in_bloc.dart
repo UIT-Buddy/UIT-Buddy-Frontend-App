@@ -35,12 +35,24 @@ class SignInBloc extends Bloc<SignInEvent, SignInState> {
         ),
       ),
       (data) async {
-        emit(state.copyWith(status: SignInStatus.success));
-        await CometChat.loginWithAuthToken(
-          data.cometAuthToken,
-          onError: (excep) => {},
-          onSuccess: (user) => {},
-        );
+        if (data.changeWsToken == true) {
+          emit(
+            state.copyWith(
+              status: SignInStatus.requireTokenChange,
+              mssv: event.mssv,
+              password: event.password,
+            ),
+          );
+        } else {
+          emit(state.copyWith(status: SignInStatus.success));
+          if (data.cometAuthToken != null) {
+            await CometChat.loginWithAuthToken(
+              data.cometAuthToken!,
+              onError: (excep) => {},
+              onSuccess: (user) => {},
+            );
+          }
+        }
       },
     );
   }

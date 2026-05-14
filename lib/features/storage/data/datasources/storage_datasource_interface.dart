@@ -33,6 +33,7 @@ abstract interface class StorageDatasourceInterface {
     required String resourceType,
     required String resourceId,
     required String targetMssv,
+    required String accessRole,
   });
 
   Future<PagedResult<SharedStudentModel>> getSharedUsers({
@@ -51,6 +52,8 @@ abstract interface class StorageDatasourceInterface {
     required String resourceType,
     required String targetMssv,
   });
+
+  Future<List<FolderModel>> getSharedFolders();
 
   Future<List<FileModel>> searchSharedDocuments({
     int? page,

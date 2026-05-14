@@ -38,6 +38,7 @@ abstract interface class StorageRepository {
     required String resourceType,
     required String resourceId,
     required String targetMssv,
+    required String accessRole,
   });
 
   Future<Either<Failure, PagedResult<SharedStudentEntity>>> getSharedUsers({
@@ -56,6 +57,8 @@ abstract interface class StorageRepository {
     required String resourceType,
     required String targetMssv,
   });
+
+  Future<Either<Failure, List<FolderEntity>>> getSharedFolders();
 
   Future<Either<Failure, List<FileEntity>>> searchSharedDocuments({
     int? page,

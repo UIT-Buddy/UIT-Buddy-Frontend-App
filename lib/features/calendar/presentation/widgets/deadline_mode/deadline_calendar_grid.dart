@@ -3,8 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/entities/calendar_deadline_entity.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_event.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_event.dart';
 
 class DeadlineCalendarGrid extends StatelessWidget {
   const DeadlineCalendarGrid({
@@ -106,8 +106,8 @@ class DeadlineCalendarGrid extends StatelessWidget {
         }
 
         return GestureDetector(
-          onTap: () => context.read<DeadlineBloc>().add(
-            DeadlineEntitySelected(dayNumber),
+          onTap: () => context.read<DeadlineModeBloc>().add(
+            DeadlineModeEntitySelected(dayNumber),
           ),
           child: Container(
             decoration: BoxDecoration(

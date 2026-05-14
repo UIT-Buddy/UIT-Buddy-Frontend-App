@@ -65,4 +65,14 @@ class TokenStoreImpl implements TokenStore {
     _refreshToken = newRefreshToken;
     await _secureStore.set<String>(_refreshTokenKey, newRefreshToken);
   }
+
+  @override
+  Future<void> saveMssv(String mssv) async {
+    await _secureStore.set<String>('saved_mssv', mssv);
+  }
+
+  @override
+  Future<String> getMssv() async {
+    return await _secureStore.get<String>('saved_mssv') ?? '';
+  }
 }

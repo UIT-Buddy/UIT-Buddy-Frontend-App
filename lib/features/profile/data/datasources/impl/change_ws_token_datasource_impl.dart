@@ -9,9 +9,15 @@ class ChangeWsTokenDatasourceImpl implements ChangeWsTokenDatasourceInterface {
   final Dio _dio;
 
   @override
-  Future<Either<Failure, void>> changeWsToken(String newToken) async {
+  Future<Either<Failure, void>> changeWsToken({
+    required String mssv,
+    required String newToken,
+  }) async {
     try {
-      await _dio.patch('/api/user/wstoken', data: {'wstoken': newToken});
+      await _dio.patch(
+        '/api/auth/wstoken',
+        data: {'mssv': mssv, 'wstoken': newToken},
+      );
       return right(null);
     } on DioException catch (e) {
       return left(Failure(e.message ?? 'An error occurred'));

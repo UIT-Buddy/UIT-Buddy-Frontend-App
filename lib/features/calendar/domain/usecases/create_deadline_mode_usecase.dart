@@ -5,8 +5,8 @@ import 'package:uit_buddy_mobile/core/error/failures.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/repositories/calendar_repository.dart';
 
-class CreateDeadlineUsecase implements UseCase<Unit, CreateDeadlineParams> {
-  CreateDeadlineUsecase({required CalendarRepository calendarRepository})
+class CreateDeadlineModeUsecase implements UseCase<Unit, CreateDeadlineParams> {
+  CreateDeadlineModeUsecase({required CalendarRepository calendarRepository})
     : _calendarRepository = calendarRepository;
 
   final CalendarRepository _calendarRepository;

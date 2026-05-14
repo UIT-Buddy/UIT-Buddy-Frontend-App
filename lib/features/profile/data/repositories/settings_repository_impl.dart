@@ -58,7 +58,11 @@ class SettingsRepositoryImpl implements SettingsRepository {
 
   @override
   Future<Either<Failure, void>> changeWsToken(String newToken) async {
-    final result = await _changeWsTokenDatasource.changeWsToken(newToken);
+    final mssv = await _tokenStore.getMssv();
+    final result = await _changeWsTokenDatasource.changeWsToken(
+      mssv: mssv,
+      newToken: newToken,
+    );
 
     return result.bind((_) {
       return right(null);

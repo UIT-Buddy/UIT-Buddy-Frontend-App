@@ -16,6 +16,7 @@ class ShareResourceUsecase implements UseCase<Unit, ShareResourceParams> {
         resourceType: params.resourceType,
         resourceId: params.resourceId,
         targetMssv: params.targetMssv,
+        accessRole: params.accessRole,
       );
 }
 
@@ -24,12 +25,14 @@ class ShareResourceParams extends Equatable {
     required this.resourceType,
     required this.resourceId,
     required this.targetMssv,
+    required this.accessRole,
   });
 
   final String resourceType;
   final String resourceId;
   final String targetMssv;
+  final String accessRole;
 
   @override
-  List<Object?> get props => [resourceType, resourceId, targetMssv];
+  List<Object?> get props => [resourceType, resourceId, targetMssv, accessRole];
 }

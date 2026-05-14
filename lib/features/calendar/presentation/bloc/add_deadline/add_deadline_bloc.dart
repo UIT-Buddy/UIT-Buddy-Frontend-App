@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
-import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadline_usecase.dart';
+import 'package:uit_buddy_mobile/features/calendar/domain/usecases/create_deadline_mode_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/usecases/get_studying_class_codes_usecase.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_event.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadline/add_deadline_state.dart';
@@ -8,7 +8,7 @@ import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/add_deadlin
 class AddDeadlineBloc extends Bloc<AddDeadlineEvent, AddDeadlineState> {
   AddDeadlineBloc({
     required GetStudyingClassCodesUsecase getStudyingClassCodesUsecase,
-    required CreateDeadlineUsecase createDeadlineUsecase,
+    required CreateDeadlineModeUsecase createDeadlineUsecase,
   }) : _getStudyingClassCodesUsecase = getStudyingClassCodesUsecase,
        _createDeadlineUsecase = createDeadlineUsecase,
        super(const AddDeadlineState()) {
@@ -18,7 +18,7 @@ class AddDeadlineBloc extends Bloc<AddDeadlineEvent, AddDeadlineState> {
   }
 
   final GetStudyingClassCodesUsecase _getStudyingClassCodesUsecase;
-  final CreateDeadlineUsecase _createDeadlineUsecase;
+  final CreateDeadlineModeUsecase _createDeadlineUsecase;
 
   Future<void> _onStarted(
     AddDeadlineStarted event,

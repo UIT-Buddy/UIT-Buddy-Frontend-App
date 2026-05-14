@@ -14,8 +14,9 @@ extension SignUpCompleteResponseModelMapper on SignUpCompleteResponseModel {
   SignUpCompleteEntity toEntity() => SignUpCompleteEntity(
     accessToken: accessToken,
     refreshToken: refreshToken,
-    user: user.toEntity(),
+    user: user?.toEntity(),
     cometAuthToken: cometAuthToken,
+    changeWsToken: changeWsToken,
     avatarUrl: avatarUrl,
   );
 }

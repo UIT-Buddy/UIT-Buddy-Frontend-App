@@ -7,6 +7,9 @@ abstract interface class TokenStore {
   Future<void> deleteRefreshToken();
   Future<void> replaceRefreshToken(String newRefreshToken);
 
+  Future<void> saveMssv(String mssv);
+  Future<String> getMssv();
+
   /// Loads persisted tokens from secure storage into memory. Call once on startup.
   Future<void> loadPersistedTokens();
 
