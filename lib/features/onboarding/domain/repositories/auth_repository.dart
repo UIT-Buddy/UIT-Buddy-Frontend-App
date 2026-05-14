@@ -23,6 +23,13 @@ abstract interface class AuthRepository {
     String fcmToken,
   });
 
+  Future<Either<Failure, SignUpCompleteEntity>> changeWsToken({
+    required String mssv,
+    required String password,
+    required String wstoken,
+    String fcmToken,
+  });
+
   Future<Either<Failure, void>> forgetPassword({required String mssv});
 
   Future<Either<Failure, void>> resetPassword({

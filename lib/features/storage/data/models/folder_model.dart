@@ -8,10 +8,11 @@ part 'folder_model.g.dart';
 @freezed
 abstract class FolderModel with _$FolderModel {
   const factory FolderModel({
-    required String id,
-    required String name,
-    required String path,
+    required String folderId,
+    required String folderName,
+    required String folderPath,
     required String parentFolderId,
+    String? accessRole,
     @Default([]) List<SubFolderModel> folders,
     @Default([]) List<FileModel> files,
   }) = _FolderModel;

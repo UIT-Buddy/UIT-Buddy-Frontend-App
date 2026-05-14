@@ -16,6 +16,7 @@ class StorageFileGrid extends StatelessWidget {
     super.key,
     required this.folder,
     required this.isMoveMode,
+    required this.isShared,
     required this.onOpenFile,
     required this.onRename,
     required this.onMove,
@@ -26,10 +27,13 @@ class StorageFileGrid extends StatelessWidget {
     required this.onShareFolder,
     required this.onViewSharedUsersFolder,
     this.onAddTap,
+    this.shrinkWrap = false,
+    this.physics,
   });
 
   final FolderEntity folder;
   final bool isMoveMode;
+  final bool isShared;
   final ValueChanged<file_entity.FileEntity> onOpenFile;
   final ValueChanged<file_entity.FileEntity> onRename;
   final ValueChanged<file_entity.FileEntity> onMove;
@@ -40,12 +44,15 @@ class StorageFileGrid extends StatelessWidget {
   final ValueChanged<SubFolderEntity> onShareFolder;
   final ValueChanged<SubFolderEntity> onViewSharedUsersFolder;
   final VoidCallback? onAddTap;
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
 
   @override
   Widget build(BuildContext context) {
     return GridView.builder(
+      shrinkWrap: shrinkWrap,
+      physics: physics ?? const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      physics: const AlwaysScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         crossAxisSpacing: 12,
@@ -61,7 +68,7 @@ class StorageFileGrid extends StatelessWidget {
             subFolder: subFolder,
             isGrid: true,
             onTap: () => context.read<StorageBloc>().add(
-              StorageFolderOpened(folderId: subFolder.id),
+              StorageFolderOpened(folderId: subFolder.id, isShared: isShared),
             ),
             onShare: () => onShareFolder(subFolder),
             onViewSharedUsers: () => onViewSharedUsersFolder(subFolder),
@@ -84,6 +91,10 @@ class StorageFileGrid extends StatelessWidget {
           );
         }
 
+        if (isShared || isMoveMode) {
+          return const SizedBox.shrink();
+        }
+
         return StorageAddFileButton(isGrid: true, onTap: onAddTap!);
       },
     );
@@ -95,6 +106,7 @@ class StorageFileList extends StatelessWidget {
     super.key,
     required this.folder,
     required this.isMoveMode,
+    required this.isShared,
     required this.onOpenFile,
     required this.onRename,
     required this.onMove,
@@ -105,10 +117,13 @@ class StorageFileList extends StatelessWidget {
     required this.onShareFolder,
     required this.onViewSharedUsersFolder,
     this.onAddTap,
+    this.shrinkWrap = false,
+    this.physics,
   });
 
   final FolderEntity folder;
   final bool isMoveMode;
+  final bool isShared;
   final ValueChanged<file_entity.FileEntity> onOpenFile;
   final ValueChanged<file_entity.FileEntity> onRename;
   final ValueChanged<file_entity.FileEntity> onMove;
@@ -119,18 +134,24 @@ class StorageFileList extends StatelessWidget {
   final ValueChanged<SubFolderEntity> onShareFolder;
   final ValueChanged<SubFolderEntity> onViewSharedUsersFolder;
   final VoidCallback? onAddTap;
+  final bool shrinkWrap;
+  final ScrollPhysics? physics;
 
   @override
   Widget build(BuildContext context) {
     final items = [...folder.folders, ...folder.files];
     return ListView.separated(
+      shrinkWrap: shrinkWrap,
       padding: const EdgeInsets.symmetric(vertical: 8),
-      physics: const AlwaysScrollableScrollPhysics(),
+      physics: physics ?? const AlwaysScrollableScrollPhysics(),
       itemCount: items.length + (isMoveMode ? 0 : 1),
       separatorBuilder: (_, _) =>
           const Divider(height: 1, indent: 72, color: AppColor.dividerGrey),
       itemBuilder: (context, index) {
         if (!isMoveMode && index == items.length) {
+          if (isShared || isMoveMode) {
+            return const SizedBox.shrink();
+          }
           return StorageAddFileButton(isGrid: false, onTap: onAddTap!);
         }
 
@@ -140,7 +161,7 @@ class StorageFileList extends StatelessWidget {
             subFolder: item,
             isGrid: false,
             onTap: () => context.read<StorageBloc>().add(
-              StorageFolderOpened(folderId: item.id),
+              StorageFolderOpened(folderId: item.id, isShared: isShared),
             ),
             onShare: () => onShareFolder(item),
             onViewSharedUsers: () => onViewSharedUsersFolder(item),

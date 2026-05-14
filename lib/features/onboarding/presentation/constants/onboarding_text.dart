@@ -36,6 +36,7 @@ class OnboardingText {
 
   // Sign up Screen
   static const String signUpTitle = "Create Account";
+  static const String signUpTitleRenewToken = "Update Moodle Token";
   static const String signUpSubtitle1 = "Enter your moodle’s token to continue";
   static const String signUpSubtitle2 =
       "Join us and start your academic journey!";

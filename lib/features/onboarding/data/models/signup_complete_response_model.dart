@@ -19,10 +19,11 @@ abstract class SignUpCompleteUserModel with _$SignUpCompleteUserModel {
 @freezed
 abstract class SignUpCompleteResponseModel with _$SignUpCompleteResponseModel {
   const factory SignUpCompleteResponseModel({
-    required String accessToken,
-    required String refreshToken,
-    required SignUpCompleteUserModel user,
-    required String cometAuthToken,
+    String? accessToken,
+    String? refreshToken,
+    SignUpCompleteUserModel? user,
+    String? cometAuthToken,
+    bool? changeWsToken,
     String? avatarUrl,
   }) = _SignUpCompleteResponseModel;
 

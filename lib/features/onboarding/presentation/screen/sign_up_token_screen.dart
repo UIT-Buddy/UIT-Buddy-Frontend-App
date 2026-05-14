@@ -12,7 +12,16 @@ import 'package:uit_buddy_mobile/features/shared/button.dart';
 import 'package:uit_buddy_mobile/features/shared/input_text.dart';
 
 class SignUpTokenScreen extends StatefulWidget {
-  const SignUpTokenScreen({super.key});
+  const SignUpTokenScreen({
+    super.key,
+    this.mssv,
+    this.password,
+    this.isTokenChange = false,
+  });
+
+  final String? mssv;
+  final String? password;
+  final bool isTokenChange;
 
   @override
   State<SignUpTokenScreen> createState() => _SignUpTokenScreenState();
@@ -60,6 +69,8 @@ class _SignUpTokenScreenState extends State<SignUpTokenScreen>
               state.entity!.signupToken,
             ),
           );
+        } else if (state.status == SignUpTokenStatus.changeWsTokenSuccess) {
+          context.goTo(RouteName.home);
         } else if (state.status == SignUpTokenStatus.failure) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -81,7 +92,9 @@ class _SignUpTokenScreenState extends State<SignUpTokenScreen>
             children: [
               OnboardingHeader(
                 onBack: () => context.goBack(RouteName.signIn),
-                title: OnboardingText.signUpTitle,
+                title: widget.isTokenChange
+                    ? OnboardingText.signUpTitleRenewToken
+                    : OnboardingText.signUpTitle,
                 subtitle: OnboardingText.signUpSubtitle1,
               ),
               Expanded(
@@ -107,11 +120,23 @@ class _SignUpTokenScreenState extends State<SignUpTokenScreen>
                               text: OnboardingText.signUpVerifyButton,
                               isLoading: isLoading,
                               onPressed: () {
-                                context.read<SignUpTokenBloc>().add(
-                                  SignUpTokenVerifyPressed(
-                                    wstoken: _tokenController.text.trim(),
-                                  ),
-                                );
+                                if (widget.isTokenChange &&
+                                    widget.mssv != null &&
+                                    widget.password != null) {
+                                  context.read<SignUpTokenBloc>().add(
+                                    ChangeWsTokenPressed(
+                                      wstoken: _tokenController.text.trim(),
+                                      mssv: widget.mssv!,
+                                      password: widget.password!,
+                                    ),
+                                  );
+                                } else {
+                                  context.read<SignUpTokenBloc>().add(
+                                    SignUpTokenVerifyPressed(
+                                      wstoken: _tokenController.text.trim(),
+                                    ),
+                                  );
+                                }
                               },
                             ),
                           ],

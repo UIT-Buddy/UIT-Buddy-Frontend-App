@@ -1,9 +1,11 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:uit_buddy_mobile/core/usecase/usecase_interface.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/create_files_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/create_folder_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/delete_file_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_download_url_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_folder_usecase.dart';
+import 'package:uit_buddy_mobile/features/storage/domain/usecases/get_shared_folders_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/usecases/update_file_usecase.dart';
 import 'package:uit_buddy_mobile/features/storage/domain/entities/folder_entity.dart';
 import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_event.dart';
@@ -17,12 +19,14 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     required CreateFilesUsecase createFilesUsecase,
     required UpdateFilesUsecase updateFilesUsecase,
     required DeleteFileUsecase deleteFileUsecase,
+    required GetSharedFoldersUsecase getSharedFoldersUsecase,
   }) : _getFolderUsecase = getFolderUsecase,
        _getDownloadUrlUsecase = getDownloadUrlUsecase,
        _createFolderUsecase = createFolderUsecase,
        _createFilesUsecase = createFilesUsecase,
        _updateFilesUsecase = updateFilesUsecase,
        _deleteFileUsecase = deleteFileUsecase,
+       _getSharedFoldersUsecase = getSharedFoldersUsecase,
        super(const StorageState()) {
     on<StorageStarted>(_onStorageStarted);
     on<StorageFolderOpened>(_onFolderOpened);
@@ -39,6 +43,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     on<StorageMoveCancelled>(_onMoveCancelled);
     on<StorageMoveConfirmed>(_onMoveConfirmed);
     on<StorageFeedbackCleared>(_onFeedbackCleared);
+    on<StorageSharedFoldersRequested>(_onSharedFoldersRequested);
   }
 
   final GetFolderUsecase _getFolderUsecase;
@@ -47,6 +52,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
   final CreateFilesUsecase _createFilesUsecase;
   final UpdateFilesUsecase _updateFilesUsecase;
   final DeleteFileUsecase _deleteFileUsecase;
+  final GetSharedFoldersUsecase _getSharedFoldersUsecase;
 
   Future<void> _onStorageStarted(
     StorageStarted event,
@@ -109,11 +115,17 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
       ),
       (folder) {
         final newStack = [...state.folderStack, folder];
+        final shouldBeShared = event.isShared ?? state.isShared;
+        final folderWithRole = (shouldBeShared && folder.accessRole == null)
+            ? folder.copyWith(accessRole: state.currentFolder?.accessRole)
+            : folder;
+
         return emit(
           state.copyWith(
             isFolderLoading: false,
-            currentFolder: () => folder,
+            currentFolder: () => folderWithRole,
             folderStack: newStack,
+            isShared: shouldBeShared,
             errorMessage: () => null,
           ),
         );
@@ -131,6 +143,7 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
           viewMode: StorageViewMode.topLevel,
           currentFolder: () => null,
           folderStack: [],
+          isShared: false,
           errorMessage: () => null,
         ),
       );
@@ -146,14 +159,17 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
           viewMode: StorageViewMode.topLevel,
           currentFolder: () => null,
           folderStack: [],
+          isShared: false,
           errorMessage: () => null,
         ),
       );
     } else {
+      final isNowShared = newStack.length == 1 ? false : state.isShared;
       emit(
         state.copyWith(
           currentFolder: () => newStack.last,
           folderStack: newStack,
+          isShared: isNowShared,
           errorMessage: () => null,
         ),
       );
@@ -615,16 +631,19 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
     final refreshResult = await _getFolderUsecase(folderId);
 
     String? refreshError;
-    refreshResult.fold(
-      (failure) => refreshError = failure.message,
-      (folder) => emit(
+    refreshResult.fold((failure) => refreshError = failure.message, (folder) {
+      final folderWithRole = (state.isShared && folder.accessRole == null)
+          ? folder.copyWith(accessRole: state.currentFolder?.accessRole)
+          : folder;
+
+      emit(
         state.copyWith(
-          currentFolder: () => folder,
-          folderStack: _replaceFolderInStack(folder),
+          currentFolder: () => folderWithRole,
+          folderStack: _replaceFolderInStack(folderWithRole),
           errorMessage: () => null,
         ),
-      ),
-    );
+      );
+    });
 
     return refreshError;
   }
@@ -644,5 +663,31 @@ class StorageBloc extends Bloc<StorageEvent, StorageState> {
 
     updatedStack[updatedStack.length - 1] = folder;
     return updatedStack;
+  }
+
+  Future<void> _onSharedFoldersRequested(
+    StorageSharedFoldersRequested event,
+    Emitter<StorageState> emit,
+  ) async {
+    emit(state.copyWith(isFolderLoading: true));
+
+    final result = await _getSharedFoldersUsecase(const NoParams());
+
+    result.fold(
+      (failure) => emit(
+        state.copyWith(
+          isFolderLoading: false,
+          errorMessage: () => failure.message,
+          isShared: true,
+        ),
+      ),
+      (sharedFolders) => emit(
+        state.copyWith(
+          isFolderLoading: false,
+          sharedFolders: sharedFolders,
+          errorMessage: () => null,
+        ),
+      ),
+    );
   }
 }

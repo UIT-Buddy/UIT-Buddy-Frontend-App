@@ -133,6 +133,39 @@ class MockAuthRepository extends _i1.Mock implements _i2.AuthRepository {
           as _i3.Future<_i4.Either<_i5.Failure, _i8.SignUpCompleteEntity>>);
 
   @override
+  _i3.Future<_i4.Either<_i5.Failure, _i8.SignUpCompleteEntity>> changeWsToken({
+    required String? mssv,
+    required String? password,
+    required String? wstoken,
+    String? fcmToken,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#changeWsToken, [], {
+              #mssv: mssv,
+              #password: password,
+              #wstoken: wstoken,
+              #fcmToken: fcmToken,
+            }),
+            returnValue:
+                _i3.Future<
+                  _i4.Either<_i5.Failure, _i8.SignUpCompleteEntity>
+                >.value(
+                  _i7.dummyValue<
+                    _i4.Either<_i5.Failure, _i8.SignUpCompleteEntity>
+                  >(
+                    this,
+                    Invocation.method(#changeWsToken, [], {
+                      #mssv: mssv,
+                      #password: password,
+                      #wstoken: wstoken,
+                      #fcmToken: fcmToken,
+                    }),
+                  ),
+                ),
+          )
+          as _i3.Future<_i4.Either<_i5.Failure, _i8.SignUpCompleteEntity>>);
+
+  @override
   _i3.Future<_i4.Either<_i5.Failure, void>> forgetPassword({
     required String? mssv,
   }) =>

@@ -4,17 +4,22 @@ import 'package:uit_buddy_mobile/features/deadline/domain/entities/deadline_enti
 part 'deadline_model.freezed.dart';
 part 'deadline_model.g.dart';
 
+Object? _readExerciseName(Map json, String key) {
+  return json['deadlineName'] ?? json['exerciseName'];
+}
+
 @freezed
 abstract class DeadlineModel with _$DeadlineModel {
   const DeadlineModel._();
 
   const factory DeadlineModel({
     required String id,
-    required String exerciseName,
+    @JsonKey(readValue: _readExerciseName) required String exerciseName,
     required DateTime dueDate,
     String? url,
     required String status,
     required bool isPersonal,
+    String? classCode,
   }) = _DeadlineModel;
 
   factory DeadlineModel.fromJson(Map<String, dynamic> json) =>
@@ -26,9 +31,25 @@ abstract class DeadlineModel with _$DeadlineModel {
       exerciseName: exerciseName,
       dueDate: dueDate,
       url: url,
-      status: status,
+      status: _deadlineStatusFromString(status),
       isPersonal: isPersonal,
+      classCode: classCode,
     );
+  }
+}
+
+DeadlineStatus _deadlineStatusFromString(String status) {
+  switch (status.toUpperCase()) {
+    case 'DONE':
+      return DeadlineStatus.done;
+    case 'UPCOMING':
+      return DeadlineStatus.upcoming;
+    case 'OVERDUE':
+      return DeadlineStatus.overdue;
+    case 'NEARDEADLINE':
+      return DeadlineStatus.nearDeadline;
+    default:
+      throw ArgumentError('Unknown deadline status: $status');
   }
 }
 

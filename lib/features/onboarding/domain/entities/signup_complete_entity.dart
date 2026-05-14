@@ -18,18 +18,20 @@ class SignUpCompleteUserEntity extends Equatable {
 
 class SignUpCompleteEntity extends Equatable {
   const SignUpCompleteEntity({
-    required this.accessToken,
-    required this.refreshToken,
-    required this.user,
-    required this.cometAuthToken,
+    this.accessToken,
+    this.refreshToken,
+    this.user,
+    this.cometAuthToken,
+    this.changeWsToken,
     this.avatarUrl,
   });
 
-  final String accessToken;
-  final String refreshToken;
-  final SignUpCompleteUserEntity user;
-  final String cometAuthToken;
+  final String? accessToken;
+  final String? refreshToken;
+  final SignUpCompleteUserEntity? user;
+  final String? cometAuthToken;
+  final bool? changeWsToken;
   final String? avatarUrl;
   @override
-  List<Object?> get props => [accessToken, refreshToken, user];
+  List<Object?> get props => [accessToken, refreshToken, user, changeWsToken];
 }

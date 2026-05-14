@@ -61,6 +61,15 @@ class _SignInScreenState extends State<SignInScreen>
         listener: (context, state) {
           if (state.status == SignInStatus.success) {
             context.goTo(RouteName.home);
+          } else if (state.status == SignInStatus.requireTokenChange) {
+            context.goTo(
+              RouteName.signUpToken,
+              extraData: {
+                'mssv': state.mssv,
+                'password': state.password,
+                'isTokenChange': true,
+              },
+            );
           } else if (state.status == SignInStatus.failure) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(

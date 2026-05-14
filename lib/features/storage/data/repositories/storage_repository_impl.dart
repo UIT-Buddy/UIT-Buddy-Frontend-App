@@ -131,12 +131,14 @@ class StorageRepositoryImpl implements StorageRepository {
     required String resourceType,
     required String resourceId,
     required String targetMssv,
+    required String accessRole,
   }) async {
     try {
       await _storageDatasourceInterface.shareResource(
         resourceType: resourceType,
         resourceId: resourceId,
         targetMssv: targetMssv,
+        accessRole: accessRole,
       );
       return const Right(unit);
     } on Exception catch (e) {
@@ -192,6 +194,16 @@ class StorageRepositoryImpl implements StorageRepository {
     try {
       await _storageDatasourceInterface.deleteFile(documentId: documentId);
       return const Right(unit);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, List<FolderEntity>>> getSharedFolders() async {
+    try {
+      final response = await _storageDatasourceInterface.getSharedFolders();
+      return Right(response.map((m) => m.toEntity()).toList());
     } on Exception catch (e) {
       return Left(Failure.fromException(e));
     }

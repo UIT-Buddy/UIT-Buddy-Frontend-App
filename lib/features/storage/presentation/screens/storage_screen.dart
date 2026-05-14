@@ -16,6 +16,7 @@ import 'package:uit_buddy_mobile/features/storage/presentation/widgets/storage_s
 import 'package:uit_buddy_mobile/features/storage/presentation/widgets/storage_screen/storage_file_views.dart';
 import 'package:uit_buddy_mobile/features/storage/presentation/widgets/storage_screen/storage_header.dart';
 import 'package:uit_buddy_mobile/features/storage/presentation/widgets/storage_screen/storage_move_mode_banner.dart';
+import 'package:uit_buddy_mobile/features/storage/presentation/widgets/storage_screen/storage_shared_folders_list.dart';
 
 class StorageScreen extends StatelessWidget {
   final file_entity.FileEntity? fileToMove;
@@ -27,7 +28,9 @@ class StorageScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) {
-        final bloc = serviceLocator<StorageBloc>()..add(const StorageStarted());
+        final bloc = serviceLocator<StorageBloc>()
+          ..add(const StorageStarted())
+          ..add(const StorageSharedFoldersRequested());
         if (fileToMove != null && moveSourceFolderId != null) {
           bloc.add(
             StorageMoveInitialized(
@@ -271,10 +274,13 @@ class StorageScreen extends StatelessWidget {
             StorageDialogActions.showAddDialog(context, bloc);
           };
 
+    final isTopLevel = state.folderStack.length <= 1;
+
     final content = isGrid
         ? StorageFileGrid(
             folder: folder,
             isMoveMode: state.isMoveMode,
+            isShared: state.isShared,
             onAddTap: onAddTap,
             onOpenFile: onOpenFile,
             onRename: onRename,
@@ -285,10 +291,13 @@ class StorageScreen extends StatelessWidget {
             onViewSharedUsersFile: onViewSharedUsersFile,
             onShareFolder: onShareFolder,
             onViewSharedUsersFolder: onViewSharedUsersFolder,
+            shrinkWrap: isTopLevel,
+            physics: isTopLevel ? const NeverScrollableScrollPhysics() : null,
           )
         : StorageFileList(
             folder: folder,
             isMoveMode: state.isMoveMode,
+            isShared: state.isShared,
             onAddTap: onAddTap,
             onOpenFile: onOpenFile,
             onRename: onRename,
@@ -299,7 +308,31 @@ class StorageScreen extends StatelessWidget {
             onViewSharedUsersFile: onViewSharedUsersFile,
             onShareFolder: onShareFolder,
             onViewSharedUsersFolder: onViewSharedUsersFolder,
+            shrinkWrap: isTopLevel,
+            physics: isTopLevel ? const NeverScrollableScrollPhysics() : null,
           );
+
+    final resolvedContent = isTopLevel
+        ? SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                content,
+                if (state.sharedFolders.isNotEmpty)
+                  StorageSharedFoldersList(
+                    sharedFolders: state.sharedFolders,
+                    onFolderTap: (sharedFolder) => bloc.add(
+                      StorageFolderOpened(
+                        folderId: sharedFolder.id,
+                        isShared: true,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          )
+        : content;
 
     return RefreshIndicator(
       color: AppColor.primaryBlue,
@@ -308,9 +341,12 @@ class StorageScreen extends StatelessWidget {
           return;
         }
         bloc.add(const StorageRefreshed());
+        if (isTopLevel) {
+          bloc.add(const StorageSharedFoldersRequested());
+        }
         await bloc.stream.firstWhere((s) => !s.isFolderLoading);
       },
-      child: content,
+      child: resolvedContent,
     );
   }
 }

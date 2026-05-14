@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/entities/calendar_deadline_entity.dart';
@@ -76,114 +78,122 @@ class DeadlineDetailItem extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
-      child: Container(
-        decoration: BoxDecoration(
-          color: AppColor.pureWhite,
-          borderRadius: BorderRadius.circular(14),
-          boxShadow: [
-            BoxShadow(
-              color: statusColor.withValues(alpha: 0.12),
-              blurRadius: 10,
-              spreadRadius: 0,
-              offset: const Offset(0, 3),
-            ),
-            BoxShadow(
-              color: AppColor.shadowColor,
-              blurRadius: 4,
-              spreadRadius: 0,
-              offset: const Offset(0, 1),
-            ),
-          ],
-        ),
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Colored accent bar
-              Container(
-                width: 5,
-                decoration: BoxDecoration(
-                  color: statusColor,
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(14),
-                    bottomLeft: Radius.circular(14),
-                  ),
-                ),
+      child: GestureDetector(
+        onTap: () {
+          context.push(
+            RouteName.deadlineDetail,
+            extra: {'id': deadlineDetailEntity.id},
+          );
+        },
+        child: Container(
+          decoration: BoxDecoration(
+            color: AppColor.pureWhite,
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: [
+              BoxShadow(
+                color: statusColor.withValues(alpha: 0.12),
+                blurRadius: 10,
+                spreadRadius: 0,
+                offset: const Offset(0, 3),
               ),
-              // Content
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Tinted icon background
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: bgColor,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          _getStatusIcon(deadlineDetailEntity.status),
-                          color: statusColor,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      // Texts
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              deadlineDetailEntity.title,
-                              style: AppTextStyle.bodySmall.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: AppColor.primaryText,
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                            const SizedBox(height: 4),
-                            SubTitleText(
-                              deadlineDetailEntity: deadlineDetailEntity,
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Status chip
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 3,
-                        ),
-                        decoration: BoxDecoration(
-                          color: bgColor,
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                            color: statusColor.withValues(alpha: 0.4),
-                          ),
-                        ),
-                        child: Text(
-                          _getStatusLabel(deadlineDetailEntity.status),
-                          style: AppTextStyle.captionExtraSmall.copyWith(
-                            color: statusColor,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              BoxShadow(
+                color: AppColor.shadowColor,
+                blurRadius: 4,
+                spreadRadius: 0,
+                offset: const Offset(0, 1),
               ),
             ],
+          ),
+          child: IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                // Colored accent bar
+                Container(
+                  width: 5,
+                  decoration: BoxDecoration(
+                    color: statusColor,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(14),
+                      bottomLeft: Radius.circular(14),
+                    ),
+                  ),
+                ),
+                // Content
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 14,
+                      vertical: 12,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        // Tinted icon background
+                        Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: bgColor,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Icon(
+                            _getStatusIcon(deadlineDetailEntity.status),
+                            color: statusColor,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        // Texts
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                deadlineDetailEntity.title,
+                                style: AppTextStyle.bodySmall.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColor.primaryText,
+                                ),
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 4),
+                              SubTitleText(
+                                deadlineDetailEntity: deadlineDetailEntity,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        // Status chip
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: bgColor,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: statusColor.withValues(alpha: 0.4),
+                            ),
+                          ),
+                          child: Text(
+                            _getStatusLabel(deadlineDetailEntity.status),
+                            style: AppTextStyle.captionExtraSmall.copyWith(
+                              color: statusColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

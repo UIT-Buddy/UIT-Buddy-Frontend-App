@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:uit_buddy_mobile/core/theme/app_color.dart';
 import 'package:uit_buddy_mobile/core/theme/app_text_style.dart';
 import 'package:uit_buddy_mobile/features/calendar/domain/entities/calendar_deadline_entity.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_detail_item.dart';
@@ -8,6 +7,8 @@ import 'package:uit_buddy_mobile/features/home/domain/entities/incoming_deadline
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_bloc.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/home/home_state.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/constants/home_text.dart';
+import 'package:go_router/go_router.dart';
+import 'package:uit_buddy_mobile/app/router/route_name.dart';
 
 class HomeDeadlineWidget extends StatelessWidget {
   const HomeDeadlineWidget({super.key});
@@ -78,7 +79,15 @@ class HomeDeadlineWidget extends StatelessWidget {
                   deadline: deadline.dueDate,
                 );
 
-                return DeadlineDetailItem(deadlineDetailEntity: detailEntity);
+                return GestureDetector(
+                  onTap: () {
+                    context.push(
+                      RouteName.deadlineDetail,
+                      extra: {'id': deadline.id},
+                    );
+                  },
+                  child: DeadlineDetailItem(deadlineDetailEntity: detailEntity),
+                );
               },
             ),
           ],
@@ -108,16 +117,16 @@ class _DeadlineSectionHeader extends StatelessWidget {
           ],
         ),
         const Spacer(),
-        GestureDetector(
-          onTap: () {},
-          child: Text(
-            HomeText.deadlineSeeAll,
-            style: AppTextStyle.captionMedium.copyWith(
-              color: AppColor.primaryBlue,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ),
+        // GestureDetector(
+        //   onTap: () {},
+        //   child: Text(
+        //     HomeText.deadlineSeeAll,
+        //     style: AppTextStyle.captionMedium.copyWith(
+        //       color: AppColor.primaryBlue,
+        //       fontWeight: FontWeight.w500,
+        //     ),
+        //   ),
+        // ),
       ],
     );
   }

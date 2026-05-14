@@ -39,6 +39,9 @@ import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_contact
 import 'package:cometchat_chat_uikit/cometchat_chat_uikit.dart';
 import 'package:uit_buddy_mobile/app/router/app_router_keys.dart';
 import 'package:uit_buddy_mobile/features/shared/screens/import_grade__guide_screen.dart';
+import 'package:uit_buddy_mobile/features/deadline/presentation/screens/deadline_detail_screen.dart';
+import 'package:uit_buddy_mobile/features/deadline/presentation/bloc/deadline_bloc.dart';
+import 'package:uit_buddy_mobile/features/deadline/presentation/bloc/deadline_event.dart';
 
 final goRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
@@ -73,14 +76,26 @@ final goRouter = GoRouter(
     ),
     GoRoute(
       path: RouteName.signUpToken,
-      pageBuilder: (context, state) => buildFlexibleSlideTransition(
-        context: context,
-        state: state,
-        child: BlocProvider(
-          create: (_) => serviceLocator<SignUpTokenBloc>(),
-          child: const SignUpTokenScreen(),
-        ),
-      ),
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final extraData = extra?['data'] as Map<String, dynamic>?;
+        final mssv = extraData?['mssv'] as String?;
+        final password = extraData?['password'] as String?;
+        final isTokenChange = extraData?['isTokenChange'] as bool? ?? false;
+
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: BlocProvider(
+            create: (_) => serviceLocator<SignUpTokenBloc>(),
+            child: SignUpTokenScreen(
+              mssv: mssv,
+              password: password,
+              isTokenChange: isTokenChange,
+            ),
+          ),
+        );
+      },
     ),
     GoRoute(
       path: RouteName.signUpInfo,
@@ -325,6 +340,23 @@ final goRouter = GoRouter(
         state: state,
         child: const ImportGradeGuideScreen(),
       ),
+    ),
+    GoRoute(
+      path: RouteName.deadlineDetail,
+      pageBuilder: (context, state) {
+        final extra = state.extra as Map<String, dynamic>?;
+        final deadlineId = extra?['id'] as String?;
+        return buildFlexibleSlideTransition(
+          context: context,
+          state: state,
+          child: BlocProvider(
+            create: (context) =>
+                serviceLocator<DeadlineBloc>()
+                  ..add(FetchDeadlineRequested(deadlineId ?? '')),
+            child: DeadlineDetailScreen(deadlineId: deadlineId ?? ''),
+          ),
+        );
+      },
     ),
   ],
 );

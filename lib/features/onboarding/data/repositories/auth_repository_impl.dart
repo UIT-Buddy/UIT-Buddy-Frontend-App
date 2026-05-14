@@ -82,11 +82,54 @@ class AuthRepositoryImpl implements AuthRepository {
       }
 
       final entity = response.data!.toEntity();
-      await _tokenStore.saveAccessToken(entity.accessToken);
-      await _tokenStore.saveRefreshToken(
-        entity.refreshToken,
-        rememberMe: rememberMe,
+
+      if (entity.changeWsToken != true) {
+        await _tokenStore.saveAccessToken(entity.accessToken ?? '');
+        await _tokenStore.saveRefreshToken(
+          entity.refreshToken ?? '',
+          rememberMe: rememberMe,
+        );
+      }
+
+      if (rememberMe) {
+        await _tokenStore.saveMssv(mssv);
+      }
+
+      return Right(entity);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, SignUpCompleteEntity>> changeWsToken({
+    required String mssv,
+    required String password,
+    required String wstoken,
+    String fcmToken = '',
+  }) async {
+    try {
+      final response = await _authRemoteDatasource.changeWsToken(
+        mssv: mssv,
+        password: password,
+        wstoken: wstoken,
+        fcmToken: fcmToken,
       );
+
+      if (response.data == null) {
+        return Left(Failure(response.message));
+      }
+
+      final entity = response.data!.toEntity();
+
+      if (entity.changeWsToken != true) {
+        await _tokenStore.saveAccessToken(entity.accessToken ?? '');
+        await _tokenStore.saveRefreshToken(
+          entity.refreshToken ?? '',
+          rememberMe:
+              false, // Defaulting false, or you could pass rememberMe if needed
+        );
+      }
 
       return Right(entity);
     } on Exception catch (e) {

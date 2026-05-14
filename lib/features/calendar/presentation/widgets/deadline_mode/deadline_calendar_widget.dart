@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:uit_buddy_mobile/core/theme/app_color.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_event.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_state.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_event.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_state.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_calendar_grid.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_day_name_widget.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/deadline_header.dart';
@@ -13,7 +13,7 @@ class DeadlineCalendarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) =>
-      BlocBuilder<DeadlineBloc, DeadlineState>(
+      BlocBuilder<DeadlineModeBloc, DeadlineModeState>(
         builder: (context, state) {
           final screenWidth = MediaQuery.of(context).size.width;
           final hPad = screenWidth * 0.045;
@@ -55,11 +55,11 @@ class DeadlineCalendarWidget extends StatelessWidget {
                     child: DeadlineHeader(
                       month: state.calendarDeadlineEntity!.month,
                       year: state.calendarDeadlineEntity!.year,
-                      onPreviousMonth: () => context.read<DeadlineBloc>().add(
-                        const DeadlinePreviousMonthSelected(),
-                      ),
-                      onNextMonth: () => context.read<DeadlineBloc>().add(
-                        const DeadlineNextMonthSelected(),
+                      onPreviousMonth: () => context
+                          .read<DeadlineModeBloc>()
+                          .add(const DeadlineModePreviousMonthSelected()),
+                      onNextMonth: () => context.read<DeadlineModeBloc>().add(
+                        const DeadlineModeNextMonthSelected(),
                       ),
                     ),
                   ),

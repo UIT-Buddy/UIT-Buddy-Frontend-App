@@ -28,9 +28,9 @@ class StorageDatasourceImpl implements StorageDatasourceInterface {
         (data['folders'] as List<dynamic>?)
             ?.map(
               (f) => SubFolderModel(
-                id: f['folderId'] as String,
-                name: f['folderName'] as String,
-                itemCount: f['folderItemCount'] as int,
+                folderId: f['folderId'] as String,
+                folderName: f['folderName'] as String,
+                folderItemCount: f['folderItemCount'] as int,
               ),
             )
             .toList() ??
@@ -53,9 +53,9 @@ class StorageDatasourceImpl implements StorageDatasourceInterface {
         [];
 
     return FolderModel(
-      id: data['folderId'] as String,
-      name: data['folderName'] as String,
-      path: data['folderPath'] as String,
+      folderId: data['folderId'] as String,
+      folderName: data['folderName'] as String,
+      folderPath: data['folderPath'] as String,
       parentFolderId: (data['parentFolderId'] as String?) ?? '',
       folders: folders,
       files: files,
@@ -158,11 +158,13 @@ class StorageDatasourceImpl implements StorageDatasourceInterface {
     required String resourceType,
     required String resourceId,
     required String targetMssv,
+    required String accessRole,
   }) async {
     final body = <String, dynamic>{
       'resourceType': resourceType,
       'resourceId': resourceId,
       'targetMssv': targetMssv,
+      'accessRole': accessRole,
     };
 
     await _dio.post<void>('/api/document/share', data: body);
@@ -228,6 +230,17 @@ class StorageDatasourceImpl implements StorageDatasourceInterface {
     };
 
     await _dio.delete<void>('/api/document/share', data: body);
+  }
+
+  @override
+  Future<List<FolderModel>> getSharedFolders() async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '/api/document/shared-folders',
+    );
+    final data = response.data!['data'] as List<dynamic>? ?? const [];
+    return data
+        .map((json) => FolderModel.fromJson(json as Map<String, dynamic>))
+        .toList();
   }
 
   @override

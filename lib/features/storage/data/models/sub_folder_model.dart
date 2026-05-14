@@ -6,9 +6,9 @@ part 'sub_folder_model.g.dart';
 @freezed
 abstract class SubFolderModel with _$SubFolderModel {
   const factory SubFolderModel({
-    required String id,
-    required String name,
-    required int itemCount,
+    required String folderId,
+    required String folderName,
+    required int folderItemCount,
   }) = _SubFolderModel;
 
   factory SubFolderModel.fromJson(Map<String, dynamic> json) =>

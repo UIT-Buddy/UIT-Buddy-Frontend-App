@@ -7,9 +7,9 @@ import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_sc
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/calendar_screen/calendar_state.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_bloc.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/courses_mode/courses_mode_event.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_bloc.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_event.dart';
-import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_state.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_bloc.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_event.dart';
+import 'package:uit_buddy_mobile/features/calendar/presentation/bloc/deadline_mode/deadline_mode_state.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/calendar_screen_header.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/courses_mode/courses_calendar_widget.dart';
 import 'package:uit_buddy_mobile/features/calendar/presentation/widgets/deadline_mode/add_deadline_modal.dart';
@@ -26,7 +26,7 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   Future<void> _onRefresh(BuildContext context, CalendarMode mode) async {
     if (mode == CalendarMode.deadline) {
-      context.read<DeadlineBloc>().add(const DeadlineStarted());
+      context.read<DeadlineModeBloc>().add(const DeadlineModeStarted());
     } else {
       context.read<CoursesModeBloc>().add(const CoursesModeStarted());
     }
@@ -44,7 +44,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
         ),
         BlocProvider(
           create: (context) =>
-              serviceLocator<DeadlineBloc>()..add(const DeadlineStarted()),
+              serviceLocator<DeadlineModeBloc>()
+                ..add(const DeadlineModeStarted()),
         ),
         BlocProvider(
           create: (context) =>
@@ -69,7 +70,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         onRefresh: () => _onRefresh(context, state.mode),
                         child: switch (state.mode) {
                           CalendarMode.deadline =>
-                            BlocBuilder<DeadlineBloc, DeadlineState>(
+                            BlocBuilder<DeadlineModeBloc, DeadlineModeState>(
                               builder: (context, deadlineState) {
                                 final selectedItem = deadlineState
                                     .calendarDeadlineEntity
@@ -95,12 +96,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                             ?.year,
                                         onAddDeadline: () {
                                           final deadlineBloc = context
-                                              .read<DeadlineBloc>();
+                                              .read<DeadlineModeBloc>();
                                           showAddDeadlineModal(
                                             context,
                                             onCreated: () {
                                               deadlineBloc.add(
-                                                const DeadlineStarted(),
+                                                const DeadlineModeStarted(),
                                               );
                                             },
                                           );
