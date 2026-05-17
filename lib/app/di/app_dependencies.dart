@@ -153,7 +153,9 @@ import 'package:uit_buddy_mobile/features/session/domain/repositories/session_re
 import 'package:uit_buddy_mobile/features/session/domain/usecases/get_current_user_usecase.dart';
 import 'package:uit_buddy_mobile/features/session/presentation/bloc/session_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/comment_datasource_interface.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/ai_chat_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/comment_datasource_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/datasources/impl/ai_chat_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/post_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/reaction_datasource_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/impl/user_search_datasource_impl.dart';
@@ -163,15 +165,18 @@ import 'package:uit_buddy_mobile/features/social/data/datasources/reaction_datas
 import 'package:uit_buddy_mobile/features/social/data/datasources/user_search_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/datasources/user_profile_datasource_interface.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/comment_repository_impl.dart';
+import 'package:uit_buddy_mobile/features/social/data/repositories/ai_chat_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/post_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/reaction_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/user_profile_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/data/repositories/user_search_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/comment_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/repositories/ai_chat_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/post_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/reaction_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/user_search_repository.dart';
 import 'package:uit_buddy_mobile/features/social/domain/repositories/user_profile_repository.dart';
+import 'package:uit_buddy_mobile/features/social/domain/usecases/ai_chat_send_message_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/create_comment_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/create_post_usecase.dart';
 import 'package:uit_buddy_mobile/features/social/domain/usecases/delete_comment_usecase.dart';
@@ -195,6 +200,7 @@ import 'package:uit_buddy_mobile/features/social/domain/usecases/unfriend_usecas
 import 'package:uit_buddy_mobile/features/social/domain/usecases/update_post_usecase.dart';
 
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/edit_post/edit_post_bloc.dart';
+import 'package:uit_buddy_mobile/features/social/presentation/bloc/ai_chat/ai_chat_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/new_feed/new_feed_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/post_detail/post_detail_bloc.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/bloc/social_search/social_search_bloc.dart';
@@ -521,6 +527,11 @@ Future<void> _initCalendarDependencies() async {
 
 void _initSocialDependencies() {
   // Datasources
+  serviceLocator.registerLazySingleton<AIChatDatasourceInterface>(
+    () => AIChatDatasourceImpl(
+      dio: serviceLocator(instanceName: 'authenticatedDio'),
+    ),
+  );
   serviceLocator.registerLazySingleton<PostDatasourceInterface>(
     () => PostDatasourceImpl(
       dio: serviceLocator(instanceName: 'authenticatedDio'),
@@ -544,6 +555,9 @@ void _initSocialDependencies() {
   );
 
   // Repositories
+  serviceLocator.registerLazySingleton<AIChatRepository>(
+    () => AIChatRepositoryImpl(datasource: serviceLocator()),
+  );
   serviceLocator.registerLazySingleton<PostRepository>(
     () => PostRepositoryImpl(datasource: serviceLocator()),
   );
@@ -564,6 +578,9 @@ void _initSocialDependencies() {
   );
 
   // Usecases — Post
+  serviceLocator.registerLazySingleton(
+    () => AIChatSendMessageUsecase(serviceLocator()),
+  );
   serviceLocator.registerLazySingleton(
     () => GetNewfeedUsecase(repository: serviceLocator()),
   );
@@ -627,6 +644,9 @@ void _initSocialDependencies() {
   );
 
   // Blocs
+  serviceLocator.registerFactory(
+    () => AIChatBloc(sendMessageUsecase: serviceLocator()),
+  );
   serviceLocator.registerFactory(
     () => EditPostBloc(updatePostUsecase: serviceLocator()),
   );
