@@ -6,12 +6,14 @@ class StorageMoveModeBanner extends StatelessWidget {
   const StorageMoveModeBanner({
     super.key,
     required this.fileName,
+    this.actionName = 'Moving',
     required this.canMoveHere,
     required this.onCancel,
     required this.onMoveHere,
   });
 
   final String fileName;
+  final String actionName;
   final bool canMoveHere;
   final VoidCallback onCancel;
   final VoidCallback onMoveHere;
@@ -38,7 +40,7 @@ class StorageMoveModeBanner extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  'Moving "$fileName"',
+                  '$actionName "$fileName"',
                   style: AppTextStyle.bodySmall.copyWith(
                     color: AppColor.primaryBlue,
                     fontWeight: AppTextStyle.bold,
@@ -55,8 +57,8 @@ class StorageMoveModeBanner extends StatelessWidget {
               Expanded(
                 child: Text(
                   canMoveHere
-                      ? 'Navigate as usual, then tap Move Here when this is the destination folder.'
-                      : 'Open a different folder to enable moving.',
+                      ? 'Navigate as usual, then tap $actionName Here when this is the destination folder.'
+                      : 'Open a different folder to enable $actionName.',
                   style: AppTextStyle.captionMedium.copyWith(
                     color: AppColor.secondaryText,
                   ),
@@ -65,8 +67,13 @@ class StorageMoveModeBanner extends StatelessWidget {
               const SizedBox(width: 10),
               ElevatedButton.icon(
                 onPressed: canMoveHere ? onMoveHere : null,
-                icon: const Icon(Icons.drive_file_move_rounded, size: 16),
-                label: const Text('Move Here'),
+                icon: Icon(
+                  actionName == 'Save'
+                      ? Icons.save_rounded
+                      : Icons.drive_file_move_rounded,
+                  size: 16,
+                ),
+                label: Text('$actionName Here'),
               ),
             ],
           ),

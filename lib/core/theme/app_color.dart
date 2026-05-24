@@ -23,6 +23,7 @@ class AppColor {
   static const Color warningOrangeDark = Color(0xFFC77700);
   static const Color warningOrangeLight = Color(0xFFFFEACC);
   static const Color starYellow = Color(0xFFFFD60A);
+  static const Color purple = Color(0xFF9013FE);
 
   // Additional UI Colors
   static const Color dividerGrey = Color(0xFFE5E5EA);

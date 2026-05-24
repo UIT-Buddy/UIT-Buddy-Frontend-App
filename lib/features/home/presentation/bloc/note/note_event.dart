@@ -19,3 +19,20 @@ final class SaveNoteRequested extends NoteEvent {
   @override
   List<Object> get props => [content];
 }
+
+final class ClearNoteRequested extends NoteEvent {
+  const ClearNoteRequested();
+}
+
+final class SaveNoteToDocumentRequested extends NoteEvent {
+  const SaveNoteToDocumentRequested({
+    required this.fileName,
+    required this.folderId,
+  });
+
+  final String fileName;
+  final String folderId;
+
+  @override
+  List<Object> get props => [fileName, folderId];
+}

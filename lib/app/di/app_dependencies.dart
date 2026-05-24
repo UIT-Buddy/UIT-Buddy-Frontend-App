@@ -256,6 +256,8 @@ import 'package:uit_buddy_mobile/features/home/data/repositories/note_repository
 import 'package:uit_buddy_mobile/features/home/domain/repositories/note_repository.dart';
 import 'package:uit_buddy_mobile/features/home/domain/usecases/get_note_usecase.dart';
 import 'package:uit_buddy_mobile/features/home/domain/usecases/upsert_note_usecase.dart';
+import 'package:uit_buddy_mobile/features/home/domain/usecases/new_note_usecase.dart';
+import 'package:uit_buddy_mobile/features/home/domain/usecases/save_to_document_usecase.dart';
 import 'package:uit_buddy_mobile/features/home/presentation/bloc/note/note_bloc.dart';
 
 final serviceLocator = GetIt.instance;
@@ -1154,10 +1156,18 @@ void _initHomeDependencies() {
   serviceLocator.registerLazySingleton(
     () => UpsertNoteUsecase(repository: serviceLocator()),
   );
+  serviceLocator.registerLazySingleton(
+    () => NewNoteUsecase(repository: serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
+    () => SaveToDocumentUsecase(repository: serviceLocator()),
+  );
   serviceLocator.registerFactory(
     () => NoteBloc(
       getNoteUsecase: serviceLocator(),
       upsertNoteUsecase: serviceLocator(),
+      newNoteUsecase: serviceLocator(),
+      saveToDocumentUsecase: serviceLocator(),
     ),
   );
 }

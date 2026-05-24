@@ -18,7 +18,6 @@ import 'package:uit_buddy_mobile/features/social/presentation/screens/post_detai
 import 'package:uit_buddy_mobile/features/social/presentation/screens/social_search_screen.dart';
 import 'package:uit_buddy_mobile/features/social/presentation/widgets/post_card_skeleton.dart';
 import 'package:uit_buddy_mobile/features/chat/presentation/screens/chat_search_screen.dart';
-import 'package:uit_buddy_mobile/features/social/presentation/screens/ai_chat_screen.dart';
 
 class NewFeedScreen extends StatelessWidget {
   const NewFeedScreen({super.key});
@@ -116,19 +115,6 @@ class _NewFeedViewState extends State<_NewFeedView> {
                   ),
                 ),
               ],
-            ),
-          ),
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.only(right: 320.0),
-            child: FloatingActionButton(
-              heroTag: 'ai_chat_fab',
-              backgroundColor: AppColor.primaryBlue,
-              onPressed: () {
-                Navigator.of(
-                  context,
-                ).push(MaterialPageRoute(builder: (_) => const AiChatScreen()));
-              },
-              child: const Icon(Icons.smart_toy, color: AppColor.pureWhite),
             ),
           ),
         );
