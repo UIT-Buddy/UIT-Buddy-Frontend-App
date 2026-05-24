@@ -33,3 +33,16 @@ final class NoteError extends NoteState {
 final class NoteSaveSuccess extends NoteState {
   const NoteSaveSuccess();
 }
+
+final class NoteClearSuccess extends NoteState {
+  const NoteClearSuccess();
+}
+
+final class NoteSaveToDocumentSuccess extends NoteState {
+  const NoteSaveToDocumentSuccess({required this.docUrl});
+
+  final String docUrl;
+
+  @override
+  List<Object> get props => [docUrl];
+}

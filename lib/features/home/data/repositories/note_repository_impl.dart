@@ -30,4 +30,27 @@ class NoteRepositoryImpl implements NoteRepository {
       return Left(Failure.fromException(e));
     }
   }
+
+  @override
+  Future<Either<Failure, void>> newNote() async {
+    try {
+      await _noteDatasource.newNote();
+      return const Right(null);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
+
+  @override
+  Future<Either<Failure, String>> saveToDocument(
+    String fileName,
+    String folderId,
+  ) async {
+    try {
+      final docUrl = await _noteDatasource.saveToDocument(fileName, folderId);
+      return Right(docUrl);
+    } on Exception catch (e) {
+      return Left(Failure.fromException(e));
+    }
+  }
 }

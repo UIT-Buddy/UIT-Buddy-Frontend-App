@@ -21,8 +21,14 @@ import 'package:uit_buddy_mobile/features/storage/presentation/widgets/storage_s
 class StorageScreen extends StatelessWidget {
   final file_entity.FileEntity? fileToMove;
   final String? moveSourceFolderId;
+  final bool isSaveNoteMode;
 
-  const StorageScreen({super.key, this.fileToMove, this.moveSourceFolderId});
+  const StorageScreen({
+    super.key,
+    this.fileToMove,
+    this.moveSourceFolderId,
+    this.isSaveNoteMode = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -123,6 +129,31 @@ class StorageScreen extends StatelessWidget {
                               onMoveHere: () => context.read<StorageBloc>().add(
                                 const StorageMoveConfirmed(),
                               ),
+                            ),
+                          ),
+                        if (isSaveNoteMode)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                            child: StorageMoveModeBanner(
+                              fileName: 'note.md',
+                              actionName: 'Save',
+                              canMoveHere: !state.isCreating,
+                              onCancel: () => Navigator.of(context).pop(),
+                              onMoveHere: () async {
+                                final folder = state.currentFolder;
+                                if (folder == null) return;
+                                final fileName =
+                                    await StorageDialogActions.showCreateFileDialog(
+                                      context,
+                                      '.md',
+                                    );
+                                if (fileName != null && context.mounted) {
+                                  Navigator.of(context).pop({
+                                    'fileName': fileName,
+                                    'folderId': folder.id,
+                                  });
+                                }
+                              },
                             ),
                           ),
                         Expanded(child: _buildContent(context, state, isGrid)),

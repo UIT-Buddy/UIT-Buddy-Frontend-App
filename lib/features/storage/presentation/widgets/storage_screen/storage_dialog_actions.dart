@@ -10,6 +10,46 @@ import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_bloc
 import 'package:uit_buddy_mobile/features/storage/presentation/bloc/storage_event.dart';
 
 class StorageDialogActions {
+  static Future<String?> showCreateFileDialog(
+    BuildContext context,
+    String defaultExtension,
+  ) async {
+    final controller = TextEditingController(text: 'note$defaultExtension');
+    return showDialog<String>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Save File'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Enter file name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              final name = controller.text.trim();
+              if (name.isNotEmpty) {
+                Navigator.pop(dialogContext, name);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColor.primaryBlue,
+              foregroundColor: AppColor.pureWhite,
+            ),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+  }
+
   static void showAddDialog(BuildContext context, StorageBloc bloc) {
     showDialog(
       context: context,
