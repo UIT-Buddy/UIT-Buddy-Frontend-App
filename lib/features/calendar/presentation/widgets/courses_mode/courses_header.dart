@@ -15,6 +15,14 @@ class CoursesHeader extends StatelessWidget {
     final bloc = context.read<CoursesModeBloc>();
     final state = context.watch<CoursesModeBloc>().state;
 
+    final now = DateTime.now();
+    final currentSem = now.month >= 9 ? 1 : 2;
+    final currentYear = now.year;
+
+    final isMaxSemester =
+        state.year > currentYear ||
+        (state.year == currentYear && state.semester >= currentSem);
+
     return Row(
       children: [
         Column(
@@ -41,9 +49,14 @@ class CoursesHeader extends StatelessWidget {
           onTap: () => bloc.add(const CoursesModePreviousSemester()),
         ),
         const SizedBox(width: 8),
-        _CoursesNavButton(
-          icon: Icons.chevron_right,
-          onTap: () => bloc.add(const CoursesModeNextSemester()),
+        Opacity(
+          opacity: isMaxSemester ? 0.3 : 1.0,
+          child: _CoursesNavButton(
+            icon: Icons.chevron_right,
+            onTap: isMaxSemester
+                ? () {}
+                : () => bloc.add(const CoursesModeNextSemester()),
+          ),
         ),
       ],
     );

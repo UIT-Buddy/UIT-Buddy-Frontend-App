@@ -59,8 +59,19 @@ class CoursesModeBloc extends Bloc<CoursesModeEvent, CoursesModeState> {
     CoursesModeNextSemester event,
     Emitter<CoursesModeState> emit,
   ) async {
-    final (semester, year) = _nextSemester(state.semester, state.year);
-    emit(state.copyWith(semester: semester, year: year));
+    final (nextSem, nextYear) = _nextSemester(state.semester, state.year);
+
+    // Prevent navigating to the future
+    final now = DateTime.now();
+    final currentSem = now.month >= 9 ? 1 : 2;
+    final currentYear = now.year;
+
+    if (nextYear > currentYear ||
+        (nextYear == currentYear && nextSem > currentSem)) {
+      return;
+    }
+
+    emit(state.copyWith(semester: nextSem, year: nextYear));
     await _fetchCourses(emit);
   }
 

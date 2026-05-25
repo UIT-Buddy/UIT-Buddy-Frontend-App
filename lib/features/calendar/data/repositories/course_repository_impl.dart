@@ -25,7 +25,9 @@ class CourseRepositoryImpl implements CourseRepository {
       // ignore: avoid_catches_without_on_clauses
     } catch (e, st) {
       log('getCourses error: $e', stackTrace: st, name: 'CourseRepository');
-      return Left(Failure(e.toString()));
+      return Left(
+        e is Exception ? Failure.fromException(e) : Failure(e.toString()),
+      );
     }
   }
 
@@ -47,7 +49,9 @@ class CourseRepositoryImpl implements CourseRepository {
         stackTrace: st,
         name: 'CourseRepository',
       );
-      return Left(Failure(e.toString()));
+      return Left(
+        e is Exception ? Failure.fromException(e) : Failure(e.toString()),
+      );
     }
   }
 
@@ -65,7 +69,9 @@ class CourseRepositoryImpl implements CourseRepository {
       // ignore: avoid_catches_without_on_clauses
     } catch (e, st) {
       log('uploadSchedule error: $e', stackTrace: st, name: 'CourseRepository');
-      return Left(Failure(e.toString()));
+      return Left(
+        e is Exception ? Failure.fromException(e) : Failure(e.toString()),
+      );
     }
   }
 
@@ -87,7 +93,9 @@ class CourseRepositoryImpl implements CourseRepository {
         stackTrace: st,
         name: 'CourseRepository',
       );
-      return Left(Failure(e.toString()));
+      return Left(
+        e is Exception ? Failure.fromException(e) : Failure(e.toString()),
+      );
     }
   }
 
@@ -116,7 +124,9 @@ class CourseRepositoryImpl implements CourseRepository {
         stackTrace: st,
         name: 'CourseRepository',
       );
-      return Left(Failure(e.toString()));
+      return Left(
+        e is Exception ? Failure.fromException(e) : Failure(e.toString()),
+      );
     }
   }
 }

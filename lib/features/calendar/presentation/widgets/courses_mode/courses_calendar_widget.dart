@@ -164,7 +164,11 @@ class CoursesCalendarWidget extends StatelessWidget {
                                     ),
                                   )
                                 : state.status == CoursesModeStatus.error
-                                ? CoursesErrorView(message: state.errorMessage)
+                                ? CoursesErrorView(
+                                    message: state.errorMessage,
+                                    semester: state.semester,
+                                    year: state.year,
+                                  )
                                 : CoursesTimetableGrid(courses: state.courses),
                           ),
                         ],

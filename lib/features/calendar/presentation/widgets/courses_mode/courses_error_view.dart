@@ -8,12 +8,20 @@ import 'package:uit_buddy_mobile/features/calendar/presentation/constants/calend
 
 /// Displayed when the courses bloc emits an error state.
 class CoursesErrorView extends StatelessWidget {
-  const CoursesErrorView({super.key, this.message});
+  const CoursesErrorView({super.key, this.message, this.semester, this.year});
 
   final String? message;
+  final int? semester;
+  final int? year;
 
   @override
   Widget build(BuildContext context) {
+    if (message != null &&
+        (message!.contains('SCH009') ||
+            message!.contains('have not uploaded'))) {
+      return _buildFriendlyUploadPrompt(context);
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 32),
       child: Column(
@@ -83,6 +91,57 @@ class CoursesErrorView extends StatelessWidget {
                 ],
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFriendlyUploadPrompt(BuildContext context) {
+    final fallBackSemester = semester ?? 2;
+    final fallBackYear = year ?? 2026;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColor.primaryBlue.withValues(alpha: 0.10),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.calendar_month_rounded,
+              color: AppColor.primaryBlue,
+              size: 40,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Missing Schedule',
+            style: AppTextStyle.bodyLarge.copyWith(
+              color: AppColor.primaryText,
+              fontWeight: AppTextStyle.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Your schedule for Semester $fallBackSemester, $fallBackYear hasn\'t been uploaded yet. Please obtain your .ics file from the university portal and upload it here.',
+            style: AppTextStyle.bodyMedium.copyWith(
+              color: AppColor.secondaryText,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: 24),
+          // We can put a small helper or just rely on the main upload button
+          Text(
+            'Tap the \'Update Courses\' button above to upload.',
+            style: AppTextStyle.captionMedium.copyWith(
+              color: AppColor.primaryBlue,
+              fontWeight: AppTextStyle.regular,
+            ),
+            textAlign: TextAlign.center,
           ),
         ],
       ),

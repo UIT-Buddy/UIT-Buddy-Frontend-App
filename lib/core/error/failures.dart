@@ -29,11 +29,19 @@ class Failure {
           case DioExceptionType.receiveTimeout:
             errorMessage = 'Receive timeout from $method $uri';
           case DioExceptionType.badResponse:
-            final responseMessage = e.response?.data is Map
-                ? e.response?.data['message'] as String?
+            final responseData = e.response?.data is Map
+                ? e.response?.data as Map
                 : null;
-            errorMessage =
-                responseMessage ?? 'Cannot $method $uri (Status: $statusCode)';
+            final responseMessage = responseData?['message'] as String?;
+            final errorCode = responseData?['errorCode'] as String?;
+
+            if (errorCode != null) {
+              errorMessage = '[$errorCode] ${responseMessage ?? ""}';
+            } else {
+              errorMessage =
+                  responseMessage ??
+                  'Cannot $method $uri (Status: $statusCode)';
+            }
           case DioExceptionType.cancel:
             errorMessage = 'Request cancelled: $method $uri';
           case DioExceptionType.connectionError:
