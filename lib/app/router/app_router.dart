@@ -4,6 +4,7 @@ import 'package:uit_buddy_mobile/app/di/app_dependencies.dart';
 import 'package:uit_buddy_mobile/app/router/route_name.dart';
 import 'package:uit_buddy_mobile/app/router/transitions/slide_transition.dart';
 import 'package:uit_buddy_mobile/core/common/token/token_store.dart';
+import 'package:uit_buddy_mobile/features/deadline/presentation/screens/deadlines_screen.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_info/sign_up_info_bloc.dart';
 import 'package:uit_buddy_mobile/features/onboarding/presentation/blocs/sign_up_token/sign_up_token_bloc.dart';
 import 'package:uit_buddy_mobile/features/notification/presentation/screens/notification_screen.dart';
@@ -20,7 +21,6 @@ import 'package:uit_buddy_mobile/features/profile/presentation/screens/edit_your
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/groups_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/settings_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/task_detail_screen.dart';
-import 'package:uit_buddy_mobile/features/profile/presentation/screens/tasks_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_friends_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_info_screen.dart';
 import 'package:uit_buddy_mobile/features/profile/presentation/screens/your_posts_screen.dart';
@@ -158,7 +158,7 @@ final goRouter = GoRouter(
       pageBuilder: (context, state) => buildFlexibleSlideTransition(
         context: context,
         state: state,
-        child: const TasksScreen(),
+        child: const DeadlinesScreen(),
       ),
     ),
     GoRoute(

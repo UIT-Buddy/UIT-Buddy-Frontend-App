@@ -35,6 +35,7 @@ import 'package:uit_buddy_mobile/features/deadline/data/datasources/impl/deadlin
 import 'package:uit_buddy_mobile/features/deadline/data/repositories/deadline_repository_impl.dart';
 import 'package:uit_buddy_mobile/features/deadline/domain/repositories/deadline_repository.dart';
 import 'package:uit_buddy_mobile/features/deadline/domain/usecases/get_deadline_detail_usecase.dart';
+import 'package:uit_buddy_mobile/features/deadline/domain/usecases/get_deadlines_usecase.dart';
 import 'package:uit_buddy_mobile/features/deadline/domain/usecases/update_deadline_usecase.dart';
 import 'package:uit_buddy_mobile/features/deadline/presentation/bloc/deadline_bloc.dart';
 import 'package:uit_buddy_mobile/features/notification/data/datasources/impl/notification_datasource_impl.dart';
@@ -1205,11 +1206,15 @@ Future<void> _initDeadlineDependencies() async {
     () => GetDeadlineDetailUsecase(serviceLocator()),
   );
   serviceLocator.registerLazySingleton(
+    () => GetDeadlinesUsecase(serviceLocator()),
+  );
+  serviceLocator.registerLazySingleton(
     () => UpdateDeadlineUsecase(serviceLocator()),
   );
   serviceLocator.registerFactory(
     () => DeadlineBloc(
       getDeadlineDetailUsecase: serviceLocator(),
+      getDeadlinesUsecase: serviceLocator(),
       updateDeadlineUsecase: serviceLocator(),
     ),
   );

@@ -10,6 +10,7 @@ abstract class DeadlineState with _$DeadlineState {
   const factory DeadlineState({
     @Default(DeadlineStateStatus.initial) DeadlineStateStatus status,
     DeadlineEntity? deadlineDetail,
+    DeadlineDataEntity? deadlineData,
     String? errorMessage,
   }) = _DeadlineState;
 }
